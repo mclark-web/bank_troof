@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import path from "path";
 import { RATING_NOTCH } from "../src/lib/labels";
 import { aggregateGrades, gradeCall } from "../src/lib/scoring";
-import { splitAdjust } from "../src/lib/splits";
+import { PRICE_ANCHORS, trendPrice } from "../src/lib/price-anchors";
 import { ANALYSTS, AS_OF, BANKS, PATH_START, TICKERS, type TickerSeed } from "./universe";
 
 process.env.DATABASE_URL = `file:${path.join(process.cwd(), "prisma", "banktruth.db")}`;
@@ -100,14 +100,21 @@ function buildPaths(rand: () => number): Map<string, Path> {
   const totalDays = dayIndex(AS_OF);
   const paths = new Map<string, Path>();
   for (const ticker of TICKERS) {
+    const anchors = PRICE_ANCHORS[ticker.symbol];
+    if (!anchors) throw new Error(`Missing price anchors for ${ticker.symbol}`);
     const prices: number[] = [];
-    let price = ticker.startPrice;
-    const dailyDrift = ticker.drift / 365;
-    const dailyVol = ticker.vol / Math.sqrt(365);
+    const band = Math.min(0.06, Math.max(0.025, ticker.vol * 0.12));
+    const dailyVol = Math.min(0.012, ticker.vol / Math.sqrt(365));
+    let logDev = 0;
     for (let i = 0; i <= totalDays; i += 1) {
-      prices.push(price);
-      const shock = clamp(gaussian(rand) * dailyVol, -0.07, 0.07);
-      price = Math.max(1.5, price * (1 + dailyDrift + shock));
+      const trend = trendPrice(anchors, addDays(PATH_START, i));
+      const shock = clamp(gaussian(rand), -2.5, 2.5) * dailyVol;
+      logDev = clamp(logDev * 0.97 + shock, -band, band);
+      const price = trend * Math.exp(logDev);
+      if (price < trend * 0.92 || price > trend * 1.08) {
+        throw new Error(`${ticker.symbol} left the historical band on day ${i}`);
+      }
+      prices.push(Math.max(1.5, price));
     }
     paths.set(ticker.symbol, { ticker, prices });
   }
@@ -277,12 +284,12 @@ async function main() {
         action,
         ratingFrom: previous?.rating ?? null,
         ratingTo,
-        priceTargetFrom: splitAdjust(ticker.symbol, previous?.target ?? null),
-        priceTargetTo: splitAdjust(ticker.symbol, target),
-        priceAtCall: splitAdjust(ticker.symbol, spot),
-        price30d: price30 != null && addDays(cursor, 30) <= AS_OF ? splitAdjust(ticker.symbol, price30) : null,
-        price90d: splitAdjust(ticker.symbol, price90),
-        price1y: price365 != null && addDays(cursor, 365) <= AS_OF ? splitAdjust(ticker.symbol, price365) : null,
+        priceTargetFrom: previous?.target ?? null,
+        priceTargetTo: target,
+        priceAtCall: spot,
+        price30d: price30 != null && addDays(cursor, 30) <= AS_OF ? price30 : null,
+        price90d: price90,
+        price1y: price365 != null && addDays(cursor, 365) <= AS_OF ? price365 : null,
         note: pick(callRand, NOTES[action] ?? NOTES.reiterate),
         controversial: reasons.length > 0,
         controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
