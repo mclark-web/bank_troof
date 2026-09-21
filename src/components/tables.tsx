@@ -28,7 +28,7 @@ export function BoardTable({
             <th>
               Chad
               <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
-                1 Chud – 10 Chad
+                1 = Chud · 10 = Chad
               </span>
             </th>
           </tr>

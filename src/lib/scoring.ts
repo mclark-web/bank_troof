@@ -16,20 +16,27 @@ export const CHAD_MIN = 1;
 export const CHAD_MAX = 10;
 
 /**
- * Map a 0–100 call score, or an average of those scores, onto the 1–10 Chad scale.
- * The map is linear: 0 → 1 (Chud), 50 → 5.5, 100 → 10 (Chad).
- * Because it is linear, the grade of an average equals the average of the grades.
+ * Unrounded 1–10 map of a 0–100 call score, or of an average of those scores.
+ * 0 → 1 (Chud), 50 → 5.5, 100 → 10 (Chad). Linear, so the map of an average
+ * equals the average of the maps. The public grade rounds this once.
  */
-export function toChadScore(raw: number | null | undefined): number | null {
+export function toChadExact(raw: number | null | undefined): number | null {
   if (raw == null || Number.isNaN(raw)) return null;
   const clamped = Math.min(100, Math.max(0, raw));
   return CHAD_MIN + ((CHAD_MAX - CHAD_MIN) * clamped) / 100;
 }
 
+/** Public grade: nearest integer from 1 (Chud) to 10 (Chad). */
+export function toChadScore(raw: number | null | undefined): number | null {
+  const exact = toChadExact(raw);
+  if (exact == null) return null;
+  return Math.round(exact);
+}
+
 export function formatChadScore(raw: number | null | undefined): string {
   const score = toChadScore(raw);
   if (score == null) return "—";
-  return score.toFixed(1);
+  return String(score);
 }
 
 export const HORIZONS: Record<

@@ -48,7 +48,7 @@ export default async function LeaderboardsPage({
   const lede =
     view === "offenders"
       ? `Lowest Chad score over ${HORIZONS[horizon].label}. 1 is Chud, a terrible track record. 10 is Chad, an excellent one. Hit rate and sample size sit beside the grade.`
-      : `Ranked by Chad score over ${HORIZONS[horizon].label}. 1 is Chud. 10 is Chad. The number is a straight map of the average call score. Firms are weighted by calls, not by headcount.`;
+      : `Ranked by the 1–10 Chad score over ${HORIZONS[horizon].label}. 1 is Chud. 10 is Chad. The integer is the published grade. Firms are weighted by calls, not by headcount.`;
 
   return (
     <div>
@@ -108,7 +108,7 @@ export default async function LeaderboardsPage({
       <p className="mt-4 max-w-3xl text-xs leading-5 text-faint">
         Showing {board.rows.length} of {board.considered} {entity === "bank" ? "banks" : "analysts"} with at least{" "}
         {minimumSample(entity, sector)} graded {HORIZONS[horizon].short} calls
-        {sector ? ` in ${sector}` : ""}. The Chad score maps that average from 0–100 onto 1–10. 1 is Chud. 10 is Chad. “If followed” averages the stock return on buys and the inverse return on sells. Holds are left out of that column.
+        {sector ? ` in ${sector}` : ""}. The published grade is an integer from 1 to 10. 1 is Chud. 10 is Chad. “If followed” averages the stock return on buys and the inverse return on sells. Holds are left out of that column.
       </p>
     </div>
   );

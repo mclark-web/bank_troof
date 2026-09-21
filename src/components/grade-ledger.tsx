@@ -1,8 +1,8 @@
-import { pct, pctUnsigned, scoreText, usd } from "@/lib/format";
+import { pct, pctUnsigned, usd } from "@/lib/format";
 import { ratingLabel } from "@/lib/labels";
 import { formatChadScore, HORIZONS, HORIZON_KEYS, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
-import { GradePill, ScaleLegend } from "./ui";
+import { GradePill } from "./ui";
 
 function expectation(grade: CallGrade, rating: string, horizon: HorizonKey) {
   const hurdle = pctUnsigned(grade.threshold, 0);
@@ -40,16 +40,22 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
             </div>
             {grade.gradeable ? (
               <div className="mt-4">
-                <p className="flex items-baseline gap-2">
-                  <span className="num text-5xl leading-none">{formatChadScore(grade.score)}</span>
-                  <span className="num text-xl text-faint">/ 10</span>
+                <p className="flex items-end gap-2">
+                  <span className="num text-6xl leading-none">{formatChadScore(grade.score)}</span>
+                  <span className="mb-1 text-sm text-muted">
+                    / 10
+                    <span className="mt-0.5 block text-[11px]">
+                      <span className="text-miss">1 = Chud</span>
+                      <span className="text-faint"> → </span>
+                      <span className="text-hit">10 = Chad</span>
+                    </span>
+                  </span>
                 </p>
-                <ScaleLegend className="mt-2" />
               </div>
             ) : null}
             {grade.gradeable ? (
               <dl className="mt-4 space-y-2 text-sm">
-                <Row k="Raw points" v={`${scoreText(grade.score)} / 100`} />
+                <Row k="Internal points" v={grade.score == null ? "—" : grade.score.toFixed(1)} />
                 <Row k="Price at call" v={usd(call.priceAtCall)} />
                 <Row k="Price after" v={usd(after)} />
                 <Row k="Forward return" v={pct(grade.forwardReturn)} />

@@ -79,7 +79,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
 
       <h2 className="mb-3 mt-10 font-serif text-3xl">The grade</h2>
       <p className="mb-4 max-w-2xl text-sm leading-6 text-muted">
-        The large number is the Chad score for that window: 1 is Chud, 10 is Chad. It is a straight map of the raw points underneath. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
+        The large number is the Chad score for that window, an integer from 1 to 10. 1 is Chud. 10 is Chad. Internal points sit in the workings and are not the grade. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
       </p>
       <GradeLedger call={call} />
 

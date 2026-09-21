@@ -6,6 +6,7 @@ import {
   aggregateGrades,
   gradeCall,
   minimumSample,
+  toChadExact,
   toChadScore,
   type Aggregate,
   type CallGrade,
@@ -70,21 +71,29 @@ function filterCalls(calls: ScoredCall[], horizon: HorizonKey, sector?: string |
   });
 }
 
-function chadValue(row: BoardRow) {
+function chadShown(row: BoardRow) {
   return toChadScore(row.aggregate.avgScore);
 }
 
+function chadExact(row: BoardRow) {
+  return toChadExact(row.aggregate.avgScore);
+}
+
 function compareScore(a: BoardRow, b: BoardRow) {
-  const score = (chadValue(b) ?? -1) - (chadValue(a) ?? -1);
-  if (Math.abs(score) > 0.001) return score;
+  const shown = (chadShown(b) ?? -1) - (chadShown(a) ?? -1);
+  if (shown !== 0) return shown;
+  const exact = (chadExact(b) ?? -1) - (chadExact(a) ?? -1);
+  if (Math.abs(exact) > 1e-9) return exact;
   const hit = (b.aggregate.hitRate ?? -1) - (a.aggregate.hitRate ?? -1);
   if (Math.abs(hit) > 0.0001) return hit;
   return a.name.localeCompare(b.name);
 }
 
 function compareLow(a: BoardRow, b: BoardRow) {
-  const score = (chadValue(a) ?? 99) - (chadValue(b) ?? 99);
-  if (Math.abs(score) > 0.001) return score;
+  const shown = (chadShown(a) ?? 99) - (chadShown(b) ?? 99);
+  if (shown !== 0) return shown;
+  const exact = (chadExact(a) ?? 99) - (chadExact(b) ?? 99);
+  if (Math.abs(exact) > 1e-9) return exact;
   const miss = (b.aggregate.missRate ?? -1) - (a.aggregate.missRate ?? -1);
   if (Math.abs(miss) > 0.0001) return miss;
   return a.name.localeCompare(b.name);

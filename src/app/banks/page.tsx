@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro, ScaleLegend, ScoreBar } from "@/components/ui";
 import { listBanks } from "@/lib/queries";
-import { toChadScore } from "@/lib/scoring";
+import { toChadExact, toChadScore } from "@/lib/scoring";
 
 export const metadata: Metadata = {
   title: "Banks",
@@ -11,9 +11,11 @@ export const metadata: Metadata = {
 
 export default async function BanksPage() {
   const rows = await listBanks();
-  const ordered = [...rows].sort(
-    (a, b) => (toChadScore(b.aggregate.avgScore) ?? -1) - (toChadScore(a.aggregate.avgScore) ?? -1),
-  );
+  const ordered = [...rows].sort((a, b) => {
+    const shown = (toChadScore(b.aggregate.avgScore) ?? -1) - (toChadScore(a.aggregate.avgScore) ?? -1);
+    if (shown !== 0) return shown;
+    return (toChadExact(b.aggregate.avgScore) ?? -1) - (toChadExact(a.aggregate.avgScore) ?? -1);
+  });
   return (
     <div>
       <PageIntro

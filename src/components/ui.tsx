@@ -153,18 +153,40 @@ export function ChadScore({
   caption?: string;
 }) {
   const value = toChadScore(raw);
-  const width = value == null ? 0 : ((value - 1) / 9) * 100;
   return (
     <div>
       <p className="kicker">{caption ?? "Chad score"}</p>
-      <p className="mt-2 flex items-baseline gap-2">
-        <span className="num text-6xl leading-none">{value == null ? "—" : value.toFixed(1)}</span>
-        <span className="num text-2xl text-faint">/ 10</span>
+      <p className="mt-2 flex items-end gap-3">
+        <span
+          className="num text-7xl leading-none tracking-tight"
+          aria-label={value == null ? "No Chad score" : `Chad score ${value} out of 10. 1 is Chud, 10 is Chad.`}
+        >
+          {value == null ? "—" : value}
+        </span>
+        <span className="mb-2 text-sm leading-5 text-muted">
+          <span className="block text-ink">out of 10</span>
+          <span className="text-miss">1 = Chud</span>
+          <span className="mx-1 text-faint">→</span>
+          <span className="text-hit">10 = Chad</span>
+        </span>
       </p>
-      <ScaleLegend className="mt-3" />
-      <div className="mt-3 h-1.5 max-w-xs overflow-hidden rounded-full bg-white/10" aria-hidden>
-        <div className="h-full bg-brass" style={{ width: `${width}%` }} />
-      </div>
+      <ol className="mt-4 flex max-w-sm gap-1" aria-hidden>
+        {Array.from({ length: 10 }, (_, index) => index + 1).map((step) => (
+          <li
+            key={step}
+            title={step === 1 ? "1 Chud" : step === 10 ? "10 Chad" : String(step)}
+            className={cx(
+              "h-2 flex-1 rounded-sm",
+              value != null && step <= value ? "bg-brass" : "bg-white/10",
+              value === step && "ring-1 ring-brass",
+            )}
+          />
+        ))}
+      </ol>
+      <p className="mt-2 flex max-w-sm justify-between text-[11px] uppercase tracking-wider">
+        <span className="text-miss">1 Chud</span>
+        <span className="text-hit">10 Chad</span>
+      </p>
     </div>
   );
 }
@@ -173,8 +195,9 @@ export function ScoreBar({ score }: { score: number | null }) {
   const chad = toChadScore(score);
   const width = chad == null ? 0 : ((chad - 1) / 9) * 100;
   return (
-    <div className="flex items-center gap-3">
-      <span className="num min-w-10 text-xl leading-none text-ink">{chad == null ? "—" : chad.toFixed(1)}</span>
+    <div className="flex items-center gap-2" title={chad == null ? "No Chad score" : `${chad} out of 10. 1 is Chud, 10 is Chad.`}>
+      <span className="num text-2xl leading-none text-ink">{chad == null ? "—" : chad}</span>
+      <span className="num text-[11px] text-faint">/10</span>
       <div className="hidden h-1.5 w-14 overflow-hidden rounded-full bg-white/10 sm:block" aria-hidden>
         <div className="h-full bg-brass" style={{ width: `${width}%` }} />
       </div>

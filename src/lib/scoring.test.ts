@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { aggregateGrades, formatChadScore, gradeCall, toChadScore } from "./scoring";
+import { aggregateGrades, formatChadScore, gradeCall, toChadExact, toChadScore } from "./scoring";
 
 describe("gradeCall", () => {
   it("credits a buy that clears the 90-day hurdle", () => {
@@ -103,12 +103,21 @@ describe("gradeCall", () => {
 });
 
 describe("toChadScore", () => {
-  it("maps the raw poles onto 1 Chud and 10 Chad", () => {
+  it("maps the raw poles onto the integers 1 Chud and 10 Chad", () => {
+    assert.equal(toChadExact(0), 1);
+    assert.equal(toChadExact(100), 10);
+    assert.equal(toChadExact(50), 5.5);
     assert.equal(toChadScore(0), 1);
     assert.equal(toChadScore(100), 10);
-    assert.equal(toChadScore(50), 5.5);
-    assert.equal(formatChadScore(50), "5.5");
+    assert.equal(toChadScore(50), 6);
+    assert.equal(toChadScore(92), 9);
+    assert.equal(formatChadScore(92), "9");
     assert.equal(formatChadScore(null), "—");
+    for (const raw of [0, 25, 50, 75, 92, 100]) {
+      const shown = toChadScore(raw);
+      assert.equal(Number.isInteger(shown), true);
+      assert.ok(shown != null && shown >= 1 && shown <= 10);
+    }
   });
 
   it("clamps out-of-range raw scores and ignores an empty grade", () => {
@@ -117,7 +126,7 @@ describe("toChadScore", () => {
     assert.equal(toChadScore(null), null);
   });
 
-  it("grades an average the same way it grades one call", () => {
+  it("rounds the map of the average, not the average of the rounded grades", () => {
     const hit = gradeCall(
       { ratingTo: "buy", priceAtCall: 100, priceTargetTo: null, outcomePrice: 110 },
       "90",
@@ -127,7 +136,8 @@ describe("toChadScore", () => {
       "90",
     );
     const agg = aggregateGrades([hit, miss]);
-    assert.equal(toChadScore(agg.avgScore), 5.5);
+    assert.equal(toChadExact(agg.avgScore), 5.5);
+    assert.equal(toChadScore(agg.avgScore), 6);
   });
 });
 
