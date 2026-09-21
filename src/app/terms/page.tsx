@@ -64,9 +64,9 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="dmca" title="Copyright notices">
+      <LegalSection id="dmca" title="Copyright notices (DMCA)">
         <p>
-          If you believe a page infringes a copyright you own, send a notice to {LEGAL.dmcaEmail}. That address is a placeholder. It is not a registered agent. A notice should include:
+          If you believe a page infringes a copyright you own, send a DMCA notice to {LEGAL.dmcaEmail}. That address is a placeholder. It is not a registered DMCA agent. A notice should include:
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>Your physical or electronic signature.</li>
