@@ -1,6 +1,6 @@
 import { pct, pctUnsigned, usd } from "@/lib/format";
 import { ratingLabel } from "@/lib/labels";
-import { formatChadScore, HORIZONS, HORIZON_KEYS, type CallGrade, type HorizonKey } from "@/lib/scoring";
+import { formatChadScore, formatPoints, HORIZONS, HORIZON_KEYS, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
 import { GradePill } from "./ui";
 
@@ -51,11 +51,20 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
                     </span>
                   </span>
                 </p>
+                <p className="mt-3 num text-xl text-ink">
+                  Score {formatPoints(grade.score)}
+                  <span className="text-faint">/100</span>
+                </p>
+                <div className="mt-2 h-1.5 max-w-[12rem] overflow-hidden rounded-full bg-white/10" aria-hidden>
+                  <div
+                    className="h-full bg-brass"
+                    style={{ width: `${grade.score == null ? 0 : Math.min(100, Math.max(0, grade.score))}%` }}
+                  />
+                </div>
               </div>
             ) : null}
             {grade.gradeable ? (
               <dl className="mt-4 space-y-2 text-sm">
-                <Row k="Internal points" v={grade.score == null ? "—" : grade.score.toFixed(1)} />
                 <Row k="Price at call" v={usd(call.priceAtCall)} />
                 <Row k="Price after" v={usd(after)} />
                 <Row k="Forward return" v={pct(grade.forwardReturn)} />

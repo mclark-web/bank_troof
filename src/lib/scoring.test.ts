@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { aggregateGrades, formatChadScore, gradeCall, toChadExact, toChadScore } from "./scoring";
+import { aggregateGrades, formatChadScore, formatPoints, gradeCall, toChadExact, toChadScore } from "./scoring";
 
 describe("gradeCall", () => {
   it("credits a buy that clears the 90-day hurdle", () => {
@@ -113,6 +113,9 @@ describe("toChadScore", () => {
     assert.equal(toChadScore(92), 9);
     assert.equal(formatChadScore(92), "9");
     assert.equal(formatChadScore(null), "—");
+    assert.equal(formatPoints(92), "92");
+    assert.equal(formatPoints(82.44), "82.4");
+    assert.equal(formatPoints(null), "—");
     for (const raw of [0, 25, 50, 75, 92, 100]) {
       const shown = toChadScore(raw);
       assert.equal(Number.isInteger(shown), true);

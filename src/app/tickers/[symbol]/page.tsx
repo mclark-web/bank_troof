@@ -111,7 +111,10 @@ export default async function TickerPage({
                   <th>Firm</th>
                   <th>N</th>
                   <th>Hit</th>
-                  <th>Chad</th>
+                  <th>
+                    Chad
+                    <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">1–10 · /100</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>

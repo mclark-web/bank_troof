@@ -77,8 +77,8 @@ export default async function HomePage() {
 
       <section className="mt-10">
         <p className="mb-3 text-sm text-muted">
-          The grade on every card is a Chad score from 1 to 10. <span className="text-ink">1 is Chud</span>, a terrible track record.{" "}
-          <span className="text-ink">10 is Chad</span>, an excellent one. Hit rate is the stat underneath.
+          Every card leads with a Chad score from 1 to 10. <span className="text-ink">1 is Chud</span>, a terrible track record.{" "}
+          <span className="text-ink">10 is Chad</span>, an excellent one. The full score out of 100 sits beside it. Hit rate is underneath.
         </p>
         <div className="grid gap-4 lg:grid-cols-3">
         <MiniLeaderboard title="Top analysts" href="/leaderboards?view=analysts" rows={home.analysts.map(toRow)} />
@@ -105,7 +105,7 @@ export default async function HomePage() {
           <p className="kicker">No black box</p>
           <h2 className="mt-2 font-serif text-3xl tracking-tight">The grade is the product.</h2>
           <p className="mt-3 text-sm leading-6 text-muted">
-            A call is a direction plus an optional target. Those pieces add up to internal points, then round onto a 1–10 integer. 1 is Chud. 10 is Chad. Near-misses get half credit and do not count as hits.
+            A call is a direction plus an optional target. Those pieces add up to a score from 0 to 100, shown in full, then rounded onto a 1–10 Chad score. 1 is Chud. 10 is Chad. Near-misses get half credit and do not count as hits.
           </p>
         </div>
         <ol className="grid gap-3 sm:grid-cols-3">

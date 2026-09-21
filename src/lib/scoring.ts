@@ -39,6 +39,14 @@ export function formatChadScore(raw: number | null | undefined): string {
   return String(score);
 }
 
+/** Full engine score, shown beside the Chad bucket. One decimal when it is not a whole number. */
+export function formatPoints(raw: number | null | undefined): string {
+  if (raw == null || Number.isNaN(raw)) return "—";
+  const clamped = Math.min(100, Math.max(0, raw));
+  const rounded = Math.round(clamped * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
+
 export const HORIZONS: Record<
   HorizonKey,
   {

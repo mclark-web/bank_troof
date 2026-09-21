@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { formatChadScore } from "@/lib/scoring";
+import { formatChadScore, formatPoints } from "@/lib/scoring";
 
 export type WatchKind = "analyst" | "bank" | "ticker";
 
@@ -165,9 +165,13 @@ export function WatchlistBoard() {
                 <>
                   <p className="flex items-baseline gap-2 sm:justify-end">
                     <span className="num text-4xl leading-none">{formatChadScore(score.aggregate.avgScore)}</span>
-                    <span className="num text-lg text-faint">/ 10</span>
+                    <span className="num text-lg text-faint">/10</span>
                   </p>
-                  <p className="mt-1 text-[11px] text-faint">1 Chud · 10 Chad</p>
+                  <p className="mt-1 text-[11px] text-faint">1 = Chud · 10 = Chad</p>
+                  <p className="num text-sm text-muted">
+                    Score {formatPoints(score.aggregate.avgScore)}
+                    <span className="text-faint">/100</span>
+                  </p>
                   <p className="num mt-1 text-sm text-muted">
                     Hit {score.aggregate.hitRate == null ? "—" : `${Math.round(score.aggregate.hitRate * 100)}%`} ·{" "}
                     {score.aggregate.graded} graded

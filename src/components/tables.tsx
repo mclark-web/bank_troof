@@ -3,8 +3,8 @@ import { formatDate, pct, returnTone, usd } from "@/lib/format";
 import { actionLabel, ratingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
 import { ratingChange } from "@/lib/queries";
-import type { HorizonKey } from "@/lib/scoring";
-import { GradePill, RatingPill, ScoreBar } from "./ui";
+import { toChadScore, type HorizonKey } from "@/lib/scoring";
+import { GradePill, PointsCell, RatingPill } from "./ui";
 
 export function BoardTable({
   rows,
@@ -31,6 +31,12 @@ export function BoardTable({
                 1 = Chud · 10 = Chad
               </span>
             </th>
+            <th>
+              Score
+              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                out of 100
+              </span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -53,7 +59,11 @@ export function BoardTable({
                 {pct(row.aggregate.avgFollowedReturn)}
               </td>
               <td>
-                <ScoreBar score={row.aggregate.avgScore} />
+                <span className="num text-2xl leading-none">{toChadScore(row.aggregate.avgScore) ?? "—"}</span>
+                <span className="num text-[11px] text-faint">/10</span>
+              </td>
+              <td>
+                <PointsCell score={row.aggregate.avgScore} />
               </td>
             </tr>
           ))}

@@ -6,7 +6,6 @@ import {
   aggregateGrades,
   gradeCall,
   minimumSample,
-  toChadExact,
   toChadScore,
   type Aggregate,
   type CallGrade,
@@ -71,31 +70,18 @@ function filterCalls(calls: ScoredCall[], horizon: HorizonKey, sector?: string |
   });
 }
 
-function chadShown(row: BoardRow) {
-  return toChadScore(row.aggregate.avgScore);
-}
+export type RankKey = "points" | "chad";
 
-function chadExact(row: BoardRow) {
-  return toChadExact(row.aggregate.avgScore);
-}
-
-function compareScore(a: BoardRow, b: BoardRow) {
-  const shown = (chadShown(b) ?? -1) - (chadShown(a) ?? -1);
-  if (shown !== 0) return shown;
-  const exact = (chadExact(b) ?? -1) - (chadExact(a) ?? -1);
-  if (Math.abs(exact) > 1e-9) return exact;
-  const hit = (b.aggregate.hitRate ?? -1) - (a.aggregate.hitRate ?? -1);
-  if (Math.abs(hit) > 0.0001) return hit;
-  return a.name.localeCompare(b.name);
-}
-
-function compareLow(a: BoardRow, b: BoardRow) {
-  const shown = (chadShown(a) ?? 99) - (chadShown(b) ?? 99);
-  if (shown !== 0) return shown;
-  const exact = (chadExact(a) ?? 99) - (chadExact(b) ?? 99);
-  if (Math.abs(exact) > 1e-9) return exact;
-  const miss = (b.aggregate.missRate ?? -1) - (a.aggregate.missRate ?? -1);
-  if (Math.abs(miss) > 0.0001) return miss;
+function compareBoard(a: BoardRow, b: BoardRow, order: "score" | "low", rank: RankKey) {
+  const direction = order === "low" ? 1 : -1;
+  if (rank === "chad") {
+    const shown = ((toChadScore(a.aggregate.avgScore) ?? (order === "low" ? 99 : -1)) - (toChadScore(b.aggregate.avgScore) ?? (order === "low" ? 99 : -1))) * direction;
+    if (shown !== 0) return shown;
+  }
+  const points = ((a.aggregate.avgScore ?? (order === "low" ? 999 : -1)) - (b.aggregate.avgScore ?? (order === "low" ? 999 : -1))) * direction;
+  if (Math.abs(points) > 1e-6) return points;
+  const tie = order === "low" ? (b.aggregate.missRate ?? -1) - (a.aggregate.missRate ?? -1) : (b.aggregate.hitRate ?? -1) - (a.aggregate.hitRate ?? -1);
+  if (Math.abs(tie) > 0.0001) return tie;
   return a.name.localeCompare(b.name);
 }
 
@@ -104,6 +90,7 @@ export async function leaderboard(options: {
   sector?: string | null;
   entity: "analyst" | "bank";
   order: "score" | "low";
+  rank?: RankKey;
 }): Promise<{ rows: BoardRow[]; minimum: number; considered: number }> {
   const calls = await loadCalls();
   const graded = filterCalls(calls, options.horizon, options.sector);
@@ -142,7 +129,8 @@ export async function leaderboard(options: {
     }
     void key;
   }
-  rows.sort(options.order === "low" ? compareLow : compareScore);
+  const rank = options.rank ?? "points";
+  rows.sort((a, b) => compareBoard(a, b, options.order, rank));
   return { rows, minimum, considered: groups.size };
 }
 
@@ -369,7 +357,7 @@ export function analystRowsForCalls(calls: ScoredCall[], horizon: HorizonKey): B
         aggregate: aggregateGrades(group.map((call) => call.grades[horizon])),
       };
     })
-    .sort(compareScore);
+    .sort((a, b) => compareBoard(a, b, "score", "points"));
 }
 
 export function ratingChange(call: { ratingFrom: string | null; ratingTo: string }) {

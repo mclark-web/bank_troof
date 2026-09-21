@@ -33,7 +33,10 @@ export default async function TickersPage() {
                     <th>Buy</th>
                     <th>Hold</th>
                     <th>Sell</th>
-                    <th>Chad</th>
+                    <th>
+                      Chad
+                      <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">1–10 · /100</span>
+                    </th>
                     <th>90D hit</th>
                   </tr>
                 </thead>
