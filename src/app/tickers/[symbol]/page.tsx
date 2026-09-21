@@ -83,12 +83,12 @@ export default async function TickerPage({
             <h2 className="font-serif text-2xl">Who was right</h2>
             <HorizonChips path={`/tickers/${ticker.symbol}`} current={{}} horizon={horizon} />
           </div>
-          <p className="mb-4 text-sm leading-6 text-muted">
+          <AggregateStats aggregate={aggregate} horizon={horizon} />
+          <p className="mt-4 text-sm leading-6 text-muted">
             {hitPct == null
               ? "No graded calls in this window yet."
-              : `On ${ticker.symbol}, directional and hold calls were a full hit ${hitPct}% of the time over this window.`}
+              : `Under that grade, calls on ${ticker.symbol} were a full hit ${hitPct}% of the time. Hit rate is not the rank.`}
           </p>
-          <AggregateStats aggregate={aggregate} horizon={horizon} />
         </section>
       </div>
 
@@ -105,7 +105,7 @@ export default async function TickerPage({
                   <th>Firm</th>
                   <th>N</th>
                   <th>Hit</th>
-                  <th>Score</th>
+                  <th>Chad</th>
                 </tr>
               </thead>
               <tbody>

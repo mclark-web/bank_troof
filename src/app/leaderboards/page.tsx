@@ -31,7 +31,7 @@ export default async function LeaderboardsPage({
   const sector = one("sector") || undefined;
   const who = one("who") === "analysts" ? "analysts" : "banks";
   const entity = view === "analysts" ? "analyst" : view === "banks" ? "bank" : who === "analysts" ? "analyst" : "bank";
-  const order = view === "offenders" ? "miss" : "score";
+  const order = view === "offenders" ? "low" : "score";
   const [board, sectors] = await Promise.all([
     leaderboard({ horizon, sector, entity, order }),
     loadSectors(),
@@ -47,8 +47,8 @@ export default async function LeaderboardsPage({
     view === "offenders" ? "Worst offenders" : view === "banks" ? "Top banks" : "Top analysts";
   const lede =
     view === "offenders"
-      ? `Highest miss rate over ${HORIZONS[horizon].label}. A miss is any graded call that was not a full direction hit. Near-misses count as misses here and still earn partial score.`
-      : `Ranked by average call score over ${HORIZONS[horizon].label}. Direction is 70 points. The price target can add 30. Firms are weighted by calls, not by headcount.`;
+      ? `Lowest Chad score over ${HORIZONS[horizon].label}. 1 is Chud, a terrible track record. 10 is Chad, an excellent one. Hit rate and sample size sit beside the grade.`
+      : `Ranked by Chad score over ${HORIZONS[horizon].label}. 1 is Chud. 10 is Chad. The number is a straight map of the average call score. Firms are weighted by calls, not by headcount.`;
 
   return (
     <div>
@@ -108,7 +108,7 @@ export default async function LeaderboardsPage({
       <p className="mt-4 max-w-3xl text-xs leading-5 text-faint">
         Showing {board.rows.length} of {board.considered} {entity === "bank" ? "banks" : "analysts"} with at least{" "}
         {minimumSample(entity, sector)} graded {HORIZONS[horizon].short} calls
-        {sector ? ` in ${sector}` : ""}. Score is the average of graded calls only. “If followed” averages the stock return on buys and the inverse return on sells. Holds are left out of that column.
+        {sector ? ` in ${sector}` : ""}. The Chad score maps that average from 0–100 onto 1–10. 1 is Chud. 10 is Chad. “If followed” averages the stock return on buys and the inverse return on sells. Holds are left out of that column.
       </p>
     </div>
   );

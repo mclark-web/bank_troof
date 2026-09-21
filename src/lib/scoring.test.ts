@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { aggregateGrades, gradeCall } from "./scoring";
+import { aggregateGrades, formatChadScore, gradeCall, toChadScore } from "./scoring";
 
 describe("gradeCall", () => {
   it("credits a buy that clears the 90-day hurdle", () => {
@@ -99,6 +99,35 @@ describe("gradeCall", () => {
     );
     assert.equal(grade.hit, true);
     assert.equal(grade.threshold, 0.02);
+  });
+});
+
+describe("toChadScore", () => {
+  it("maps the raw poles onto 1 Chud and 10 Chad", () => {
+    assert.equal(toChadScore(0), 1);
+    assert.equal(toChadScore(100), 10);
+    assert.equal(toChadScore(50), 5.5);
+    assert.equal(formatChadScore(50), "5.5");
+    assert.equal(formatChadScore(null), "—");
+  });
+
+  it("clamps out-of-range raw scores and ignores an empty grade", () => {
+    assert.equal(toChadScore(140), 10);
+    assert.equal(toChadScore(-5), 1);
+    assert.equal(toChadScore(null), null);
+  });
+
+  it("grades an average the same way it grades one call", () => {
+    const hit = gradeCall(
+      { ratingTo: "buy", priceAtCall: 100, priceTargetTo: null, outcomePrice: 110 },
+      "90",
+    );
+    const miss = gradeCall(
+      { ratingTo: "buy", priceAtCall: 100, priceTargetTo: null, outcomePrice: 90 },
+      "90",
+    );
+    const agg = aggregateGrades([hit, miss]);
+    assert.equal(toChadScore(agg.avgScore), 5.5);
   });
 });
 

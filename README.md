@@ -56,7 +56,8 @@ The full write-up is the Methodology page at `/methodology`. In short:
 - T is 2% at 30 days, 5% at 90 days, and 8% at 1 year. Windows are calendar days.
 - A near-miss earns half of the 70 direction points and does **not** count as a hit.
 - Target error is `|price at horizon − target| / price at call`. Inside a tight band it adds 30 points; past a wide band it adds none; in between it fades linearly. No target means the direction score is scaled to 100.
-- Analyst and bank scores are the average call score. Banks are weighted by calls, not by headcount.
+- The public grade is a **1–10 Chad score**. 1 is Chud (terrible track record). 10 is Chad (excellent track record). It is a straight map of the 0–100 raw score: `1 + 9 × (raw ÷ 100)`. Leaderboards sort on this number. Hit rate stays as a supporting stat.
+- Analyst and bank grades use the average raw score, then that same map. Banks are weighted by calls, not by headcount.
 - “If followed” averages the stock return on buys and the inverse return on sells. Holds are excluded.
 - Leaderboards hide thin samples (8 graded calls for an analyst, 20 for a bank; lower inside a sector filter).
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageIntro } from "@/components/ui";
+import { PageIntro, ScaleLegend, ScoreBar } from "@/components/ui";
 import { listTickers } from "@/lib/queries";
 
 export const metadata: Metadata = {
@@ -16,8 +16,9 @@ export default async function TickersPage() {
       <PageIntro
         kicker="Directory"
         title="Tickers"
-        lede="Consensus is the latest sample rating from each analyst who has called the name. The hit rate is every graded 90-day call on that ticker, not a forecast."
+        lede="The Chad score grades every 90-day call on the name, from 1 (Chud) to 10 (Chad). Consensus is the latest sample rating from each analyst. Hit rate sits beside the grade."
       />
+      <ScaleLegend className="mb-6" />
       <div className="space-y-8">
         {sectors.map((sector) => (
           <section key={sector}>
@@ -32,6 +33,7 @@ export default async function TickersPage() {
                     <th>Buy</th>
                     <th>Hold</th>
                     <th>Sell</th>
+                    <th>Chad</th>
                     <th>90D hit</th>
                   </tr>
                 </thead>
@@ -51,6 +53,9 @@ export default async function TickersPage() {
                         <td className="num text-hit">{buckets.buy}</td>
                         <td className="num">{buckets.hold}</td>
                         <td className="num text-miss">{buckets.sell}</td>
+                        <td>
+                          <ScoreBar score={aggregate.avgScore} />
+                        </td>
                         <td className="num">
                           {aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`}
                         </td>

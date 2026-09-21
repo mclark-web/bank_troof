@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { scoreText } from "@/lib/format";
+import { formatChadScore } from "@/lib/scoring";
 
 export type WatchKind = "analyst" | "bank" | "ticker";
 
@@ -160,15 +160,21 @@ export function WatchlistBoard() {
               </Link>
               <p className="text-sm text-muted">{item.meta}</p>
             </div>
-            <div className="num text-sm text-muted">
+            <div className="sm:text-right">
               {score?.found ? (
-                <span>
-                  90D score {scoreText(score.aggregate.avgScore)} · hit{" "}
-                  {score.aggregate.hitRate == null ? "—" : `${Math.round(score.aggregate.hitRate * 100)}%`} ·{" "}
-                  {score.aggregate.graded} graded
-                </span>
+                <>
+                  <p className="flex items-baseline gap-2 sm:justify-end">
+                    <span className="num text-4xl leading-none">{formatChadScore(score.aggregate.avgScore)}</span>
+                    <span className="num text-lg text-faint">/ 10</span>
+                  </p>
+                  <p className="mt-1 text-[11px] text-faint">1 Chud · 10 Chad</p>
+                  <p className="num mt-1 text-sm text-muted">
+                    Hit {score.aggregate.hitRate == null ? "—" : `${Math.round(score.aggregate.hitRate * 100)}%`} ·{" "}
+                    {score.aggregate.graded} graded
+                  </p>
+                </>
               ) : (
-                <span>Looking up the 90D score…</span>
+                <p className="text-sm text-muted">Looking up the Chad score…</p>
               )}
             </div>
             <button type="button" className="btn-ghost" onClick={() => remove(item)}>

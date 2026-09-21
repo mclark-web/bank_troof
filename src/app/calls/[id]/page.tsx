@@ -73,7 +73,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
 
       <h2 className="mb-3 mt-10 font-serif text-3xl">The grade</h2>
       <p className="mb-4 max-w-2xl text-sm leading-6 text-muted">
-        Each window is scored on its own. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate. Target points fade from 30 to 0 as the price misses the target.
+        The large number is the Chad score for that window: 1 is Chud, 10 is Chad. It is a straight map of the raw points underneath. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
       </p>
       <GradeLedger call={call} />
 

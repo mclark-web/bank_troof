@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageIntro, ScoreBar } from "@/components/ui";
+import { PageIntro, ScaleLegend, ScoreBar } from "@/components/ui";
 import { listAnalysts } from "@/lib/queries";
 
 export const metadata: Metadata = {
@@ -15,8 +15,9 @@ export default async function AnalystsPage() {
       <PageIntro
         kicker="Directory"
         title="Analysts"
-        lede="Every name on this desk is fictional. The 90-day score is the average of that person's graded demo calls."
+        lede="Every name on this desk is fictional. The number is the 90-day Chad score: 1 is Chud, 10 is Chad."
       />
+      <ScaleLegend className="mb-3" />
       <div className="panel overflow-x-auto">
         <table className="data-table">
           <thead>
@@ -26,7 +27,7 @@ export default async function AnalystsPage() {
               <th className="hidden sm:table-cell">Sector</th>
               <th>N</th>
               <th>Hit</th>
-              <th>Score</th>
+              <th>Chad</th>
             </tr>
           </thead>
           <tbody>

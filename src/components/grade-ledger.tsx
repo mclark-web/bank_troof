@@ -1,8 +1,8 @@
 import { pct, pctUnsigned, scoreText, usd } from "@/lib/format";
 import { ratingLabel } from "@/lib/labels";
-import { HORIZONS, HORIZON_KEYS, type CallGrade, type HorizonKey } from "@/lib/scoring";
+import { formatChadScore, HORIZONS, HORIZON_KEYS, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
-import { GradePill } from "./ui";
+import { GradePill, ScaleLegend } from "./ui";
 
 function expectation(grade: CallGrade, rating: string, horizon: HorizonKey) {
   const hurdle = pctUnsigned(grade.threshold, 0);
@@ -39,8 +39,17 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
               <GradePill result={grade.directionResult} />
             </div>
             {grade.gradeable ? (
+              <div className="mt-4">
+                <p className="flex items-baseline gap-2">
+                  <span className="num text-5xl leading-none">{formatChadScore(grade.score)}</span>
+                  <span className="num text-xl text-faint">/ 10</span>
+                </p>
+                <ScaleLegend className="mt-2" />
+              </div>
+            ) : null}
+            {grade.gradeable ? (
               <dl className="mt-4 space-y-2 text-sm">
-                <Row k="Score" v={scoreText(grade.score)} />
+                <Row k="Raw points" v={`${scoreText(grade.score)} / 100`} />
                 <Row k="Price at call" v={usd(call.priceAtCall)} />
                 <Row k="Price after" v={usd(after)} />
                 <Row k="Forward return" v={pct(grade.forwardReturn)} />

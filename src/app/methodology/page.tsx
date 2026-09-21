@@ -3,8 +3,11 @@ import Link from "next/link";
 import { PageIntro } from "@/components/ui";
 import { pctUnsigned } from "@/lib/format";
 import {
+  CHAD_MAX,
+  CHAD_MIN,
   DIRECTION_WEIGHT,
   FLAT_NEAR_MULTIPLIER,
+  formatChadScore,
   HORIZONS,
   HORIZON_KEYS,
   MIN_SAMPLE,
@@ -81,9 +84,54 @@ export default function MethodologyPage() {
       </section>
 
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="score">
-        <h2 className="font-serif text-3xl text-ink">Call score</h2>
+        <h2 className="font-serif text-3xl text-ink">The Chad score</h2>
         <p>
-          Direction is worth {DIRECTION_WEIGHT} points: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. The call score is the sum, from 0 to 100.
+          The number on a report card is a {CHAD_MIN}–{CHAD_MAX} grade. <strong className="font-medium text-ink">{CHAD_MIN} is Chud</strong>, a terrible track record. <strong className="font-medium text-ink">{CHAD_MAX} is Chad</strong>, an excellent one. Hit rate, return if followed, and sample size stay on the card as support. They do not set the rank.
+        </p>
+        <p>
+          Underneath, a call still earns raw points from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. The Chad score is that raw total, mapped in a straight line:
+        </p>
+        <p className="num text-ink">Chad = {CHAD_MIN} + {CHAD_MAX - CHAD_MIN} × (raw points ÷ 100)</p>
+        <div className="panel overflow-x-auto">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Raw points</th>
+                <th>Chad score</th>
+                <th>Pole</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="num">0</td>
+                <td className="num">{formatChadScore(0)}</td>
+                <td>Chud</td>
+              </tr>
+              <tr>
+                <td className="num">25</td>
+                <td className="num">{formatChadScore(25)}</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td className="num">50</td>
+                <td className="num">{formatChadScore(50)}</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td className="num">75</td>
+                <td className="num">{formatChadScore(75)}</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td className="num">100</td>
+                <td className="num">{formatChadScore(100)}</td>
+                <td>Chad</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Values outside 0–100 are clamped before the map, so the public grade cannot fall below {CHAD_MIN} or rise above {CHAD_MAX}. The card shows one decimal. A raw 88 is a {formatChadScore(88)}.
         </p>
         <p>
           “If followed” is a separate column. Buys contribute the forward return. Sells contribute the inverse, the return from acting on the negative call. Holds are excluded, because a hold is not an instruction to be long or short.
@@ -93,10 +141,10 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="aggregation">
         <h2 className="font-serif text-3xl text-ink">Leaderboards</h2>
         <p>
-          An analyst score is the average call score at the selected horizon. A bank score is the average of the bank’s calls, not the average of its analysts. One analyst with forty calls outweighs one analyst with eight. That is deliberate: the firm published the calls.
+          An analyst’s Chad score is the map applied to the average raw score of that person’s graded calls at the selected horizon. A bank’s Chad score is the same map applied to the average of the bank’s calls, not the average of its analysts. One analyst with forty calls outweighs one analyst with eight. That is deliberate: the firm published the calls. The map is linear, so grading the average and averaging the grades are the same number.
         </p>
         <p>
-          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Worst offenders use the same floors and sort by miss rate.
+          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Top boards sort by Chad score, highest first. Worst offenders use the same floors and sort by Chad score, lowest first.
         </p>
         <p>
           Sector filters keep calls whose ticker is in that sector. An analyst who only covers technology is unchanged. A generalist would be scored only on the names in the filter.

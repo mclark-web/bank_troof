@@ -90,7 +90,7 @@ export default async function BankPage({
               <tr>
                 <th>Analyst</th>
                 <th>Hit</th>
-                <th>Score</th>
+                <th>Chad</th>
               </tr>
             </thead>
             <tbody>

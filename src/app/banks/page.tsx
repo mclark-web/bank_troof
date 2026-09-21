@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageIntro, ScoreBar } from "@/components/ui";
+import { PageIntro, ScaleLegend, ScoreBar } from "@/components/ui";
 import { listBanks } from "@/lib/queries";
+import { toChadScore } from "@/lib/scoring";
 
 export const metadata: Metadata = {
   title: "Banks",
@@ -10,14 +11,17 @@ export const metadata: Metadata = {
 
 export default async function BanksPage() {
   const rows = await listBanks();
-  const ordered = [...rows].sort((a, b) => (b.aggregate.avgScore ?? -1) - (a.aggregate.avgScore ?? -1));
+  const ordered = [...rows].sort(
+    (a, b) => (toChadScore(b.aggregate.avgScore) ?? -1) - (toChadScore(a.aggregate.avgScore) ?? -1),
+  );
   return (
     <div>
       <PageIntro
         kicker="Directory"
         title="Banks"
-        lede="Firm names are labels on the sample so you can search the way a reader would. The score is the average of that desk's graded calls — not the firm's actual research record."
+        lede="Firm names are labels on the sample so you can search the way a reader would. The Chad score is a 1–10 map of that desk's graded calls — not the firm's actual research record. 1 is Chud. 10 is Chad."
       />
+      <ScaleLegend className="mb-3" />
       <div className="panel overflow-x-auto">
         <table className="data-table">
           <thead>
@@ -27,7 +31,7 @@ export default async function BanksPage() {
               <th>Analysts</th>
               <th>N</th>
               <th>Hit</th>
-              <th>Score</th>
+              <th>Chad</th>
             </tr>
           </thead>
           <tbody>

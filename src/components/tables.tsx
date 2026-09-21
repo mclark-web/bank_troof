@@ -25,7 +25,12 @@ export function BoardTable({
             <th>Hit</th>
             <th>Miss</th>
             <th className="hidden md:table-cell">If followed</th>
-            <th>Score</th>
+            <th>
+              Chad
+              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                1 Chud – 10 Chad
+              </span>
+            </th>
           </tr>
         </thead>
         <tbody>

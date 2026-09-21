@@ -11,6 +11,27 @@ export const TARGET_WEIGHT = 30;
 export const NEAR_MISS_FACTOR = 0.5;
 export const FLAT_NEAR_MULTIPLIER = 1.35;
 
+/** Public report-card poles. 1 is a terrible track record. 10 is an excellent one. */
+export const CHAD_MIN = 1;
+export const CHAD_MAX = 10;
+
+/**
+ * Map a 0–100 call score, or an average of those scores, onto the 1–10 Chad scale.
+ * The map is linear: 0 → 1 (Chud), 50 → 5.5, 100 → 10 (Chad).
+ * Because it is linear, the grade of an average equals the average of the grades.
+ */
+export function toChadScore(raw: number | null | undefined): number | null {
+  if (raw == null || Number.isNaN(raw)) return null;
+  const clamped = Math.min(100, Math.max(0, raw));
+  return CHAD_MIN + ((CHAD_MAX - CHAD_MIN) * clamped) / 100;
+}
+
+export function formatChadScore(raw: number | null | undefined): string {
+  const score = toChadScore(raw);
+  if (score == null) return "—";
+  return score.toFixed(1);
+}
+
 export const HORIZONS: Record<
   HorizonKey,
   {

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { HORIZONS, HORIZON_KEYS, type HorizonKey } from "@/lib/scoring";
-import { avatarColor, cx, initials, pct, scoreText } from "@/lib/format";
+import { HORIZONS, HORIZON_KEYS, toChadScore, type HorizonKey } from "@/lib/scoring";
+import { avatarColor, cx, initials, pct } from "@/lib/format";
 import { actionLabel, ratingLabel, ratingTone } from "@/lib/labels";
 import type { Aggregate } from "@/lib/scoring";
 
@@ -133,14 +133,51 @@ export function Stat({
   );
 }
 
-export function ScoreBar({ score }: { score: number | null }) {
-  const width = score == null ? 0 : Math.max(0, Math.min(100, score));
+export function ScaleLegend({ className = "" }: { className?: string }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/10" aria-hidden>
+    <p className={cx("text-xs text-muted", className)}>
+      <span className="num text-miss">1</span> Chud
+      <span className="text-faint">, terrible track record</span>
+      <span className="mx-1.5 text-faint">·</span>
+      <span className="num text-hit">10</span> Chad
+      <span className="text-faint">, excellent track record</span>
+    </p>
+  );
+}
+
+export function ChadScore({
+  raw,
+  caption,
+}: {
+  raw: number | null | undefined;
+  caption?: string;
+}) {
+  const value = toChadScore(raw);
+  const width = value == null ? 0 : ((value - 1) / 9) * 100;
+  return (
+    <div>
+      <p className="kicker">{caption ?? "Chad score"}</p>
+      <p className="mt-2 flex items-baseline gap-2">
+        <span className="num text-6xl leading-none">{value == null ? "—" : value.toFixed(1)}</span>
+        <span className="num text-2xl text-faint">/ 10</span>
+      </p>
+      <ScaleLegend className="mt-3" />
+      <div className="mt-3 h-1.5 max-w-xs overflow-hidden rounded-full bg-white/10" aria-hidden>
         <div className="h-full bg-brass" style={{ width: `${width}%` }} />
       </div>
-      <span className="num text-sm">{scoreText(score)}</span>
+    </div>
+  );
+}
+
+export function ScoreBar({ score }: { score: number | null }) {
+  const chad = toChadScore(score);
+  const width = chad == null ? 0 : ((chad - 1) / 9) * 100;
+  return (
+    <div className="flex items-center gap-3">
+      <span className="num min-w-10 text-xl leading-none text-ink">{chad == null ? "—" : chad.toFixed(1)}</span>
+      <div className="hidden h-1.5 w-14 overflow-hidden rounded-full bg-white/10 sm:block" aria-hidden>
+        <div className="h-full bg-brass" style={{ width: `${width}%` }} />
+      </div>
     </div>
   );
 }
@@ -179,16 +216,18 @@ export function Avatar({ name, seed }: { name: string; seed?: string }) {
 export function AggregateStats({ aggregate, horizon }: { aggregate: Aggregate; horizon: HorizonKey }) {
   const followed = aggregate.avgFollowedReturn;
   return (
-    <div className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-      <Stat label={`${HORIZONS[horizon].short} score`} value={scoreText(aggregate.avgScore)} />
-      <Stat label="Hit rate" value={aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`} />
-      <Stat
-        label="If followed"
-        value={pct(followed)}
-        tone={followed == null ? "plain" : followed >= 0 ? "hit" : "miss"}
-        hint="Directional calls only"
-      />
-      <Stat label="Graded" value={String(aggregate.graded)} hint="Calls with a price in window" />
+    <div>
+      <ChadScore raw={aggregate.avgScore} caption={`${HORIZONS[horizon].short} Chad score`} />
+      <div className="mt-6 grid grid-cols-3 gap-5 border-t border-line pt-5">
+        <Stat label="Hit rate" value={aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`} />
+        <Stat
+          label="If followed"
+          value={pct(followed)}
+          tone={followed == null ? "plain" : followed >= 0 ? "hit" : "miss"}
+          hint="Directional calls only"
+        />
+        <Stat label="Graded" value={String(aggregate.graded)} hint="Calls in the window" />
+      </div>
     </div>
   );
 }

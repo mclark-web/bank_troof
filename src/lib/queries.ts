@@ -6,6 +6,7 @@ import {
   aggregateGrades,
   gradeCall,
   minimumSample,
+  toChadScore,
   type Aggregate,
   type CallGrade,
   type HorizonKey,
@@ -69,25 +70,31 @@ function filterCalls(calls: ScoredCall[], horizon: HorizonKey, sector?: string |
   });
 }
 
+function chadValue(row: BoardRow) {
+  return toChadScore(row.aggregate.avgScore);
+}
+
 function compareScore(a: BoardRow, b: BoardRow) {
-  const score = (b.aggregate.avgScore ?? -1) - (a.aggregate.avgScore ?? -1);
-  if (Math.abs(score) > 0.01) return score;
+  const score = (chadValue(b) ?? -1) - (chadValue(a) ?? -1);
+  if (Math.abs(score) > 0.001) return score;
   const hit = (b.aggregate.hitRate ?? -1) - (a.aggregate.hitRate ?? -1);
   if (Math.abs(hit) > 0.0001) return hit;
   return a.name.localeCompare(b.name);
 }
 
-function compareMiss(a: BoardRow, b: BoardRow) {
+function compareLow(a: BoardRow, b: BoardRow) {
+  const score = (chadValue(a) ?? 99) - (chadValue(b) ?? 99);
+  if (Math.abs(score) > 0.001) return score;
   const miss = (b.aggregate.missRate ?? -1) - (a.aggregate.missRate ?? -1);
   if (Math.abs(miss) > 0.0001) return miss;
-  return (a.aggregate.avgScore ?? 999) - (b.aggregate.avgScore ?? 999);
+  return a.name.localeCompare(b.name);
 }
 
 export async function leaderboard(options: {
   horizon: HorizonKey;
   sector?: string | null;
   entity: "analyst" | "bank";
-  order: "score" | "miss";
+  order: "score" | "low";
 }): Promise<{ rows: BoardRow[]; minimum: number; considered: number }> {
   const calls = await loadCalls();
   const graded = filterCalls(calls, options.horizon, options.sector);
@@ -126,7 +133,7 @@ export async function leaderboard(options: {
     }
     void key;
   }
-  rows.sort(options.order === "miss" ? compareMiss : compareScore);
+  rows.sort(options.order === "low" ? compareLow : compareScore);
   return { rows, minimum, considered: groups.size };
 }
 
@@ -134,7 +141,7 @@ export async function getHome() {
   const [calls, sectors] = await Promise.all([loadCalls(), loadSectors()]);
   const analysts = await leaderboard({ horizon: "90", entity: "analyst", order: "score" });
   const banks = await leaderboard({ horizon: "90", entity: "bank", order: "score" });
-  const offenders = await leaderboard({ horizon: "90", entity: "bank", order: "miss" });
+  const offenders = await leaderboard({ horizon: "90", entity: "bank", order: "low" });
   const directional = calls.filter((call) => call.grades["90"].followedReturn != null && call.grades["90"].gradeable);
   const featuredHit = [...directional].sort(
     (a, b) => (b.grades["90"].followedReturn ?? 0) - (a.grades["90"].followedReturn ?? 0),
