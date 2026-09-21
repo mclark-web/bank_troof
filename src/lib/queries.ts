@@ -6,9 +6,10 @@ import {
   aggregateGrades,
   gradeCall,
   minimumSample,
-  toChadScore,
+  placeChad,
   type Aggregate,
   type CallGrade,
+  type ChadPlacement,
   type HorizonKey,
 } from "./scoring";
 
@@ -27,6 +28,7 @@ export type BoardRow = {
   href: string;
   sector?: string;
   aggregate: Aggregate;
+  placement: ChadPlacement;
 };
 
 function gradeStored(call: Call): Record<HorizonKey, CallGrade> {
@@ -75,7 +77,7 @@ export type RankKey = "points" | "chad";
 function compareBoard(a: BoardRow, b: BoardRow, order: "score" | "low", rank: RankKey) {
   const direction = order === "low" ? 1 : -1;
   if (rank === "chad") {
-    const shown = ((toChadScore(a.aggregate.avgScore) ?? (order === "low" ? 99 : -1)) - (toChadScore(b.aggregate.avgScore) ?? (order === "low" ? 99 : -1))) * direction;
+    const shown = ((a.placement.chad ?? (order === "low" ? 99 : -1)) - (b.placement.chad ?? (order === "low" ? 99 : -1))) * direction;
     if (shown !== 0) return shown;
   }
   const points = ((a.aggregate.avgScore ?? (order === "low" ? 999 : -1)) - (b.aggregate.avgScore ?? (order === "low" ? 999 : -1))) * direction;
@@ -102,7 +104,7 @@ export async function leaderboard(options: {
     groups.set(key, list);
   }
   const minimum = minimumSample(options.entity, options.sector);
-  const rows: BoardRow[] = [];
+  const rows: Omit<BoardRow, "placement">[] = [];
   for (const [key, group] of groups) {
     const sample = group[0];
     const aggregate = aggregateGrades(group.map((call) => call.grades[options.horizon]));
@@ -129,9 +131,11 @@ export async function leaderboard(options: {
     }
     void key;
   }
+  const peers = rows.map((row) => row.aggregate.avgScore).filter((score): score is number => score != null);
+  const placed = rows.map((row) => ({ ...row, placement: placeChad(row.aggregate.avgScore, peers) }));
   const rank = options.rank ?? "points";
-  rows.sort((a, b) => compareBoard(a, b, options.order, rank));
-  return { rows, minimum, considered: groups.size };
+  placed.sort((a, b) => compareBoard(a, b, options.order, rank));
+  return { rows: placed, minimum, considered: groups.size };
 }
 
 export async function getHome() {
@@ -215,11 +219,14 @@ export async function listAnalysts() {
     orderBy: { name: "asc" },
   });
   const calls = await loadCalls();
+  const peers = await rankedPeerScores("analyst", "90");
   return analysts.map((analyst) => {
     const mine = calls.filter((call) => call.analystId === analyst.id);
+    const aggregate = aggregateGrades(mine.map((call) => call.grades["90"]));
     return {
       analyst,
-      aggregate: aggregateGrades(mine.map((call) => call.grades["90"])),
+      aggregate,
+      placement: placeChad(aggregate.avgScore, peers),
       calls: mine.length,
     };
   });
@@ -231,17 +238,19 @@ export async function listBanks() {
     orderBy: { name: "asc" },
   });
   const calls = await loadCalls();
-  return banks.map((bank) => ({
-    bank,
-    aggregate: aggregateGrades(
+  const peers = await rankedPeerScores("bank", "90");
+  return banks.map((bank) => {
+    const aggregate = aggregateGrades(
       calls.filter((call) => call.bankId === bank.id).map((call) => call.grades["90"]),
-    ),
-  }));
+    );
+    return { bank, aggregate, placement: placeChad(aggregate.avgScore, peers) };
+  });
 }
 
 export async function listTickers() {
   const tickers = await prisma.ticker.findMany({ orderBy: { symbol: "asc" } });
   const calls = await loadCalls();
+  const peers = await rankedPeerScores("ticker", "90");
   return tickers.map((ticker) => {
     const mine = calls.filter((call) => call.tickerId === ticker.id);
     const latest = new Map<string, ScoredCall>();
@@ -254,9 +263,11 @@ export async function listTickers() {
       const bucket = consensusBucket(call.ratingTo);
       if (bucket) buckets[bucket] += 1;
     }
+    const aggregate = aggregateGrades(mine.map((call) => call.grades["90"]));
     return {
       ticker,
-      aggregate: aggregateGrades(mine.map((call) => call.grades["90"])),
+      aggregate,
+      placement: placeChad(aggregate.avgScore, peers),
       buckets,
       voices: current.length,
     };
@@ -345,19 +356,52 @@ export function analystRowsForCalls(calls: ScoredCall[], horizon: HorizonKey): B
     list.push(call);
     groups.set(call.analystId, list);
   }
-  return [...groups.values()]
-    .map((group) => {
-      const sample = group[0];
-      return {
-        kind: "analyst" as const,
-        slug: sample.analyst.slug,
-        name: sample.analyst.name,
-        subtitle: sample.bank.shortName,
-        href: `/analysts/${sample.analyst.slug}`,
-        aggregate: aggregateGrades(group.map((call) => call.grades[horizon])),
-      };
-    })
+  const drafts = [...groups.values()].map((group) => {
+    const sample = group[0];
+    return {
+      kind: "analyst" as const,
+      slug: sample.analyst.slug,
+      name: sample.analyst.name,
+      subtitle: sample.bank.shortName,
+      href: `/analysts/${sample.analyst.slug}`,
+      aggregate: aggregateGrades(group.map((call) => call.grades[horizon])),
+    };
+  });
+  const peers = drafts.map((row) => row.aggregate.avgScore).filter((score): score is number => score != null);
+  return drafts
+    .map((row) => ({ ...row, placement: placeChad(row.aggregate.avgScore, peers) }))
     .sort((a, b) => compareBoard(a, b, "score", "points"));
+}
+
+export async function rankedPeerScores(entity: "analyst" | "bank" | "ticker", horizon: HorizonKey): Promise<number[]> {
+  const calls = await loadCalls();
+  const groups = new Map<string, ScoredCall[]>();
+  for (const call of calls) {
+    if (!call.grades[horizon].gradeable) continue;
+    const key = entity === "analyst" ? call.analystId : entity === "bank" ? call.bankId : call.tickerId;
+    const list = groups.get(key) ?? [];
+    list.push(call);
+    groups.set(key, list);
+  }
+  const minimum = entity === "ticker" ? 1 : minimumSample(entity, null);
+  const scores: number[] = [];
+  for (const group of groups.values()) {
+    const aggregate = aggregateGrades(group.map((call) => call.grades[horizon]));
+    if (aggregate.graded >= minimum && aggregate.avgScore != null) scores.push(aggregate.avgScore);
+  }
+  return scores;
+}
+
+export async function callPeerScores(): Promise<Record<HorizonKey, number[]>> {
+  const calls = await loadCalls();
+  const scores: Record<HorizonKey, number[]> = { "30": [], "90": [], "365": [] };
+  for (const call of calls) {
+    for (const horizon of ["30", "90", "365"] as const) {
+      const grade = call.grades[horizon];
+      if (grade.gradeable && grade.score != null) scores[horizon].push(grade.score);
+    }
+  }
+  return scores;
 }
 
 export function ratingChange(call: { ratingFrom: string | null; ratingTo: string }) {
@@ -367,39 +411,50 @@ export function ratingChange(call: { ratingFrom: string | null; ratingTo: string
 
 export async function entityScores(input: { analysts: string[]; banks: string[]; tickers: string[] }) {
   const calls = await loadCalls();
+  const [analystPeers, bankPeers, tickerPeers] = await Promise.all([
+    rankedPeerScores("analyst", "90"),
+    rankedPeerScores("bank", "90"),
+    rankedPeerScores("ticker", "90"),
+  ]);
   const analysts = input.analysts.slice(0, 40).map((slug) => {
     const mine = calls.filter((call) => call.analyst.slug === slug);
     const sample = mine[0];
+    const aggregate = aggregateGrades(mine.map((call) => call.grades["90"]));
     return {
       slug,
       name: sample?.analyst.name ?? slug,
       meta: sample ? `${sample.bank.shortName} · ${sample.analyst.sector}` : "",
       href: `/analysts/${slug}`,
-      aggregate: aggregateGrades(mine.map((call) => call.grades["90"])),
+      aggregate,
+      placement: placeChad(aggregate.avgScore, analystPeers),
       found: Boolean(sample),
     };
   });
   const banks = input.banks.slice(0, 40).map((slug) => {
     const mine = calls.filter((call) => call.bank.slug === slug);
     const sample = mine[0];
+    const aggregate = aggregateGrades(mine.map((call) => call.grades["90"]));
     return {
       slug,
       name: sample?.bank.name ?? slug,
       meta: sample?.bank.headquarters ?? "",
       href: `/banks/${slug}`,
-      aggregate: aggregateGrades(mine.map((call) => call.grades["90"])),
+      aggregate,
+      placement: placeChad(aggregate.avgScore, bankPeers),
       found: Boolean(sample),
     };
   });
   const tickers = input.tickers.slice(0, 40).map((symbol) => {
     const mine = calls.filter((call) => call.ticker.symbol === symbol.toUpperCase());
     const sample = mine[0];
+    const aggregate = aggregateGrades(mine.map((call) => call.grades["90"]));
     return {
       slug: symbol.toUpperCase(),
       name: sample ? `${sample.ticker.symbol} · ${sample.ticker.name}` : symbol.toUpperCase(),
       meta: sample?.ticker.sector ?? "",
       href: `/tickers/${symbol.toUpperCase()}`,
-      aggregate: aggregateGrades(mine.map((call) => call.grades["90"])),
+      aggregate,
+      placement: placeChad(aggregate.avgScore, tickerPeers),
       found: Boolean(sample),
     };
   });

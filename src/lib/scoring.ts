@@ -15,60 +15,78 @@ export const FLAT_NEAR_MULTIPLIER = 1.35;
 export const CHAD_MIN = 1;
 export const CHAD_MAX = 10;
 
-/** Anything under this 0–100 score is Chud territory. */
+/** Anything under this 0–100 score is Chud territory, even if the field is weak. */
 export const CHUD_LINE = 70;
 
 export type ChadSide = "chud" | "mid" | "chad";
 
-/**
- * Buckets of the 0–100 score. Upper bounds are exclusive except the last.
- * Under 70 stays on the Chud side (1–4). 70–84 is mid (5–7). 85–100 is Chad (8–10).
- */
-export const CHAD_BANDS: { below: number; minLabel: number; maxLabel: number; chad: number; side: ChadSide }[] = [
-  { below: 18, minLabel: 0, maxLabel: 17, chad: 1, side: "chud" },
-  { below: 35, minLabel: 18, maxLabel: 34, chad: 2, side: "chud" },
-  { below: 52, minLabel: 35, maxLabel: 51, chad: 3, side: "chud" },
-  { below: 70, minLabel: 52, maxLabel: 69, chad: 4, side: "chud" },
-  { below: 75, minLabel: 70, maxLabel: 74, chad: 5, side: "mid" },
-  { below: 80, minLabel: 75, maxLabel: 79, chad: 6, side: "mid" },
-  { below: 85, minLabel: 80, maxLabel: 84, chad: 7, side: "mid" },
-  { below: 90, minLabel: 85, maxLabel: 89, chad: 8, side: "chad" },
-  { below: 95, minLabel: 90, maxLabel: 94, chad: 9, side: "chad" },
-  { below: 101, minLabel: 95, maxLabel: 100, chad: 10, side: "chad" },
-];
+/** Absolute buckets under 70. Upper bounds are exclusive. */
+export const CHUD_BANDS = [
+  { min: 0, max: 17, chad: 1 },
+  { min: 18, max: 34, chad: 2 },
+  { min: 35, max: 51, chad: 3 },
+  { min: 52, max: 69, chad: 4 },
+] as const;
+
+export type ChadPlacement = {
+  chad: number | null;
+  side: ChadSide | null;
+  label: string | null;
+};
 
 function clampScore(raw: number | null | undefined): number | null {
   if (raw == null || Number.isNaN(raw)) return null;
   return Math.min(100, Math.max(0, raw));
 }
 
-function bandFor(raw: number | null | undefined) {
-  const score = clampScore(raw);
-  if (score == null) return null;
-  return CHAD_BANDS.find((band) => score < band.below) ?? CHAD_BANDS[CHAD_BANDS.length - 1];
+function chudBucket(score: number): number {
+  if (score < 18) return 1;
+  if (score < 35) return 2;
+  if (score < 52) return 3;
+  return 4;
 }
 
-/** Public 1–10 bucket. The 0–100 score is mapped once; Chad integers are not averaged. */
-export function toChadScore(raw: number | null | undefined): number | null {
-  return bandFor(raw)?.chad ?? null;
+/** Split [low, high] into three integers starting at `start`. The top of the range gets start+2. */
+function splitThirds(score: number, low: number, high: number, start: number): number {
+  if (!(high > low)) return start + 2;
+  const t = Math.min(1, Math.max(0, (score - low) / (high - low)));
+  if (t >= 1) return start + 2;
+  return start + Math.min(2, Math.floor(t * 3));
 }
 
-export function chadSide(raw: number | null | undefined): ChadSide | null {
-  return bandFor(raw)?.side ?? null;
+/** Lowest score inside the top 30%. Ties at that score stay in. */
+export function topThirtyCutoff(peers: number[]): number {
+  const scores = peers.filter((score) => Number.isFinite(score));
+  if (scores.length === 0) return CHUD_LINE;
+  const sorted = [...scores].sort((a, b) => a - b);
+  const topCount = Math.max(1, Math.ceil(scores.length * 0.3));
+  return sorted[sorted.length - topCount];
 }
 
-export function chadSideLabel(raw: number | null | undefined): string | null {
-  const side = chadSide(raw);
-  if (side === "chud") return "Chud territory. It gets chuddy under 70.";
-  if (side === "mid") return "Above 70. Respectable, not Chad yet.";
-  if (side === "chad") return "Chad side.";
-  return null;
-}
-
-export function formatChadScore(raw: number | null | undefined): string {
-  const score = toChadScore(raw);
-  if (score == null) return "—";
-  return String(score);
+/**
+ * 1–10 bucket for one score against a peer set.
+ * Under 70 is always Chud (1–4). At or above 70 and in the top 30% is Chad (8–10).
+ * At or above 70 but outside that top 30% is mid (5–7).
+ */
+export function placeChad(score: number | null | undefined, peers: number[]): ChadPlacement {
+  const clamped = clampScore(score);
+  if (clamped == null) return { chad: null, side: null, label: null };
+  if (clamped < CHUD_LINE) {
+    return { chad: chudBucket(clamped), side: "chud", label: "Chud territory. It gets chuddy under 70." };
+  }
+  const line = Math.max(topThirtyCutoff(peers), CHUD_LINE);
+  if (clamped + 1e-9 >= line) {
+    return {
+      chad: splitThirds(clamped, line, 100, 8),
+      side: "chad",
+      label: "Chad side. Top 30% earns chaddiness.",
+    };
+  }
+  return {
+    chad: splitThirds(clamped, CHUD_LINE, line, 5),
+    side: "mid",
+    label: "Above 70, outside the top 30%.",
+  };
 }
 
 /** Full engine score, shown beside the Chad bucket. One decimal when it is not a whole number. */

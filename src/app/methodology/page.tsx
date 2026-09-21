@@ -4,13 +4,12 @@ import { PageIntro } from "@/components/ui";
 import { pctUnsigned } from "@/lib/format";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 import {
-  CHAD_BANDS,
   CHAD_MAX,
   CHAD_MIN,
+  CHUD_BANDS,
   CHUD_LINE,
   DIRECTION_WEIGHT,
   FLAT_NEAR_MULTIPLIER,
-  formatChadScore,
   HORIZONS,
   HORIZON_KEYS,
   MIN_SAMPLE,
@@ -95,7 +94,7 @@ export default function MethodologyPage() {
           The engine scores a call from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. That 0–100 score is always visible. The Chad number is a bucket of the same score, not a replacement for it.
         </p>
         <p>
-          <strong className="font-medium text-ink">It gets chuddy under {CHUD_LINE}%.</strong> A score under {CHUD_LINE} is Chud territory, Chad {CHAD_MIN}–4. From {CHUD_LINE} to 84 the record is mid, Chad 5–7. From 85 to 100 it is on the Chad side, Chad 8–{CHAD_MAX}. A 69 stays a 4. A 70 is the first 5.
+          <strong className="font-medium text-ink">It gets chuddy under {CHUD_LINE}%.</strong> That line is absolute. A 69 is Chud territory no matter how the rest of the field looks. The 1–10 number under 70 is only a finer cut of a bad score:
         </p>
         <div className="panel overflow-x-auto">
           <table className="data-table">
@@ -107,20 +106,23 @@ export default function MethodologyPage() {
               </tr>
             </thead>
             <tbody>
-              {CHAD_BANDS.map((band) => (
+              {CHUD_BANDS.map((band) => (
                 <tr key={band.chad}>
                   <td className="num">
-                    {band.minLabel}–{band.maxLabel}
+                    {band.min}–{band.max}
                   </td>
                   <td className="num">{band.chad}</td>
-                  <td>{band.side === "chud" ? "Chud" : band.side === "mid" ? "Mid" : "Chad"}</td>
+                  <td>Chud</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <p>
-          Values outside 0–100 are clamped before the bucket, so Chad cannot fall below {CHAD_MIN} or rise above {CHAD_MAX}. A 50 is Chad {formatChadScore(50)} and still shows 50/100. A 92 is Chad {formatChadScore(92)} and still shows 92/100. The card buckets the average score. It does not average the 1–10 numbers.
+          <strong className="font-medium text-ink">Top 30% earns chaddiness.</strong> Among the ranked peers at that horizon — analysts among analysts, banks among banks, tickers among tickers, a single call among calls — a score at or above 70 that also sits in the top 30% is Chad side, Chad 8–{CHAD_MAX}. A score at or above 70 that misses that cut is mid, Chad 5–7: neither full Chud nor full Chad. If the whole field is under 70, nobody gets a free pass on the absolute line, and anyone who does clear 70 is on the Chad side.
+        </p>
+        <p>
+          Values outside 0–100 are clamped first. The card always shows the full score beside the bucket. A profile uses every qualified name at that horizon. A sector board uses the names on that board, so its top 30% can differ.
         </p>
         <p>
           “If followed” is a separate column. Buys contribute the forward return. Sells contribute the inverse, the return from acting on the negative call. Holds are excluded, because a hold is not an instruction to be long or short.
@@ -130,10 +132,10 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="aggregation">
         <h2 className="font-serif text-3xl text-ink">Leaderboards</h2>
         <p>
-          An analyst’s score is the average of that person’s graded calls at the selected horizon, on the 0–100 scale. The Chad integer is that average, dropped into the bucket table above. A bank uses the average of the bank’s calls, not the average of its analysts. One analyst with forty calls outweighs one analyst with eight. That is deliberate: the firm published the calls. The bucket is applied after the average, so the published integer is not the average of each call’s integer.
+          An analyst’s score is the average of that person’s graded calls at the selected horizon, on the 0–100 scale. The Chad integer is that average, placed with the rules above against other analysts who clear the sample floor. A bank uses the average of the bank’s calls, not the average of its analysts, and is ranked among banks. One analyst with forty calls outweighs one analyst with eight. That is deliberate: the firm published the calls.
         </p>
         <p>
-          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the Chad integer and the score out of 100 are columns. The default order is the 100-point score, the full grade. Sorting by the Chad integer is on the page; names that share a bucket keep the higher 100-point score ahead. Worst offenders reverse whichever key is selected. It gets chuddy under {CHUD_LINE}.
+          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the Chad integer and the score out of 100 are columns. The default order is the 100-point score, the full grade. Sorting by the Chad integer is on the page; names that share a bucket keep the higher 100-point score ahead. Worst offenders reverse whichever key is selected. It gets chuddy under {CHUD_LINE}. Top 30% earns chaddiness.
         </p>
         <p>
           Sector filters keep calls whose ticker is in that sector. An analyst who only covers technology is unchanged. A generalist would be scored only on the names in the filter.

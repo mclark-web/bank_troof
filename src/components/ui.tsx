@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HORIZONS, HORIZON_KEYS, chadSide, chadSideLabel, formatPoints, toChadScore, type HorizonKey } from "@/lib/scoring";
+import { HORIZONS, HORIZON_KEYS, formatPoints, placeChad, type ChadPlacement, type HorizonKey } from "@/lib/scoring";
 import { avatarColor, cx, initials, pct } from "@/lib/format";
 import { actionLabel, ratingLabel, ratingTone } from "@/lib/labels";
 import type { Aggregate } from "@/lib/scoring";
@@ -147,12 +147,15 @@ export function ScaleLegend({ className = "" }: { className?: string }) {
 
 export function ChadScore({
   raw,
+  peers,
   caption,
 }: {
   raw: number | null | undefined;
+  peers: number[];
   caption?: string;
 }) {
-  const value = toChadScore(raw);
+  const placement = placeChad(raw, peers);
+  const value = placement.chad;
   const points = raw == null || Number.isNaN(raw) ? 0 : Math.min(100, Math.max(0, raw));
   return (
     <div>
@@ -181,7 +184,7 @@ export function ChadScore({
       <div className="mt-4 h-2 max-w-sm overflow-hidden rounded-full bg-white/10" aria-hidden>
         <div className="h-full bg-brass" style={{ width: `${points}%` }} />
       </div>
-      <SideNote raw={raw} />
+      <SideNote placement={placement} />
       <ol className="mt-3 flex max-w-sm gap-1" aria-hidden>
         {Array.from({ length: 10 }, (_, index) => index + 1).map((step) => (
           <li
@@ -203,19 +206,17 @@ export function ChadScore({
   );
 }
 
-export function SideNote({ raw, className = "" }: { raw: number | null | undefined; className?: string }) {
-  const side = chadSide(raw);
-  const label = chadSideLabel(raw);
-  if (!side || !label) return null;
-  const tone = side === "chud" ? "text-miss" : side === "chad" ? "text-hit" : "text-brass";
-  return <p className={cx("text-sm", tone, className)}>{label}</p>;
+export function SideNote({ placement, className = "" }: { placement: ChadPlacement; className?: string }) {
+  if (!placement.side || !placement.label) return null;
+  const tone = placement.side === "chud" ? "text-miss" : placement.side === "chad" ? "text-hit" : "text-brass";
+  return <p className={cx("text-sm", tone, className)}>{placement.label}</p>;
 }
 
-export function ScoreBar({ score }: { score: number | null }) {
-  const chad = toChadScore(score);
+export function ScoreBar({ score, placement }: { score: number | null; placement: ChadPlacement }) {
+  const chad = placement.chad;
   const width = score == null ? 0 : Math.min(100, Math.max(0, score));
   return (
-    <div title={chad == null ? "No score" : `Chad ${chad} of 10. Score ${formatPoints(score)} of 100. ${chadSideLabel(score) ?? ""}`}>
+    <div title={chad == null ? "No score" : `Chad ${chad} of 10. Score ${formatPoints(score)} of 100. ${placement.label ?? ""}`}>
       <div className="flex items-baseline gap-2">
         <span className="num text-2xl leading-none text-ink">{chad == null ? "—" : chad}</span>
         <span className="num text-[11px] text-faint">/10</span>
@@ -277,11 +278,19 @@ export function Avatar({ name, seed }: { name: string; seed?: string }) {
   );
 }
 
-export function AggregateStats({ aggregate, horizon }: { aggregate: Aggregate; horizon: HorizonKey }) {
+export function AggregateStats({
+  aggregate,
+  horizon,
+  peers,
+}: {
+  aggregate: Aggregate;
+  horizon: HorizonKey;
+  peers: number[];
+}) {
   const followed = aggregate.avgFollowedReturn;
   return (
     <div>
-      <ChadScore raw={aggregate.avgScore} caption={`${HORIZONS[horizon].short} Chad score`} />
+      <ChadScore raw={aggregate.avgScore} peers={peers} caption={`${HORIZONS[horizon].short} Chad score`} />
       <div className="mt-6 grid grid-cols-3 gap-5 border-t border-line pt-5">
         <Stat label="Hit rate" value={aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`} />
         <Stat
@@ -311,7 +320,7 @@ export function MiniLeaderboard({
 }: {
   title: string;
   href: string;
-  rows: { name: string; href: string; subtitle: string; score: number | null; hitRate: number | null }[];
+  rows: { name: string; href: string; subtitle: string; score: number | null; hitRate: number | null; placement: ChadPlacement }[];
 }) {
   return (
     <section className="panel overflow-hidden">
@@ -332,7 +341,7 @@ export function MiniLeaderboard({
               <p className="truncate text-xs text-faint">{row.subtitle}</p>
             </div>
             <div className="text-right">
-              <ScoreBar score={row.score} />
+              <ScoreBar score={row.score} placement={row.placement} />
               <p className="mt-1 text-[11px] text-faint">
                 {row.hitRate == null ? "—" : `${Math.round(row.hitRate * 100)}% hit`}
               </p>

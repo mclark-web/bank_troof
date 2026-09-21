@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { chadSideLabel, formatChadScore, formatPoints } from "@/lib/scoring";
+import { formatPoints, type ChadPlacement } from "@/lib/scoring";
 
 export type WatchKind = "analyst" | "bank" | "ticker";
 
@@ -81,6 +81,7 @@ type ScoreRow = {
   href: string;
   found: boolean;
   aggregate: { avgScore: number | null; hitRate: number | null; graded: number };
+  placement: ChadPlacement;
 };
 
 export function WatchlistBoard() {
@@ -164,11 +165,11 @@ export function WatchlistBoard() {
               {score?.found ? (
                 <>
                   <p className="flex items-baseline gap-2 sm:justify-end">
-                    <span className="num text-4xl leading-none">{formatChadScore(score.aggregate.avgScore)}</span>
+                    <span className="num text-4xl leading-none">{score.placement.chad ?? "—"}</span>
                     <span className="num text-lg text-faint">/10</span>
                   </p>
                   <p className="mt-1 text-[11px] text-faint">1 = Chud · 10 = Chad</p>
-                  <p className="mt-1 text-xs text-muted">{chadSideLabel(score.aggregate.avgScore)}</p>
+                  <p className="mt-1 text-xs text-muted">{score.placement.label}</p>
                   <p className="num text-sm text-muted">
                     Score {formatPoints(score.aggregate.avgScore)}
                     <span className="text-faint">/100</span>

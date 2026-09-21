@@ -6,7 +6,7 @@ import { AggregateStats, Avatar, HorizonChips, PageIntro } from "@/components/ui
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { aggregateGrades, parseHorizon } from "@/lib/scoring";
-import { getAnalyst } from "@/lib/queries";
+import { getAnalyst, rankedPeerScores } from "@/lib/queries";
 
 type Params = { slug: string };
 
@@ -42,6 +42,7 @@ export default async function AnalystPage({
   const { analyst, calls } = data;
   const visible = focus === "controversial" ? calls.filter((call) => call.controversial) : calls;
   const aggregate = aggregateGrades(calls.map((call) => call.grades[horizon]));
+  const peers = await rankedPeerScores("analyst", horizon);
   const shown = visible.slice(0, 40);
 
   return (
@@ -69,7 +70,7 @@ export default async function AnalystPage({
           <h2 className="font-serif text-2xl">Record</h2>
           <HorizonChips path={`/analysts/${analyst.slug}`} current={{ focus }} horizon={horizon} />
         </div>
-        <AggregateStats aggregate={aggregate} horizon={horizon} />
+        <AggregateStats aggregate={aggregate} horizon={horizon} peers={peers} />
       </div>
       <section className="mb-8">
         <h2 className="mb-3 font-serif text-2xl">Coverage</h2>

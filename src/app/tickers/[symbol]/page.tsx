@@ -7,7 +7,7 @@ import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { ratingLabel } from "@/lib/labels";
 import { aggregateGrades, parseHorizon } from "@/lib/scoring";
-import { analystRowsForCalls, getTicker, latestConsensus } from "@/lib/queries";
+import { analystRowsForCalls, getTicker, latestConsensus, rankedPeerScores } from "@/lib/queries";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { symbol: string };
@@ -42,6 +42,7 @@ export default async function TickerPage({
   const { ticker, calls } = data;
   const consensus = latestConsensus(calls);
   const aggregate = aggregateGrades(calls.map((call) => call.grades[horizon]));
+  const peers = await rankedPeerScores("ticker", horizon);
   const byAnalyst = analystRowsForCalls(calls, horizon);
   const hitPct = aggregate.hitRate == null ? null : Math.round(aggregate.hitRate * 100);
 
@@ -89,7 +90,7 @@ export default async function TickerPage({
             <h2 className="font-serif text-2xl">Who was right</h2>
             <HorizonChips path={`/tickers/${ticker.symbol}`} current={{}} horizon={horizon} />
           </div>
-          <AggregateStats aggregate={aggregate} horizon={horizon} />
+          <AggregateStats aggregate={aggregate} horizon={horizon} peers={peers} />
           <p className="mt-4 text-sm leading-6 text-muted">
             {hitPct == null
               ? "No graded calls in this window yet."
@@ -129,7 +130,7 @@ export default async function TickerPage({
                     <td className="num">{row.aggregate.graded}</td>
                     <td className="num">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
                     <td>
-                      <ScoreBar score={row.aggregate.avgScore} />
+                      <ScoreBar score={row.aggregate.avgScore} placement={row.placement} />
                     </td>
                   </tr>
                 ))}

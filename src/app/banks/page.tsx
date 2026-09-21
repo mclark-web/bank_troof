@@ -35,7 +35,7 @@ export default async function BanksPage() {
             </tr>
           </thead>
           <tbody>
-            {ordered.map(({ bank, aggregate }) => (
+            {ordered.map(({ bank, aggregate, placement }) => (
               <tr key={bank.id}>
                 <td>
                   <Link href={`/banks/${bank.slug}`} className="font-medium hover:text-brass">
@@ -47,7 +47,7 @@ export default async function BanksPage() {
                 <td className="num">{aggregate.graded}</td>
                 <td className="num">{aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`}</td>
                 <td>
-                  <ScoreBar score={aggregate.avgScore} />
+                  <ScoreBar score={aggregate.avgScore} placement={placement} />
                 </td>
               </tr>
             ))}

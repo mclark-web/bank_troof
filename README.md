@@ -56,7 +56,7 @@ The full write-up is the Methodology page at `/methodology`. In short:
 - T is 2% at 30 days, 5% at 90 days, and 8% at 1 year. Windows are calendar days.
 - A near-miss earns half of the 70 direction points and does **not** count as a hit.
 - Target error is `|price at horizon − target| / price at call`. Inside a tight band it adds 30 points; past a wide band it adds none; in between it fades linearly. No target means the direction score is scaled to 100.
-- Every card shows both grades. The full grade is the **0–100** score. The personality grade is an integer **1–10**: 1 is Chud, 10 is Chad. It gets chuddy under 70 (Chad 1–4). 70–84 is mid (5–7). 85–100 is the Chad side (8–10). Leaderboards show both columns and sort by the 100-point score by default. A Chad 1–10 sort breaks ties with the 100-point score. Hit rate stays as a supporting stat.
+- Every card shows both grades. The full grade is the **0–100** score. The personality grade is an integer **1–10**: 1 is Chud, 10 is Chad. It gets chuddy under 70 (Chad 1–4), whatever the field looks like. Top 30% of the ranked peers earns chaddiness (Chad 8–10), and only if the score is also at least 70. At or above 70 but outside that top 30% is mid (Chad 5–7). Leaderboards show both columns and sort by the 100-point score by default. A Chad 1–10 sort breaks ties with the 100-point score. Hit rate stays as a supporting stat.
 - Analyst and bank grades use the average raw score, then that same map. Banks are weighted by calls, not by headcount.
 - “If followed” averages the stock return on buys and the inverse return on sells. Holds are excluded.
 - Leaderboards hide thin samples (8 graded calls for an analyst, 20 for a bank; lower inside a sector filter).

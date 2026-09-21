@@ -3,7 +3,7 @@ import { formatDate, pct, returnTone, usd } from "@/lib/format";
 import { actionLabel, ratingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
 import { ratingChange } from "@/lib/queries";
-import { toChadScore, type HorizonKey } from "@/lib/scoring";
+import type { HorizonKey } from "@/lib/scoring";
 import { GradePill, PointsCell, RatingPill } from "./ui";
 
 export function BoardTable({
@@ -59,7 +59,7 @@ export function BoardTable({
                 {pct(row.aggregate.avgFollowedReturn)}
               </td>
               <td>
-                <span className="num text-2xl leading-none">{toChadScore(row.aggregate.avgScore) ?? "—"}</span>
+                <span className="num text-2xl leading-none">{row.placement.chad ?? "—"}</span>
                 <span className="num text-[11px] text-faint">/10</span>
               </td>
               <td>

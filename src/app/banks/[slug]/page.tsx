@@ -6,7 +6,7 @@ import { AggregateStats, HorizonChips, PageIntro, ScoreBar } from "@/components/
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { aggregateGrades, parseHorizon } from "@/lib/scoring";
-import { analystRowsForCalls, getBank, sectorBreakdown } from "@/lib/queries";
+import { analystRowsForCalls, getBank, rankedPeerScores, sectorBreakdown } from "@/lib/queries";
 
 type Params = { slug: string };
 
@@ -39,6 +39,7 @@ export default async function BankPage({
   if (!data) notFound();
   const { bank, calls } = data;
   const aggregate = aggregateGrades(calls.map((call) => call.grades[horizon]));
+  const peers = await rankedPeerScores("bank", horizon);
   const sectors = sectorBreakdown(calls, horizon);
   const roster = analystRowsForCalls(calls, horizon);
   const maxGraded = Math.max(...sectors.map((item) => item.aggregate.graded), 1);
@@ -56,7 +57,7 @@ export default async function BankPage({
           <h2 className="font-serif text-2xl">Aggregate accuracy</h2>
           <HorizonChips path={`/banks/${bank.slug}`} current={{}} horizon={horizon} />
         </div>
-        <AggregateStats aggregate={aggregate} horizon={horizon} />
+        <AggregateStats aggregate={aggregate} horizon={horizon} peers={peers} />
       </div>
       <section className="mb-8 grid gap-4 lg:grid-cols-2">
         <div className="panel p-5">
@@ -107,7 +108,7 @@ export default async function BankPage({
                   </td>
                   <td className="num">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
                   <td>
-                    <ScoreBar score={row.aggregate.avgScore} />
+                    <ScoreBar score={row.aggregate.avgScore} placement={row.placement} />
                   </td>
                 </tr>
               ))}

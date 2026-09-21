@@ -34,7 +34,7 @@ export default async function AnalystsPage() {
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ analyst, aggregate }) => (
+            {rows.map(({ analyst, aggregate, placement }) => (
               <tr key={analyst.id}>
                 <td>
                   <Link href={`/analysts/${analyst.slug}`} className="font-medium hover:text-brass">
@@ -51,7 +51,7 @@ export default async function AnalystsPage() {
                 <td className="num">{aggregate.graded}</td>
                 <td className="num">{aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`}</td>
                 <td>
-                  <ScoreBar score={aggregate.avgScore} />
+                  <ScoreBar score={aggregate.avgScore} placement={placement} />
                 </td>
               </tr>
             ))}

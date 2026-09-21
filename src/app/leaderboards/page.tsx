@@ -50,7 +50,7 @@ export default async function LeaderboardsPage({
   const rankLine =
     rank === "chad"
       ? "Sorted by the Chad integer. Names in the same bucket keep the higher score out of 100 ahead."
-      : "Sorted by the score out of 100. Under 70 is Chud territory.";
+      : "Sorted by the score out of 100. Under 70 is Chud territory. Top 30% of this board earns chaddiness.";
   const lede =
     view === "offenders"
       ? `Lowest first over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad. Both grades are on the row.`
@@ -125,7 +125,7 @@ export default async function LeaderboardsPage({
       <p className="mt-4 max-w-3xl text-xs leading-5 text-faint">
         Showing {board.rows.length} of {board.considered} {entity === "bank" ? "banks" : "analysts"} with at least{" "}
         {minimumSample(entity, sector)} graded {HORIZONS[horizon].short} calls
-        {sector ? ` in ${sector}` : ""}. Score out of 100 is the full grade. Chad is the 1–10 bucket: under 70 is Chud territory (1–4), 70–84 is mid (5–7), 85–100 is the Chad side (8–10). Default sort is the 100-point score. “If followed” averages the stock return on buys and the inverse return on sells. Holds are left out of that column.
+        {sector ? ` in ${sector}` : ""}. Score out of 100 is the full grade. Under 70 is Chud territory. The top 30% of this board, if they also cleared 70, are on the Chad side. Everyone else at or above 70 is mid. Default sort is the 100-point score. “If followed” averages the stock return on buys and the inverse return on sells. Holds are left out of that column.
       </p>
     </div>
   );

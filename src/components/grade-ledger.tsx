@@ -1,6 +1,6 @@
 import { pct, pctUnsigned, usd } from "@/lib/format";
 import { ratingLabel } from "@/lib/labels";
-import { formatChadScore, formatPoints, HORIZONS, HORIZON_KEYS, type CallGrade, type HorizonKey } from "@/lib/scoring";
+import { formatPoints, HORIZONS, HORIZON_KEYS, placeChad, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
 import { GradePill, SideNote } from "./ui";
 
@@ -22,11 +22,12 @@ function priceFor(call: ScoredCall, horizon: HorizonKey) {
   return call.price1y;
 }
 
-export function GradeLedger({ call }: { call: ScoredCall }) {
+export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<HorizonKey, number[]> }) {
   return (
     <div className="grid gap-3 lg:grid-cols-3">
       {HORIZON_KEYS.map((horizon) => {
         const grade = call.grades[horizon];
+        const placement = placeChad(grade.score, peers[horizon]);
         const spec = HORIZONS[horizon];
         const after = priceFor(call, horizon);
         return (
@@ -41,7 +42,7 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
             {grade.gradeable ? (
               <div className="mt-4">
                 <p className="flex items-end gap-2">
-                  <span className="num text-6xl leading-none">{formatChadScore(grade.score)}</span>
+                  <span className="num text-6xl leading-none">{placement.chad ?? "—"}</span>
                   <span className="mb-1 text-sm text-muted">
                     / 10
                     <span className="mt-0.5 block text-[11px]">
@@ -61,7 +62,7 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
                     style={{ width: `${grade.score == null ? 0 : Math.min(100, Math.max(0, grade.score))}%` }}
                   />
                 </div>
-                <SideNote raw={grade.score} className="mt-2" />
+                <SideNote placement={placement} className="mt-2" />
               </div>
             ) : null}
             {grade.gradeable ? (

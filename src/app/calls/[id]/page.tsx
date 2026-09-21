@@ -5,7 +5,7 @@ import { GradeLedger } from "@/components/grade-ledger";
 import { RatingPill } from "@/components/ui";
 import { callHeadline, formatDate, usd } from "@/lib/format";
 import { actionLabel, ratingLabel } from "@/lib/labels";
-import { getCall } from "@/lib/queries";
+import { callPeerScores, getCall } from "@/lib/queries";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { id: string };
@@ -24,6 +24,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
   const { id } = await params;
   const call = await getCall(id);
   if (!call) notFound();
+  const peers = await callPeerScores();
   const headline = callHeadline({
     action: call.action,
     symbol: call.ticker.symbol,
@@ -79,9 +80,9 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
 
       <h2 className="mb-3 mt-10 font-serif text-3xl">The grade</h2>
       <p className="mb-4 max-w-2xl text-sm leading-6 text-muted">
-        The large number is the Chad score for that window, an integer from 1 to 10. 1 is Chud. 10 is Chad. The same card shows the full score out of 100. It gets chuddy under 70. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
+        The large number is the Chad score for that window, an integer from 1 to 10. 1 is Chud. 10 is Chad. The same card shows the full score out of 100. It gets chuddy under 70. Top 30% of calls at that horizon earns chaddiness, if the score also cleared 70. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
       </p>
-      <GradeLedger call={call} />
+      <GradeLedger call={call} peers={peers} />
 
       <p className="mt-6 text-sm text-muted">
         <Link href="/methodology" className="text-brass hover:text-ink">

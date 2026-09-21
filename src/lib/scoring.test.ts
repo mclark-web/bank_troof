@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { aggregateGrades, chadSide, formatChadScore, formatPoints, gradeCall, toChadScore } from "./scoring";
+import { aggregateGrades, formatPoints, gradeCall, placeChad, topThirtyCutoff } from "./scoring";
 
 describe("gradeCall", () => {
   it("credits a buy that clears the 90-day hurdle", () => {
@@ -102,44 +102,45 @@ describe("gradeCall", () => {
   });
 });
 
-describe("toChadScore", () => {
+describe("placeChad", () => {
+  const peers = [40, 55, 60, 68, 72, 75, 80, 88, 92, 96];
+
   it("keeps everything under 70 on the Chud side", () => {
-    assert.equal(toChadScore(0), 1);
-    assert.equal(toChadScore(17.9), 1);
-    assert.equal(toChadScore(50), 3);
-    assert.equal(toChadScore(69), 4);
-    assert.equal(toChadScore(69.9), 4);
-    assert.equal(chadSide(69.9), "chud");
-    assert.equal(toChadScore(70), 5);
-    assert.equal(chadSide(70), "mid");
-    assert.equal(toChadScore(84.9), 7);
-    assert.equal(toChadScore(85), 8);
-    assert.equal(chadSide(85), "chad");
-    assert.equal(toChadScore(92), 9);
-    assert.equal(toChadScore(100), 10);
-    assert.equal(formatChadScore(92), "9");
-    assert.equal(formatChadScore(null), "—");
+    assert.equal(placeChad(0, peers).chad, 1);
+    assert.equal(placeChad(50, peers).chad, 3);
+    assert.equal(placeChad(69.9, peers).side, "chud");
+    assert.equal(placeChad(69.9, peers).chad, 4);
+    assert.equal(placeChad(69.9, [90, 95, 99]).side, "chud");
     assert.equal(formatPoints(92), "92");
-    assert.equal(formatPoints(82.44), "82.4");
     assert.equal(formatPoints(null), "—");
-    for (const raw of [0, 25, 50, 69, 70, 75, 85, 92, 100]) {
-      const shown = toChadScore(raw);
-      assert.equal(Number.isInteger(shown), true);
-      assert.ok(shown != null && shown >= 1 && shown <= 10);
-      if (raw < 70) assert.ok((shown ?? 0) <= 4);
-      else if (raw < 85) assert.ok((shown ?? 0) >= 5 && (shown ?? 0) <= 7);
-      else assert.ok((shown ?? 0) >= 8);
-    }
   });
 
-  it("clamps out-of-range raw scores and ignores an empty grade", () => {
-    assert.equal(toChadScore(140), 10);
-    assert.equal(toChadScore(-5), 1);
-    assert.equal(toChadScore(null), null);
-    assert.equal(chadSide(null), null);
+  it("gives chaddiness only to the top 30% who also cleared 70", () => {
+    assert.equal(topThirtyCutoff(peers), 88);
+    const high = placeChad(92, peers);
+    const edge = placeChad(88, peers);
+    const mid = placeChad(80, peers);
+    const line = placeChad(70, peers);
+    assert.equal(high.side, "chad");
+    assert.ok((high.chad ?? 0) >= 8);
+    assert.equal(edge.side, "chad");
+    assert.equal(mid.side, "mid");
+    assert.ok((mid.chad ?? 0) >= 5 && (mid.chad ?? 0) <= 7);
+    assert.equal(line.side, "mid");
+    assert.equal(placeChad(100, peers).chad, 10);
   });
 
-  it("buckets the average score instead of averaging the buckets", () => {
+  it("treats a weak field as Chad once a score clears 70", () => {
+    const weak = [20, 30, 40, 45, 50, 55, 58, 60, 62, 65];
+    assert.ok(topThirtyCutoff(weak) < 70);
+    assert.equal(placeChad(65, weak).side, "chud");
+    assert.equal(placeChad(70, weak).side, "chad");
+    assert.equal(placeChad(null, weak).chad, null);
+    assert.equal(placeChad(-5, weak).side, "chud");
+    assert.equal(placeChad(140, weak).side, "chad");
+  });
+
+  it("buckets an average under 70 as Chud", () => {
     const hit = gradeCall(
       { ratingTo: "buy", priceAtCall: 100, priceTargetTo: null, outcomePrice: 110 },
       "90",
@@ -150,8 +151,8 @@ describe("toChadScore", () => {
     );
     const agg = aggregateGrades([hit, miss]);
     assert.equal(agg.avgScore, 50);
-    assert.equal(toChadScore(agg.avgScore), 3);
-    assert.equal(chadSide(agg.avgScore), "chud");
+    assert.equal(placeChad(agg.avgScore, peers).side, "chud");
+    assert.equal(placeChad(agg.avgScore, peers).chad, 3);
   });
 });
 

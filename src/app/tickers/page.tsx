@@ -43,7 +43,7 @@ export default async function TickersPage() {
                 <tbody>
                   {rows
                     .filter((row) => row.ticker.sector === sector)
-                    .map(({ ticker, aggregate, buckets, voices }) => (
+                    .map(({ ticker, aggregate, placement, buckets, voices }) => (
                       <tr key={ticker.id}>
                         <td>
                           <Link href={`/tickers/${ticker.symbol}`} className="num font-medium hover:text-brass">
@@ -57,7 +57,7 @@ export default async function TickersPage() {
                         <td className="num">{buckets.hold}</td>
                         <td className="num text-miss">{buckets.sell}</td>
                         <td>
-                          <ScoreBar score={aggregate.avgScore} />
+                          <ScoreBar score={aggregate.avgScore} placement={placement} />
                         </td>
                         <td className="num">
                           {aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`}
