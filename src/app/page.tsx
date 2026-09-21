@@ -3,7 +3,8 @@ import { GradePill } from "@/components/ui";
 import { MiniLeaderboard } from "@/components/ui";
 import { callHeadline, formatDate, pct } from "@/lib/format";
 import { ratingLabel } from "@/lib/labels";
-import { getHome } from "@/lib/queries";
+import { getHome, longestClosed } from "@/lib/queries";
+import { HORIZONS } from "@/lib/scoring";
 
 export default async function HomePage() {
   const home = await getHome();
@@ -45,11 +46,13 @@ export default async function HomePage() {
         </div>
         <aside className="panel overflow-hidden">
           <div className="border-b border-line px-4 py-3">
-            <h2 className="font-serif text-xl">Latest graded</h2>
-            <p className="text-xs text-faint">90-day direction, newest first</p>
+            <h2 className="font-serif text-xl">Latest calls</h2>
+            <p className="text-xs text-faint">Newest demo calls. Grade is the longest window that has closed.</p>
           </div>
           <ul>
-            {home.tape.map((call) => (
+            {home.tape.map((call) => {
+              const closed = longestClosed(call);
+              return (
               <li key={call.id} className="border-b border-line/80 px-4 py-3 last:border-0">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -68,10 +71,16 @@ export default async function HomePage() {
                       {call.bank.shortName} · {formatDate(call.callDate)}
                     </p>
                   </div>
-                  <GradePill result={call.grades["90"].directionResult} />
+                  <div className="text-right">
+                    <GradePill result={closed?.grade.directionResult ?? null} />
+                    <p className="mt-1 text-[10px] uppercase tracking-wider text-faint">
+                      {closed ? HORIZONS[closed.horizon].short : "Open"}
+                    </p>
+                  </div>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </aside>
       </section>
@@ -131,7 +140,7 @@ export default async function HomePage() {
               <p className="kicker">Accountability</p>
               <h2 className="mt-2 font-serif text-3xl">Controversial moves</h2>
               <p className="mt-2 max-w-2xl text-sm text-muted">
-                Two-notch rating changes, or price targets that jumped more than 25%. The 90-day grade is beside the move.
+                Two-notch rating changes, or price targets that jumped more than 25%. The grade is the longest window that has closed. Demo calls only.
               </p>
             </div>
             <Link href="/methodology#controversial" className="hidden text-sm text-brass sm:inline">
@@ -144,11 +153,13 @@ export default async function HomePage() {
                 <tr>
                   <th>Call</th>
                   <th>Why</th>
-                  <th>90D</th>
+                  <th>Grade</th>
                 </tr>
               </thead>
               <tbody>
-                {home.controversial.map((call) => (
+                {home.controversial.map((call) => {
+                  const closed = longestClosed(call);
+                  return (
                   <tr key={call.id}>
                     <td>
                       <Link href={`/calls/${call.id}`} className="hover:text-brass">
@@ -160,11 +171,14 @@ export default async function HomePage() {
                     </td>
                     <td className="max-w-xs text-sm text-muted">{call.controversialReason}</td>
                     <td>
-                      <GradePill result={call.grades["90"].directionResult} />
-                      <p className="num mt-1 text-xs text-faint">{pct(call.grades["90"].forwardReturn)}</p>
+                      <GradePill result={closed?.grade.directionResult ?? null} />
+                      <p className="num mt-1 text-xs text-faint">
+                        {closed ? `${HORIZONS[closed.horizon].short} ${pct(closed.grade.forwardReturn)}` : "Open"}
+                      </p>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

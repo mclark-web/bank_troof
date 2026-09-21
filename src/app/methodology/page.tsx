@@ -152,7 +152,7 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="demo">
         <h2 className="font-serif text-3xl text-ink">What this vintage is</h2>
         <p>
-          Grades use real historical prices. The price at the call, and the prices 14, 30, 60, 90, and 365 calendar days later, are the Yahoo Finance adjusted close, already split-adjusted. If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no simulated price path.
+          Grades use real historical prices. The price at the call, and the prices 14, 30, 60, 90, and 365 calendar days later, are the Yahoo Finance adjusted close, already split-adjusted. If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no simulated price path. The sample runs through 21 Sep 2026, with more upgrades, downgrades, and target changes from July onward. A window that has not elapsed is left blank.
         </p>
         <p>
           Analysts, notes, ratings, and price targets are a demo sample. Targets are fictional, and each one is kept in a band around the real price at the call. Firm names are labels for that sample. Each fictional analyst is given a skill level so the leaderboard has a spread. None of it is a track record, a forecast, or a description of anyone’s research.

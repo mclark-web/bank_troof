@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import path from "path";
 import { RATING_NOTCH } from "../src/lib/labels";
-import { aggregateGrades, gradeCall } from "../src/lib/scoring";
+import { aggregateGrades, gradeCall, HORIZONS, type HorizonKey } from "../src/lib/scoring";
 import { adjustedClose, clampTargetToSpot, isoDate, pricesForCall } from "../src/lib/quotes";
 import { ANALYSTS, BANKS, TICKERS, type TickerSeed } from "./universe";
 
@@ -94,6 +94,64 @@ function trueDirection(forward: number, threshold: number): "up" | "flat" | "dow
   if (forward >= threshold) return "up";
   if (forward <= -threshold) return "down";
   return "flat";
+}
+
+const RATING_LADDER = ["sell", "underperform", "hold", "buy", "strong_buy"] as const;
+
+function isWeekday(date: Date) {
+  const day = date.getUTCDay();
+  return day !== 0 && day !== 6;
+}
+
+function nextWeekday(date: Date) {
+  let cursor = new Date(date.getTime());
+  while (!isWeekday(cursor)) cursor = addDays(cursor, 1);
+  return cursor;
+}
+
+function shiftRating(rating: string, delta: number) {
+  const index = RATING_LADDER.indexOf(rating as (typeof RATING_LADDER)[number]);
+  const start = index < 0 ? 2 : index;
+  return RATING_LADDER[Math.max(0, Math.min(RATING_LADDER.length - 1, start + delta))];
+}
+
+function fictionalTarget(
+  rand: () => number,
+  stated: "up" | "flat" | "down",
+  matched: boolean,
+  future: number | null,
+  spot: number,
+) {
+  let target: number;
+  if (future != null && matched) {
+    target = streetTarget(future * (1 + (rand() - 0.5) * 0.08), spot);
+  } else if (stated === "up") {
+    target = streetTarget(spot * (1.1 + rand() * 0.18), spot);
+  } else if (stated === "down") {
+    target = streetTarget(spot * (0.7 + rand() * 0.14), spot);
+  } else {
+    target = streetTarget(spot * (0.97 + rand() * 0.06), spot);
+  }
+  if (target <= 0) target = streetTarget(spot, spot);
+  return streetTarget(clampTargetToSpot(target, spot), spot);
+}
+
+function realizedMove(
+  prices: ReturnType<typeof pricesForCall>,
+  spot: number,
+): { future: number; truth: "up" | "flat" | "down" } | null {
+  const windows: { price: number | null; key: HorizonKey }[] = [
+    { price: prices.price90d, key: "90" },
+    { price: prices.price60d, key: "60" },
+    { price: prices.price30d, key: "30" },
+    { price: prices.price14d, key: "14" },
+  ];
+  for (const window of windows) {
+    if (window.price == null) continue;
+    const forward = window.price / spot - 1;
+    return { future: window.price, truth: trueDirection(forward, HORIZONS[window.key].threshold) };
+  }
+  return null;
 }
 
 async function main() {
@@ -244,6 +302,118 @@ async function main() {
     }
   }
 
+  // July–September 2026 is denser on purpose. The spring book was one call every
+  // 35 days and stopped in June, so the newest tape looked stale. These rows use
+  // the same adjusted closes. A horizon past 21 Sep 2026 is left null.
+  const recentRand = mulberry32(20260921);
+  const recentEnd = new Date("2026-09-21T00:00:00.000Z");
+  const freshDates = new Set<string>();
+
+  function publishRecent(analyst: (typeof ANALYSTS)[number], ticker: TickerSeed, cursor: Date) {
+    const bank = bankBySlug.get(analyst.bankSlug);
+    if (!bank) return;
+    const accuracy = clamp(0.2 + bank.bias * 0.68 + analyst.personal, 0.12, 0.9);
+    const spot = adjustedClose(ticker.symbol, cursor);
+    const prices = pricesForCall(ticker.symbol, cursor);
+    const moved = realizedMove(prices, spot);
+    const matched = moved != null && recentRand() < accuracy;
+    const stated: "up" | "flat" | "down" =
+      moved == null
+        ? recentRand() < 0.42
+          ? "up"
+          : recentRand() < 0.72
+            ? "down"
+            : "flat"
+        : matched
+          ? moved.truth
+          : otherDirection(moved.truth, recentRand);
+    const key = `${analyst.slug}:${ticker.symbol}`;
+    const previous = lastRating.get(key);
+    let ratingTo = ratingFor(stated, recentRand);
+    let target = fictionalTarget(recentRand, stated, matched, moved?.future ?? null, spot);
+    if (previous) {
+      const notch = RATING_NOTCH[previous.rating] ?? 3;
+      if (stated === "up" && notch < 5) {
+        ratingTo = shiftRating(previous.rating, recentRand() < 0.32 ? 2 : 1);
+      } else if (stated === "down" && notch > 1) {
+        ratingTo = shiftRating(previous.rating, recentRand() < 0.32 ? -2 : -1);
+      } else {
+        ratingTo = previous.rating;
+        const lift = stated === "down" ? -1 : 1;
+        const punch = recentRand() < 0.22 ? 0.28 : 0.06 + recentRand() * 0.12;
+        target = streetTarget(clampTargetToSpot(previous.target * (1 + lift * punch), spot), spot);
+      }
+    }
+
+    let action = "initiate";
+    const reasons: string[] = [];
+    if (previous) {
+      const fromNotch = RATING_NOTCH[previous.rating] ?? 3;
+      const toNotch = RATING_NOTCH[ratingTo] ?? 3;
+      if (toNotch > fromNotch) action = "upgrade";
+      else if (toNotch < fromNotch) action = "downgrade";
+      else if (target > previous.target * 1.03) action = "target_raise";
+      else if (target < previous.target * 0.97) action = "target_cut";
+      else action = "reiterate";
+      if (Math.abs(toNotch - fromNotch) >= 2) reasons.push("Two-notch rating change");
+      if (Math.abs(target - previous.target) / previous.target >= 0.25) {
+        reasons.push("Price target moved more than 25%");
+      }
+    }
+
+    calls.push({
+      id: `call_${String(sequence).padStart(4, "0")}`,
+      analystId: analyst.slug,
+      bankId: analyst.bankSlug,
+      tickerId: ticker.symbol,
+      callDate: cursor,
+      action,
+      ratingFrom: previous?.rating ?? null,
+      ratingTo,
+      priceTargetFrom: previous?.target ?? null,
+      priceTargetTo: target,
+      priceAtCall: spot,
+      price14d: prices.price14d,
+      price30d: prices.price30d,
+      price60d: prices.price60d,
+      price90d: prices.price90d,
+      price1y: prices.price1y,
+      note: `Demo. ${pick(recentRand, NOTES[action] ?? NOTES.reiterate)}`,
+      controversial: reasons.length > 0,
+      controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
+      source: "demo",
+    });
+    freshDates.add(isoDate(cursor));
+    lastRating.set(key, { rating: ratingTo, target });
+    sequence += 1;
+    const covered = coverage.get(analyst.slug) ?? [];
+    if (!covered.some((item) => item.symbol === ticker.symbol)) covered.push(ticker);
+  }
+
+  for (const analyst of ANALYSTS) {
+    const names = coverage.get(analyst.slug) ?? [];
+    if (!bankBySlug.get(analyst.bankSlug) || names.length === 0) continue;
+    let cursor = nextWeekday(addDays(new Date("2026-07-01T00:00:00.000Z"), ANALYSTS.indexOf(analyst) % 5));
+    let turn = ANALYSTS.indexOf(analyst) % names.length;
+    while (cursor <= recentEnd) {
+      publishRecent(analyst, names[turn % names.length], cursor);
+      turn += 1;
+      cursor = nextWeekday(addDays(cursor, 7 + Math.floor(recentRand() * 3)));
+    }
+  }
+
+  const showcase = ["AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "NFLX", "JPM", "UNH", "XOM", "WMT", "CAT"];
+  for (const symbol of showcase) {
+    if (calls.some((call) => call.tickerId === symbol && isoDate(call.callDate) >= "2026-09-01")) continue;
+    const ticker = TICKERS.find((item) => item.symbol === symbol);
+    if (!ticker) throw new Error(`Showcase ticker ${symbol} is not in the universe.`);
+    const analyst =
+      ANALYSTS.find((item) => (coverage.get(item.slug) ?? []).some((name) => name.symbol === symbol)) ??
+      ANALYSTS.find((item) => item.sector === ticker.sector);
+    if (!analyst) throw new Error(`No demo analyst can file a September call on ${symbol}.`);
+    publishRecent(analyst, ticker, new Date("2026-09-16T00:00:00.000Z"));
+  }
+
   await prisma.call.deleteMany();
   await prisma.coverage.deleteMany();
   await prisma.analyst.deleteMany();
@@ -317,6 +487,31 @@ async function main() {
     if (multiple < 0.5 || multiple > 1.6) {
       throw new Error(`${call.id} target ${call.priceTargetTo} is outside a plausible band around ${call.priceAtCall}.`);
     }
+    if (isoDate(call.callDate) > "2026-09-21") {
+      throw new Error(`${call.id} is dated after the price history.`);
+    }
+  }
+
+  const changeActions = new Set(["upgrade", "downgrade", "target_raise", "target_cut"]);
+  const changes = calls.filter((call) => changeActions.has(call.action));
+  const recentChanges = changes.filter((call) => isoDate(call.callDate) >= "2026-07-01");
+  const september = calls.filter((call) => isoDate(call.callDate) >= "2026-09-01");
+  const newest = calls.reduce((latest, call) => (call.callDate > latest.callDate ? call : latest));
+  if (recentChanges.length / changes.length < 0.3) {
+    throw new Error(
+      `Only ${recentChanges.length} of ${changes.length} rating or target changes fall in Jul–Sep 2026.`,
+    );
+  }
+  if (september.length < 60 || isoDate(newest.callDate) < "2026-09-15") {
+    throw new Error(
+      `September book is thin (${september.length} calls, newest ${isoDate(newest.callDate)}).`,
+    );
+  }
+  const septemberSymbols = new Set(september.map((call) => call.tickerId));
+  for (const symbol of ["AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "JPM", "UNH", "XOM", "WMT"]) {
+    if (!septemberSymbols.has(symbol)) {
+      throw new Error(`${symbol} has no September 2026 demo call.`);
+    }
   }
 
   await prisma.call.createMany({ data: calls });
@@ -342,6 +537,21 @@ async function main() {
     .sort((a, b) => (b.avgScore ?? 0) - (a.avgScore ?? 0));
 
   console.log(`Seeded ${BANKS.length} banks, ${ANALYSTS.length} analysts, ${TICKERS.length} tickers, ${calls.length} calls.`);
+  const byMonth = new Map<string, number>();
+  for (const call of calls) {
+    const month = isoDate(call.callDate).slice(0, 7);
+    if (month < "2026-03") continue;
+    byMonth.set(month, (byMonth.get(month) ?? 0) + 1);
+  }
+  console.log(
+    `Jul–Sep changes: ${recentChanges.length}/${changes.length}. September calls: ${september.length}. Fresh dates: ${freshDates.size}.`,
+  );
+  console.log(
+    [...byMonth.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, count]) => `${month}=${count}`)
+      .join("  "),
+  );
   console.log("90D bank scores (demo):");
   for (const row of board) {
     const hit = row.hitRate == null ? "—" : `${Math.round(row.hitRate * 100)}%`;

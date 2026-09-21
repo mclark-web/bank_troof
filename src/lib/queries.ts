@@ -34,6 +34,17 @@ export type BoardRow = {
   placement: ChadPlacement;
 };
 
+const CLOSED_LONGEST_FIRST: HorizonKey[] = ["365", "90", "60", "30", "14"];
+
+/** Longest horizon that already has a print. Null when every window is still open. */
+export function longestClosed(call: ScoredCall): { horizon: HorizonKey; grade: CallGrade } | null {
+  for (const horizon of CLOSED_LONGEST_FIRST) {
+    const grade = call.grades[horizon];
+    if (grade.gradeable) return { horizon, grade };
+  }
+  return null;
+}
+
 function gradeStored(call: Call): Record<HorizonKey, CallGrade> {
   const base = {
     ratingTo: call.ratingTo,
@@ -155,10 +166,8 @@ export async function getHome() {
   const featuredMiss = [...directional].sort(
     (a, b) => (a.grades["90"].followedReturn ?? 0) - (b.grades["90"].followedReturn ?? 0),
   )[0];
-  const controversial = calls
-    .filter((call) => call.controversial && call.grades["90"].gradeable)
-    .slice(0, 5);
-  const tape = calls.filter((call) => call.grades["90"].gradeable).slice(0, 7);
+  const controversial = calls.filter((call) => call.controversial).slice(0, 5);
+  const tape = calls.slice(0, 8);
   const analystCount = new Set(calls.map((call) => call.analystId)).size;
   const bankCount = new Set(calls.map((call) => call.bankId)).size;
   const graded90 = calls.filter((call) => call.grades["90"].gradeable).length;
