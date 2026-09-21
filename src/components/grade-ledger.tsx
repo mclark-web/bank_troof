@@ -2,7 +2,7 @@ import { pct, pctUnsigned, usd } from "@/lib/format";
 import { ratingLabel } from "@/lib/labels";
 import { formatChadScore, formatPoints, HORIZONS, HORIZON_KEYS, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
-import { GradePill } from "./ui";
+import { GradePill, SideNote } from "./ui";
 
 function expectation(grade: CallGrade, rating: string, horizon: HorizonKey) {
   const hurdle = pctUnsigned(grade.threshold, 0);
@@ -61,6 +61,7 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
                     style={{ width: `${grade.score == null ? 0 : Math.min(100, Math.max(0, grade.score))}%` }}
                   />
                 </div>
+                <SideNote raw={grade.score} className="mt-2" />
               </div>
             ) : null}
             {grade.gradeable ? (

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HORIZONS, HORIZON_KEYS, formatPoints, toChadScore, type HorizonKey } from "@/lib/scoring";
+import { HORIZONS, HORIZON_KEYS, chadSide, chadSideLabel, formatPoints, toChadScore, type HorizonKey } from "@/lib/scoring";
 import { avatarColor, cx, initials, pct } from "@/lib/format";
 import { actionLabel, ratingLabel, ratingTone } from "@/lib/labels";
 import type { Aggregate } from "@/lib/scoring";
@@ -181,7 +181,7 @@ export function ChadScore({
       <div className="mt-4 h-2 max-w-sm overflow-hidden rounded-full bg-white/10" aria-hidden>
         <div className="h-full bg-brass" style={{ width: `${points}%` }} />
       </div>
-      <p className="mt-1 max-w-sm text-[11px] text-faint">Full score out of 100. Chad is that score, rounded onto 1–10.</p>
+      <SideNote raw={raw} />
       <ol className="mt-3 flex max-w-sm gap-1" aria-hidden>
         {Array.from({ length: 10 }, (_, index) => index + 1).map((step) => (
           <li
@@ -203,11 +203,19 @@ export function ChadScore({
   );
 }
 
+export function SideNote({ raw, className = "" }: { raw: number | null | undefined; className?: string }) {
+  const side = chadSide(raw);
+  const label = chadSideLabel(raw);
+  if (!side || !label) return null;
+  const tone = side === "chud" ? "text-miss" : side === "chad" ? "text-hit" : "text-brass";
+  return <p className={cx("text-sm", tone, className)}>{label}</p>;
+}
+
 export function ScoreBar({ score }: { score: number | null }) {
   const chad = toChadScore(score);
   const width = score == null ? 0 : Math.min(100, Math.max(0, score));
   return (
-    <div title={chad == null ? "No score" : `Chad ${chad} of 10. Score ${formatPoints(score)} of 100. 1 is Chud, 10 is Chad.`}>
+    <div title={chad == null ? "No score" : `Chad ${chad} of 10. Score ${formatPoints(score)} of 100. ${chadSideLabel(score) ?? ""}`}>
       <div className="flex items-baseline gap-2">
         <span className="num text-2xl leading-none text-ink">{chad == null ? "—" : chad}</span>
         <span className="num text-[11px] text-faint">/10</span>

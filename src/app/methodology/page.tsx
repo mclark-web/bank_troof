@@ -4,8 +4,10 @@ import { PageIntro } from "@/components/ui";
 import { pctUnsigned } from "@/lib/format";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 import {
+  CHAD_BANDS,
   CHAD_MAX,
   CHAD_MIN,
+  CHUD_LINE,
   DIRECTION_WEIGHT,
   FLAT_NEAR_MULTIPLIER,
   formatChadScore,
@@ -90,49 +92,35 @@ export default function MethodologyPage() {
           A report card shows two grades. The big number is a {CHAD_MIN}–{CHAD_MAX} Chad score. <strong className="font-medium text-ink">{CHAD_MIN} is Chud</strong>, a terrible track record. <strong className="font-medium text-ink">{CHAD_MAX} is Chad</strong>, an excellent one. Beside it, every card shows the full score out of 100. Hit rate, return if followed, and sample size stay underneath. They do not set the rank.
         </p>
         <p>
-          The engine scores a call from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. That 0–100 score is always visible. The Chad bucket is the same score, mapped and rounded to an integer:
+          The engine scores a call from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. That 0–100 score is always visible. The Chad number is a bucket of the same score, not a replacement for it.
         </p>
-        <p className="num text-ink">Chad = round( {CHAD_MIN} + {CHAD_MAX - CHAD_MIN} × (score ÷ 100) )</p>
+        <p>
+          <strong className="font-medium text-ink">It gets chuddy under {CHUD_LINE}%.</strong> A score under {CHUD_LINE} is Chud territory, Chad {CHAD_MIN}–4. From {CHUD_LINE} to 84 the record is mid, Chad 5–7. From 85 to 100 it is on the Chad side, Chad 8–{CHAD_MAX}. A 69 stays a 4. A 70 is the first 5.
+        </p>
         <div className="panel overflow-x-auto">
           <table className="data-table">
             <thead>
               <tr>
                 <th>Score /100</th>
-                <th>Chad score</th>
-                <th>Pole</th>
+                <th>Chad</th>
+                <th>Side</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="num">0</td>
-                <td className="num">{formatChadScore(0)}</td>
-                <td>Chud</td>
-              </tr>
-              <tr>
-                <td className="num">25</td>
-                <td className="num">{formatChadScore(25)}</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td className="num">50</td>
-                <td className="num">{formatChadScore(50)}</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td className="num">75</td>
-                <td className="num">{formatChadScore(75)}</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td className="num">100</td>
-                <td className="num">{formatChadScore(100)}</td>
-                <td>Chad</td>
-              </tr>
+              {CHAD_BANDS.map((band) => (
+                <tr key={band.chad}>
+                  <td className="num">
+                    {band.minLabel}–{band.maxLabel}
+                  </td>
+                  <td className="num">{band.chad}</td>
+                  <td>{band.side === "chud" ? "Chud" : band.side === "mid" ? "Mid" : "Chad"}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
         <p>
-          Values outside 0–100 are clamped before the map, so Chad cannot fall below {CHAD_MIN} or rise above {CHAD_MAX}. Half steps round away from zero: a score of 50 is 5.5 and publishes as Chad {formatChadScore(50)}, with 50/100 still on the card. A score of 92 publishes as Chad {formatChadScore(92)}, and 92/100 stays visible. The bucket never replaces the full score.
+          Values outside 0–100 are clamped before the bucket, so Chad cannot fall below {CHAD_MIN} or rise above {CHAD_MAX}. A 50 is Chad {formatChadScore(50)} and still shows 50/100. A 92 is Chad {formatChadScore(92)} and still shows 92/100. The card buckets the average score. It does not average the 1–10 numbers.
         </p>
         <p>
           “If followed” is a separate column. Buys contribute the forward return. Sells contribute the inverse, the return from acting on the negative call. Holds are excluded, because a hold is not an instruction to be long or short.
@@ -142,10 +130,10 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="aggregation">
         <h2 className="font-serif text-3xl text-ink">Leaderboards</h2>
         <p>
-          An analyst’s score is the average of that person’s graded calls at the selected horizon, on the 0–100 scale. The Chad integer is that average, mapped and rounded once. A bank uses the average of the bank’s calls, not the average of its analysts. One analyst with forty calls outweighs one analyst with eight. That is deliberate: the firm published the calls. Rounding happens after the average, so the published integer is not the average of each call’s integer.
+          An analyst’s score is the average of that person’s graded calls at the selected horizon, on the 0–100 scale. The Chad integer is that average, dropped into the bucket table above. A bank uses the average of the bank’s calls, not the average of its analysts. One analyst with forty calls outweighs one analyst with eight. That is deliberate: the firm published the calls. The bucket is applied after the average, so the published integer is not the average of each call’s integer.
         </p>
         <p>
-          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the Chad integer and the score out of 100 are columns. The default order is the 100-point score, because it is the precise engine result and the same order as the unrounded map. Sorting by the Chad integer is on the page; names that share a bucket keep the higher 100-point score ahead. Worst offenders reverse whichever key is selected.
+          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the Chad integer and the score out of 100 are columns. The default order is the 100-point score, the full grade. Sorting by the Chad integer is on the page; names that share a bucket keep the higher 100-point score ahead. Worst offenders reverse whichever key is selected. It gets chuddy under {CHUD_LINE}.
         </p>
         <p>
           Sector filters keep calls whose ticker is in that sector. An analyst who only covers technology is unchanged. A generalist would be scored only on the names in the filter.

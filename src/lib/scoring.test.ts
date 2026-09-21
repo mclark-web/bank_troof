@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { aggregateGrades, formatChadScore, formatPoints, gradeCall, toChadExact, toChadScore } from "./scoring";
+import { aggregateGrades, chadSide, formatChadScore, formatPoints, gradeCall, toChadScore } from "./scoring";
 
 describe("gradeCall", () => {
   it("credits a buy that clears the 90-day hurdle", () => {
@@ -103,23 +103,32 @@ describe("gradeCall", () => {
 });
 
 describe("toChadScore", () => {
-  it("maps the raw poles onto the integers 1 Chud and 10 Chad", () => {
-    assert.equal(toChadExact(0), 1);
-    assert.equal(toChadExact(100), 10);
-    assert.equal(toChadExact(50), 5.5);
+  it("keeps everything under 70 on the Chud side", () => {
     assert.equal(toChadScore(0), 1);
-    assert.equal(toChadScore(100), 10);
-    assert.equal(toChadScore(50), 6);
+    assert.equal(toChadScore(17.9), 1);
+    assert.equal(toChadScore(50), 3);
+    assert.equal(toChadScore(69), 4);
+    assert.equal(toChadScore(69.9), 4);
+    assert.equal(chadSide(69.9), "chud");
+    assert.equal(toChadScore(70), 5);
+    assert.equal(chadSide(70), "mid");
+    assert.equal(toChadScore(84.9), 7);
+    assert.equal(toChadScore(85), 8);
+    assert.equal(chadSide(85), "chad");
     assert.equal(toChadScore(92), 9);
+    assert.equal(toChadScore(100), 10);
     assert.equal(formatChadScore(92), "9");
     assert.equal(formatChadScore(null), "—");
     assert.equal(formatPoints(92), "92");
     assert.equal(formatPoints(82.44), "82.4");
     assert.equal(formatPoints(null), "—");
-    for (const raw of [0, 25, 50, 75, 92, 100]) {
+    for (const raw of [0, 25, 50, 69, 70, 75, 85, 92, 100]) {
       const shown = toChadScore(raw);
       assert.equal(Number.isInteger(shown), true);
       assert.ok(shown != null && shown >= 1 && shown <= 10);
+      if (raw < 70) assert.ok((shown ?? 0) <= 4);
+      else if (raw < 85) assert.ok((shown ?? 0) >= 5 && (shown ?? 0) <= 7);
+      else assert.ok((shown ?? 0) >= 8);
     }
   });
 
@@ -127,9 +136,10 @@ describe("toChadScore", () => {
     assert.equal(toChadScore(140), 10);
     assert.equal(toChadScore(-5), 1);
     assert.equal(toChadScore(null), null);
+    assert.equal(chadSide(null), null);
   });
 
-  it("rounds the map of the average, not the average of the rounded grades", () => {
+  it("buckets the average score instead of averaging the buckets", () => {
     const hit = gradeCall(
       { ratingTo: "buy", priceAtCall: 100, priceTargetTo: null, outcomePrice: 110 },
       "90",
@@ -139,8 +149,9 @@ describe("toChadScore", () => {
       "90",
     );
     const agg = aggregateGrades([hit, miss]);
-    assert.equal(toChadExact(agg.avgScore), 5.5);
-    assert.equal(toChadScore(agg.avgScore), 6);
+    assert.equal(agg.avgScore, 50);
+    assert.equal(toChadScore(agg.avgScore), 3);
+    assert.equal(chadSide(agg.avgScore), "chud");
   });
 });
 

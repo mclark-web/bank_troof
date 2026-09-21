@@ -15,22 +15,54 @@ export const FLAT_NEAR_MULTIPLIER = 1.35;
 export const CHAD_MIN = 1;
 export const CHAD_MAX = 10;
 
+/** Anything under this 0–100 score is Chud territory. */
+export const CHUD_LINE = 70;
+
+export type ChadSide = "chud" | "mid" | "chad";
+
 /**
- * Unrounded 1–10 map of a 0–100 call score, or of an average of those scores.
- * 0 → 1 (Chud), 50 → 5.5, 100 → 10 (Chad). Linear, so the map of an average
- * equals the average of the maps. The public grade rounds this once.
+ * Buckets of the 0–100 score. Upper bounds are exclusive except the last.
+ * Under 70 stays on the Chud side (1–4). 70–84 is mid (5–7). 85–100 is Chad (8–10).
  */
-export function toChadExact(raw: number | null | undefined): number | null {
+export const CHAD_BANDS: { below: number; minLabel: number; maxLabel: number; chad: number; side: ChadSide }[] = [
+  { below: 18, minLabel: 0, maxLabel: 17, chad: 1, side: "chud" },
+  { below: 35, minLabel: 18, maxLabel: 34, chad: 2, side: "chud" },
+  { below: 52, minLabel: 35, maxLabel: 51, chad: 3, side: "chud" },
+  { below: 70, minLabel: 52, maxLabel: 69, chad: 4, side: "chud" },
+  { below: 75, minLabel: 70, maxLabel: 74, chad: 5, side: "mid" },
+  { below: 80, minLabel: 75, maxLabel: 79, chad: 6, side: "mid" },
+  { below: 85, minLabel: 80, maxLabel: 84, chad: 7, side: "mid" },
+  { below: 90, minLabel: 85, maxLabel: 89, chad: 8, side: "chad" },
+  { below: 95, minLabel: 90, maxLabel: 94, chad: 9, side: "chad" },
+  { below: 101, minLabel: 95, maxLabel: 100, chad: 10, side: "chad" },
+];
+
+function clampScore(raw: number | null | undefined): number | null {
   if (raw == null || Number.isNaN(raw)) return null;
-  const clamped = Math.min(100, Math.max(0, raw));
-  return CHAD_MIN + ((CHAD_MAX - CHAD_MIN) * clamped) / 100;
+  return Math.min(100, Math.max(0, raw));
 }
 
-/** Public grade: nearest integer from 1 (Chud) to 10 (Chad). */
+function bandFor(raw: number | null | undefined) {
+  const score = clampScore(raw);
+  if (score == null) return null;
+  return CHAD_BANDS.find((band) => score < band.below) ?? CHAD_BANDS[CHAD_BANDS.length - 1];
+}
+
+/** Public 1–10 bucket. The 0–100 score is mapped once; Chad integers are not averaged. */
 export function toChadScore(raw: number | null | undefined): number | null {
-  const exact = toChadExact(raw);
-  if (exact == null) return null;
-  return Math.round(exact);
+  return bandFor(raw)?.chad ?? null;
+}
+
+export function chadSide(raw: number | null | undefined): ChadSide | null {
+  return bandFor(raw)?.side ?? null;
+}
+
+export function chadSideLabel(raw: number | null | undefined): string | null {
+  const side = chadSide(raw);
+  if (side === "chud") return "Chud territory. It gets chuddy under 70.";
+  if (side === "mid") return "Above 70. Respectable, not Chad yet.";
+  if (side === "chad") return "Chad side.";
+  return null;
 }
 
 export function formatChadScore(raw: number | null | undefined): string {

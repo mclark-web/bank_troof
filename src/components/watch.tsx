@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { formatChadScore, formatPoints } from "@/lib/scoring";
+import { chadSideLabel, formatChadScore, formatPoints } from "@/lib/scoring";
 
 export type WatchKind = "analyst" | "bank" | "ticker";
 
@@ -168,6 +168,7 @@ export function WatchlistBoard() {
                     <span className="num text-lg text-faint">/10</span>
                   </p>
                   <p className="mt-1 text-[11px] text-faint">1 = Chud · 10 = Chad</p>
+                  <p className="mt-1 text-xs text-muted">{chadSideLabel(score.aggregate.avgScore)}</p>
                   <p className="num text-sm text-muted">
                     Score {formatPoints(score.aggregate.avgScore)}
                     <span className="text-faint">/100</span>
