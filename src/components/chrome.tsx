@@ -13,7 +13,7 @@ const NAV = [
 export function DemoBanner() {
   return (
     <div className="border-b border-brass/20 bg-brass/10 px-4 py-2 text-center text-xs text-brass sm:text-[13px]">
-      Demo data, vintage {DATASET.vintageLabel}. Analysts are fictional. Prices and grades are illustrative — not a live track record, and not investment advice.
+      Demo vintage {DATASET.vintageLabel}. Analysts and notes are sample. Grades use historical adjusted closes. Not a live track record, and not investment advice.
     </div>
   );
 }
@@ -84,10 +84,10 @@ export function SiteFooter() {
         <div>
           <p className="font-serif text-xl">BankTruth</p>
           <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
-            Banks make the calls. We grade them. BankTruth scores sell-side recommendations against the price that followed — by analyst, by firm, and by ticker. It is an independent demonstration product. It is not a broker-dealer, not investment advice, and not affiliated with any bank or ratings publisher.
+            BankTruth grades calls against historical prices. Analysts and notes in this build are a demo. It is not investment advice, not a tip service, and not for sale. Donations, if any, do not change a score.
           </p>
           <p className="mt-3 max-w-xl text-sm leading-6 text-faint">
-            Past accuracy does not predict future results. Every figure in this build is sample data: fictional analysts, simulated prices, and grades computed from that sample. Do not use it to trade.
+            Past accuracy does not predict future results. Not a broker. Not affiliated with any bank or ratings publisher.
           </p>
         </div>
         <div className="flex flex-col gap-2 text-sm text-muted md:items-end">
@@ -95,6 +95,9 @@ export function SiteFooter() {
           <Link href="/leaderboards" className="hover:text-ink">Leaderboards</Link>
           <Link href="/leaderboards?view=offenders" className="hover:text-ink">Worst offenders</Link>
           <Link href="/watchlist" className="hover:text-ink">Watchlist</Link>
+          <Link href="/disclaimer" className="hover:text-ink">Disclaimer</Link>
+          <Link href="/terms" className="hover:text-ink">Terms</Link>
+          <Link href="/donate" className="hover:text-ink">Donate</Link>
         </div>
       </div>
     </footer>

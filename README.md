@@ -45,6 +45,9 @@ Other commands:
 | `/methodology` | The formula, read from the same constants the scorer uses |
 | `/search` | Analyst, bank, or ticker |
 | `/watchlist` | Saved in this browser only (`localStorage`). No account |
+| `/disclaimer` | Draft disclaimer: not advice, no client relationship, real prices, demo labels |
+| `/terms` | Draft terms: license, scraping, IP, DMCA, liability, governing law |
+| `/donate` | Draft donations page: gifts do not buy grades; no checkout in this build |
 
 ## Methodology (summary)
 
