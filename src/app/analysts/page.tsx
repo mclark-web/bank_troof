@@ -5,7 +5,7 @@ import { listAnalysts } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Analysts",
-  description: "Fictional sell-side analysts in the BankTruth demo, with 90-day scores.",
+  description: "Fictional sell-side analysts in the Charoof Analysts demo, with 90-day scores.",
 };
 
 export default async function AnalystsPage() {

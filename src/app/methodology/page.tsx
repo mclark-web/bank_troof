@@ -19,7 +19,7 @@ import {
 
 export const metadata: Metadata = {
   title: "Methodology",
-  description: "How BankTruth scores sell-side calls. Direction, price targets, and leaderboard rules in the open.",
+  description: "How Charoof Analysts scores sell-side calls. Direction, price targets, and leaderboard rules in the open.",
 };
 
 export default function MethodologyPage() {
@@ -165,7 +165,7 @@ export default function MethodologyPage() {
           {" "}— use that post-split adjusted close for every date, including sessions before the split, so a window that crosses the split does not print a fake crash.
         </p>
         <p>
-          BankTruth is not affiliated with any bank, broker-dealer, or third-party ratings site. It does not scrape rankings sites. Prices are adjusted closes, not a firm’s published targets.
+          Charoof Analysts is not affiliated with any bank, broker-dealer, or third-party ratings site. It does not scrape rankings sites. Prices are adjusted closes, not a firm’s published targets.
         </p>
         <p>
           The grader reads a rating, a price at the call, an optional target, and prices 14, 30, 60, 90, and 365 calendar days later. This vintage already fills those prices from adjusted closes. Replacing the sample analysts is a call archive in the CSV shape documented in the README. Every screen still carries a demo banner, because the people and the notes are not a live track record.

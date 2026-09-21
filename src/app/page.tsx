@@ -21,7 +21,7 @@ export default async function HomePage() {
     <div>
       <section className="grid items-end gap-8 lg:grid-cols-[1.3fr_0.7fr]">
         <div>
-          <p className="kicker">Sell-side accountability</p>
+          <p className="kicker">Charoof Analysts</p>
           <h1 className="mt-3 max-w-3xl font-serif text-5xl leading-[1.05] tracking-tight md:text-6xl">
             Banks make the calls.
             <span className="mt-1 block italic text-brass">We grade them.</span>

@@ -39,11 +39,17 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
       <div className="mx-auto flex max-w-page items-center gap-4 px-4 py-3 md:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-sm bg-brass font-serif text-lg leading-none text-[#1a1408]">
-            B
+        <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="Charoof Analysts">
+          <span
+            aria-hidden
+            className="grid h-8 w-8 place-items-center rounded-sm bg-brass font-serif text-lg leading-none text-[#1a1408]"
+          >
+            C
           </span>
-          <span className="font-serif text-[1.35rem] leading-none tracking-tight">BankTruth</span>
+          <span className="leading-none">
+            <span className="block font-serif text-[1.2rem] tracking-tight">Charoof</span>
+            <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.18em] text-brass">Analysts</span>
+          </span>
         </Link>
         <nav className="ml-4 hidden items-center gap-5 lg:flex" aria-label="Primary">
           {NAV.map((item) => (
@@ -82,9 +88,10 @@ export function SiteFooter() {
     <footer className="mt-16 border-t border-line">
       <div className="mx-auto grid max-w-page gap-8 px-4 py-10 md:grid-cols-[1.4fr_1fr] md:px-6">
         <div>
-          <p className="font-serif text-xl">BankTruth</p>
+          <p className="font-serif text-xl leading-none">Charoof Analysts</p>
+          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-brass">Charoof</p>
           <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
-            BankTruth grades calls against historical prices. Analysts and notes in this build are a demo. It is not investment advice, not a tip service, and not for sale. Donations, if any, do not change a score.
+            Charoof Analysts grades calls against historical prices. Analysts and notes in this build are a demo. It is not investment advice, not a tip service, and not for sale. Donations, if any, do not change a score.
           </p>
           <p className="mt-3 max-w-xl text-sm leading-6 text-faint">
             Past accuracy does not predict future results. Not a broker. Not affiliated with any bank or ratings publisher.

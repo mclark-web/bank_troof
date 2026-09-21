@@ -27,7 +27,7 @@ function resolveDatabaseUrl(): string {
   const source = findDemoDatabase();
   if (!source) {
     throw new Error(
-      "BankTruth demo database is missing. The build must run `npm run build` so prisma/banktruth.db is seeded and traced into the server bundle.",
+      "Charoof Analysts demo database is missing. The build must run `npm run build` so prisma/banktruth.db is seeded and traced into the server bundle.",
     );
   }
 

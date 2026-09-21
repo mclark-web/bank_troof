@@ -5,7 +5,7 @@ import { listTickers } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Tickers",
-  description: "How the BankTruth sample rated each name, and who was right.",
+  description: "How the Charoof Analysts sample rated each name, and who was right.",
 };
 
 export default async function TickersPage() {

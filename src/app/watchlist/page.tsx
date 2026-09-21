@@ -13,7 +13,7 @@ export default function WatchlistPage() {
       <PageIntro
         kicker="Local only"
         title="Watchlist"
-        lede="Saved in this browser. BankTruth does not ask for an account in this demo, and the list does not leave the device."
+        lede="Saved in this browser. Charoof Analysts does not ask for an account in this demo, and the list does not leave the device."
       />
       <WatchlistBoard />
     </div>

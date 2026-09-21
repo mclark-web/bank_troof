@@ -1,8 +1,8 @@
-# BankTruth
+# Charoof Analysts
 
 Banks make the calls. We grade them.
 
-BankTruth is a public scorecard for sell-side recommendations. It ranks fictional demo analysts and sample bank desks by how their ratings and price targets lined up with later prices, and it shows the arithmetic on every call.
+Charoof Analysts is the Charoof scorecard for sell-side recommendations. It ranks fictional demo analysts and sample bank desks by how their ratings and price targets lined up with later prices, and it shows the arithmetic on every call.
 
 This repository ships a complete demo. It does not scrape ranking sites, it is not affiliated with any bank or ratings publisher, and it is not investment advice. Past accuracy does not predict future results.
 
@@ -137,4 +137,4 @@ This deploy is a read-only demo. A writable production feed should use Postgres 
 
 ## Disclaimer
 
-BankTruth is an independent demonstration. It is not investment advice. Past accuracy does not predict future results. Sample figures are not the actual recommendations or performance of any bank, analyst, or issuer. BankTruth is not affiliated with those firms or with any rankings publisher.
+Charoof Analysts is an independent demonstration. It is not investment advice. Past accuracy does not predict future results. Sample figures are not the actual recommendations or performance of any bank, analyst, or issuer. Charoof Analysts is not affiliated with those firms or with any rankings publisher.

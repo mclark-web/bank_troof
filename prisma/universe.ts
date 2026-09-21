@@ -51,7 +51,7 @@ export const BANKS: BankSeed[] = [
     headquarters: "New York",
     bias: 0.72,
     description:
-      "Sample boutique desk. Sector mix and grades exist so BankTruth can show how a smaller roster rolls up to a firm score.",
+      "Sample boutique desk. Sector mix and grades exist so Charoof Analysts can show how a smaller roster rolls up to a firm score.",
   },
   {
     slug: "jefferies",

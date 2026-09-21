@@ -24,14 +24,25 @@ const mono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const description =
+  "Banks make the calls. We grade them. Charoof Analysts scores sell-side recommendations against later prices — by analyst, bank, and ticker.";
+
 export const metadata: Metadata = {
   title: {
-    default: "BankTruth",
-    template: "%s · BankTruth",
+    default: "Charoof Analysts",
+    template: "%s · Charoof Analysts",
   },
-  description:
-    "Banks make the calls. We grade them. BankTruth scores sell-side recommendations against later prices — by analyst, bank, and ticker.",
-  applicationName: "BankTruth",
+  description,
+  applicationName: "Charoof Analysts",
+  openGraph: {
+    siteName: "Charoof Analysts",
+    description,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    description,
+  },
 };
 
 export const viewport: Viewport = {

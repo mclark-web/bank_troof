@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!call) return { title: "Call" };
   return {
     title: `${call.ticker.symbol} ${ratingLabel(call.ratingTo)}`,
-    description: `${call.analyst.name} ${actionLabel(call.action).toLowerCase()} ${call.ticker.symbol}. Sample grade from BankTruth.`,
+    description: `${call.analyst.name} ${actionLabel(call.action).toLowerCase()} ${call.ticker.symbol}. Sample grade from Charoof Analysts.`,
   };
 }
 
