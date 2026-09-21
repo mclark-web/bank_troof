@@ -6,6 +6,7 @@ import { RatingPill } from "@/components/ui";
 import { callHeadline, formatDate, usd } from "@/lib/format";
 import { actionLabel, ratingLabel } from "@/lib/labels";
 import { getCall } from "@/lib/queries";
+import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { id: string };
 
@@ -57,8 +58,13 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
         <Fact label="Action" value={actionLabel(call.action)} />
         <Fact label="Rating" value={<RatingPill rating={call.ratingTo} />} hint={call.ratingFrom ? `From ${ratingLabel(call.ratingFrom)}` : "First mark in the sample"} />
         <Fact label="Price target" value={usd(call.priceTargetTo)} hint={call.priceTargetFrom != null ? `Prior ${usd(call.priceTargetFrom)}` : "No prior target"} />
-        <Fact label="Price at call" value={usd(call.priceAtCall)} />
+        <Fact label="Price at call" value={usd(call.priceAtCall)} hint={SPLIT_ADJUSTED[call.ticker.symbol] ? "Split-adjusted" : undefined} />
       </dl>
+      {SPLIT_ADJUSTED[call.ticker.symbol] ? (
+        <p className="mt-3 text-xs text-faint">
+          {call.ticker.symbol} demo prices are split-adjusted ({SPLIT_ADJUSTED[call.ticker.symbol].split}). Targets and later prints use the same scale, so the grade is unchanged.
+        </p>
+      ) : null}
 
       {call.controversial ? (
         <p className="mt-4 rounded-md border border-brass/40 bg-brass/10 px-4 py-3 text-sm text-brass">

@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import path from "path";
 import { RATING_NOTCH } from "../src/lib/labels";
 import { aggregateGrades, gradeCall } from "../src/lib/scoring";
+import { splitAdjust } from "../src/lib/splits";
 import { ANALYSTS, AS_OF, BANKS, PATH_START, TICKERS, type TickerSeed } from "./universe";
 
 process.env.DATABASE_URL = `file:${path.join(process.cwd(), "prisma", "banktruth.db")}`;
@@ -276,12 +277,12 @@ async function main() {
         action,
         ratingFrom: previous?.rating ?? null,
         ratingTo,
-        priceTargetFrom: previous?.target ?? null,
-        priceTargetTo: target,
-        priceAtCall: spot,
-        price30d: price30 != null && addDays(cursor, 30) <= AS_OF ? price30 : null,
-        price90d: price90,
-        price1y: price365 != null && addDays(cursor, 365) <= AS_OF ? price365 : null,
+        priceTargetFrom: splitAdjust(ticker.symbol, previous?.target ?? null),
+        priceTargetTo: splitAdjust(ticker.symbol, target),
+        priceAtCall: splitAdjust(ticker.symbol, spot),
+        price30d: price30 != null && addDays(cursor, 30) <= AS_OF ? splitAdjust(ticker.symbol, price30) : null,
+        price90d: splitAdjust(ticker.symbol, price90),
+        price1y: price365 != null && addDays(cursor, 365) <= AS_OF ? splitAdjust(ticker.symbol, price365) : null,
         note: pick(callRand, NOTES[action] ?? NOTES.reiterate),
         controversial: reasons.length > 0,
         controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,

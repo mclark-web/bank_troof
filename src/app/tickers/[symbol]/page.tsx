@@ -8,6 +8,7 @@ import { prisma } from "@/lib/db";
 import { ratingLabel } from "@/lib/labels";
 import { aggregateGrades, parseHorizon } from "@/lib/scoring";
 import { analystRowsForCalls, getTicker, latestConsensus } from "@/lib/queries";
+import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { symbol: string };
 
@@ -53,6 +54,11 @@ export default async function TickerPage({
       >
         <WatchButton kind="ticker" slug={ticker.symbol} label={ticker.symbol} meta={ticker.name} />
       </PageIntro>
+      {SPLIT_ADJUSTED[ticker.symbol] ? (
+        <p className="mb-6 max-w-3xl text-sm leading-6 text-muted">
+          Sample prices for {ticker.symbol} are split-adjusted for the {SPLIT_ADJUSTED[ticker.symbol].split}. The whole series uses that scale, so returns and Chad grades are unchanged by the split.
+        </p>
+      ) : null}
 
       <div className="mb-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="panel p-5">

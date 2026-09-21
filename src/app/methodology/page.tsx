@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro } from "@/components/ui";
 import { pctUnsigned } from "@/lib/format";
+import { SPLIT_ADJUSTED } from "@/lib/splits";
 import {
   CHAD_MAX,
   CHAD_MIN,
@@ -162,6 +163,12 @@ export default function MethodologyPage() {
         <h2 className="font-serif text-3xl text-ink">What this vintage is</h2>
         <p>
           The shipping dataset is a demo. Analysts are invented. Firm names are familiar labels so the product can be searched; the hit rates attached to them are simulated. Prices come from a seeded random path, and each fictional analyst is given a skill level so the leaderboard has a spread. None of it is a track record, a forecast, or a description of anyone’s research.
+        </p>
+        <p>
+          Demo prices are split-adjusted. {Object.entries(SPLIT_ADJUSTED)
+            .map(([symbol, info]) => `${symbol} (${info.split})`)
+            .join(", ")}{" "}
+          are stored on the post-split scale for the whole path, including dates before the split, so a window that crosses the split does not print a fake crash. Every dollar on those names — the price at the call, the target, and the later prints — is divided by the same factor, so the return and the grade stay the same. Broadcom’s sample path was already off the pre-split quote, so it is left as generated.
         </p>
         <p>
           BankTruth is not affiliated with any bank, broker-dealer, or third-party ratings site. It does not scrape those sites and it does not present their data as its own.
