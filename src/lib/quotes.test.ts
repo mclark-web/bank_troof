@@ -22,13 +22,17 @@ test("a closed session uses the prior adjusted close and does not invent one", (
   assert.equal(friday, 97.31);
 });
 
-test("a 90-day window is the adjusted close on that calendar date", () => {
+test("each horizon is the adjusted close that many calendar days later", () => {
   const call = new Date("2026-04-21T00:00:00.000Z");
-  const later = addUtcDays(call, 90);
-  assert.equal(isoDate(later), "2026-07-20");
-  const forward = forwardClose("NFLX", call, 90);
-  assert.equal(forward, adjustedClose("NFLX", later));
-  assert.ok(forward != null && forward > 60 && forward < 90);
+  for (const days of [14, 30, 60, 90]) {
+    const later = addUtcDays(call, days);
+    const forward = forwardClose("NFLX", call, days);
+    assert.equal(forward, adjustedClose("NFLX", later), isoDate(later));
+    assert.ok(forward != null && forward > 50 && forward < 120);
+  }
+  assert.equal(isoDate(addUtcDays(call, 14)), "2026-05-05");
+  assert.equal(isoDate(addUtcDays(call, 60)), "2026-06-20");
+  assert.equal(isoDate(addUtcDays(call, 90)), "2026-07-20");
 });
 
 test("missing history throws instead of inventing a price", () => {
@@ -44,7 +48,9 @@ test("import rejects a price that is not the adjusted close", () => {
         ticker: "NFLX",
         date: "2026-04-21",
         priceAtCall: 47.14,
+        price14d: null,
         price30d: null,
+        price60d: null,
         price90d: null,
         price1y: null,
       }),
@@ -54,10 +60,14 @@ test("import rejects a price that is not the adjusted close", () => {
     ticker: "NFLX",
     date: "2026-04-21",
     priceAtCall: 92.58,
+    price14d: null,
     price30d: null,
+    price60d: null,
     price90d: null,
     price1y: null,
   });
   assert.equal(bound.priceAtCall, 92.58);
+  assert.equal(bound.price14d, forwardClose("NFLX", new Date("2026-04-21T00:00:00.000Z"), 14));
+  assert.equal(bound.price60d, forwardClose("NFLX", new Date("2026-04-21T00:00:00.000Z"), 60));
   assert.equal(bound.price90d, forwardClose("NFLX", new Date("2026-04-21T00:00:00.000Z"), 90));
 });

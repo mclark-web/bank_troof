@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { aggregateGrades, formatPoints, gradeCall, placeChad, topThirtyCutoff } from "./scoring";
+import { aggregateGrades, formatPoints, gradeCall, HORIZONS, HORIZON_KEYS, placeChad, topThirtyCutoff } from "./scoring";
 
 describe("gradeCall", () => {
   it("credits a buy that clears the 90-day hurdle", () => {
@@ -99,6 +99,23 @@ describe("gradeCall", () => {
     );
     assert.equal(grade.hit, true);
     assert.equal(grade.threshold, 0.02);
+  });
+
+  it("grades 2 weeks and 60 days on their own calendar-day thresholds", () => {
+    const twoWeeks = gradeCall(
+      { ratingTo: "buy", priceAtCall: 100, priceTargetTo: 102, outcomePrice: 101.5 },
+      "14",
+    );
+    const sixty = gradeCall(
+      { ratingTo: "buy", priceAtCall: 100, priceTargetTo: 104, outcomePrice: 103 },
+      "60",
+    );
+    assert.equal(HORIZONS["14"].days, 14);
+    assert.equal(twoWeeks.hit, true);
+    assert.equal(twoWeeks.threshold, 0.01);
+    assert.equal(sixty.hit, false);
+    assert.equal(sixty.threshold, 0.04);
+    assert.deepEqual(HORIZON_KEYS, ["14", "30", "60", "90", "365"]);
   });
 });
 

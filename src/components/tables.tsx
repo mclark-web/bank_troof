@@ -3,7 +3,7 @@ import { formatDate, pct, returnTone, usd } from "@/lib/format";
 import { actionLabel, ratingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
 import { ratingChange } from "@/lib/queries";
-import type { HorizonKey } from "@/lib/scoring";
+import { outcomeField, type HorizonKey } from "@/lib/scoring";
 import { GradePill, PointsCell, RatingPill } from "./ui";
 
 export function BoardTable({
@@ -104,7 +104,7 @@ export function CallTable({
         <tbody>
           {calls.map((call) => {
             const grade = call.grades[horizon];
-            const after = horizon === "30" ? call.price30d : horizon === "90" ? call.price90d : call.price1y;
+            const after = call[outcomeField(horizon)];
             return (
               <tr key={call.id}>
                 <td className="whitespace-nowrap">

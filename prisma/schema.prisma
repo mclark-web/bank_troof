@@ -70,7 +70,9 @@ model Call {
   priceTargetFrom     Float?
   priceTargetTo       Float?
   priceAtCall         Float
+  price14d            Float?
   price30d            Float?
+  price60d            Float?
   price90d            Float?
   price1y             Float?
   note                String

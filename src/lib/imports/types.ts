@@ -19,7 +19,9 @@ export type RawCallRecord = {
   priceTargetFrom: number | null;
   priceTargetTo: number | null;
   priceAtCall: number;
+  price14d: number | null;
   price30d: number | null;
+  price60d: number | null;
   price90d: number | null;
   price1y: number | null;
   note: string;
@@ -61,7 +63,9 @@ export const CSV_COLUMNS = [
   "rating_from",
   "price_target_from",
   "price_target_to",
+  "price_14d",
   "price_30d",
+  "price_60d",
   "price_90d",
   "price_1y",
   "note",

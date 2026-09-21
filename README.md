@@ -37,7 +37,7 @@ Other commands:
 | Route | What it shows |
 | --- | --- |
 | `/` | Hero, sample leaderboards, a best and worst followed call, controversial moves |
-| `/leaderboards` | Top analysts, top banks, worst offenders. Filter by 30D / 90D / 1Y and sector |
+| `/leaderboards` | Top analysts, top banks, worst offenders. Filter by 2W / 30D / 60D / 90D / 1Y and sector |
 | `/analysts` and `/analysts/[slug]` | Directory and a scorecard: firm, coverage, hit rate, return if followed, calls |
 | `/banks` and `/banks/[slug]` | Firm rollup, sector mix, roster |
 | `/tickers` and `/tickers/[symbol]` | Sample consensus versus who was right on that name |
@@ -53,7 +53,7 @@ The full write-up is the Methodology page at `/methodology`. In short:
 - **Up** ratings (Buy, Strong Buy, Overweight, Outperform) hit when the forward return is at least T.
 - **Down** ratings (Sell, Underperform, Underweight) hit when the forward return is at most −T.
 - **Flat** ratings (Hold, Neutral, Equal-Weight) hit when the absolute return is at most T.
-- T is 2% at 30 days, 5% at 90 days, and 8% at 1 year. Windows are calendar days.
+- T is 1% at 2 weeks, 2% at 30 days, 4% at 60 days, 5% at 90 days, and 8% at 1 year. Windows are calendar days, not trading days.
 - A near-miss earns half of the 70 direction points and does **not** count as a hit.
 - Target error is `|price at horizon − target| / price at call`. Inside a tight band it adds 30 points; past a wide band it adds none; in between it fades linearly. No target means the direction score is scaled to 100.
 - Every card shows both grades. The full grade is the **0–100** score. The personality grade is an integer **1–10**: 1 is Chud, 10 is Chad. It gets chuddy under 70 (Chad 1–4), whatever the field looks like. Top 30% of the ranked peers earns chaddiness (Chad 8–10), and only if the score is also at least 70. At or above 70 but outside that top 30% is mid (Chad 5–7). Leaderboards show both columns and sort by the 100-point score by default. A Chad 1–10 sort breaks ties with the 100-point score. Hit rate stays as a supporting stat.
@@ -68,10 +68,10 @@ The score is not market-adjusted. A buy in a rising tape can hit without insight
 SQLite via Prisma, file at `prisma/banktruth.db`.
 
 - `Bank`, `Analyst`, `Ticker`, `Coverage`, `Call`
-- A call stores the action, rating change, targets, price at the call, and prices 30, 90, and 365 days later
+- A call stores the action, rating change, targets, price at the call, and prices 14, 30, 60, 90, and 365 calendar days later
 - Grades are computed when pages render (`src/lib/scoring.ts`). They are not baked into the row, so a formula change does not require a reseed
 
-The demo generator (`prisma/seed.ts`) places fictional calls on real split-adjusted closes from Yahoo Finance. The price at the call and the 30-, 90-, and 365-day prices are that adjusted close. A missing quote aborts the seed. Each fictional analyst is “right” on the real 90-day move with a fixed probability, which is why the board has a spread. Analysts, notes, ratings, and targets are sample data. Targets stay in a band around the real price at the call.
+The demo generator (`prisma/seed.ts`) places fictional calls on real split-adjusted closes from Yahoo Finance. The price at the call and the 14-, 30-, 60-, 90-, and 365-day prices are that adjusted close. A missing quote aborts the seed. Each fictional analyst is “right” on the real 90-day move with a fixed probability, which is why the board has a spread. Analysts, notes, ratings, and targets are sample data. Targets stay in a band around the real price at the call.
 
 Firm names are recognizable labels so search behaves the way a reader expects. The people and the notes are not a research record. Hit rates are the grader applied to the real later prices.
 
@@ -85,9 +85,9 @@ Do not scrape a rankings site. Use a licensed price history and a call archive y
 
    Optional columns:
 
-   `bank_short,headquarters,analyst_title,industry,exchange,rating_from,price_target_from,price_target_to,price_30d,price_90d,price_1y,note`
+   `bank_short,headquarters,analyst_title,industry,exchange,rating_from,price_target_from,price_target_to,price_14d,price_30d,price_60d,price_90d,price_1y,note`
 
-   Dates are `YYYY-MM-DD`. Ratings: `strong_buy`, `buy`, `overweight`, `outperform`, `hold`, `neutral`, `equal_weight`, `underperform`, `underweight`, `sell`. Actions: `initiate`, `upgrade`, `downgrade`, `reiterate`, `target_raise`, `target_cut`. Outcome prices are the print 30, 90, and 365 **calendar** days after the call. Leave an outcome blank when that window has not elapsed.
+   Dates are `YYYY-MM-DD`. Ratings: `strong_buy`, `buy`, `overweight`, `outperform`, `hold`, `neutral`, `equal_weight`, `underperform`, `underweight`, `sell`. Actions: `initiate`, `upgrade`, `downgrade`, `reiterate`, `target_raise`, `target_cut`. Outcome prices are the print 14, 30, 60, 90, and 365 **calendar** days after the call. Leave an outcome blank when that window has not elapsed.
 
 2. A two-row example lives at `data/sample-import.csv`. It is not loaded by the seed.
 

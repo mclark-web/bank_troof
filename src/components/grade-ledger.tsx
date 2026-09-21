@@ -1,6 +1,6 @@
 import { pct, pctUnsigned, usd } from "@/lib/format";
 import { ratingLabel } from "@/lib/labels";
-import { formatPoints, HORIZONS, HORIZON_KEYS, placeChad, type CallGrade, type HorizonKey } from "@/lib/scoring";
+import { formatPoints, HORIZONS, HORIZON_KEYS, outcomeField, placeChad, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
 import { GradePill, SideNote } from "./ui";
 
@@ -17,14 +17,12 @@ function expectation(grade: CallGrade, rating: string, horizon: HorizonKey) {
 }
 
 function priceFor(call: ScoredCall, horizon: HorizonKey) {
-  if (horizon === "30") return call.price30d;
-  if (horizon === "90") return call.price90d;
-  return call.price1y;
+  return call[outcomeField(horizon)];
 }
 
 export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<HorizonKey, number[]> }) {
   return (
-    <div className="grid gap-3 lg:grid-cols-3">
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {HORIZON_KEYS.map((horizon) => {
         const grade = call.grades[horizon];
         const placement = placeChad(grade.score, peers[horizon]);

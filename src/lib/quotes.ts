@@ -73,7 +73,9 @@ export function forwardClose(symbol: string, callDate: Date, days: number): numb
 export function pricesForCall(symbol: string, callDate: Date) {
   return {
     priceAtCall: adjustedClose(symbol, callDate),
+    price14d: forwardClose(symbol, callDate, 14),
     price30d: forwardClose(symbol, callDate, 30),
+    price60d: forwardClose(symbol, callDate, 60),
     price90d: forwardClose(symbol, callDate, 90),
     price1y: forwardClose(symbol, callDate, 365),
   };
@@ -90,10 +92,19 @@ export function bindHistoricalPrices(input: {
   ticker: string;
   date: string;
   priceAtCall: number;
+  price14d: number | null;
   price30d: number | null;
+  price60d: number | null;
   price90d: number | null;
   price1y: number | null;
-}): { priceAtCall: number; price30d: number | null; price90d: number | null; price1y: number | null } {
+}): {
+  priceAtCall: number;
+  price14d: number | null;
+  price30d: number | null;
+  price60d: number | null;
+  price90d: number | null;
+  price1y: number | null;
+} {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.date)) {
     throw new Error(`Bad call date ${input.date}.`);
   }
@@ -121,7 +132,9 @@ export function bindHistoricalPrices(input: {
   };
   return {
     priceAtCall: actual,
+    price14d: take("price_14d", input.price14d, 14),
     price30d: take("price_30d", input.price30d, 30),
+    price60d: take("price_60d", input.price60d, 60),
     price90d: take("price_90d", input.price90d, 90),
     price1y: take("price_1y", input.price1y, 365),
   };

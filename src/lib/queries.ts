@@ -6,7 +6,9 @@ import { consensusBucket, ratingLabel } from "./labels";
 import {
   aggregateGrades,
   gradeCall,
+  HORIZON_KEYS,
   minimumSample,
+  outcomeField,
   placeChad,
   type Aggregate,
   type CallGrade,
@@ -38,11 +40,9 @@ function gradeStored(call: Call): Record<HorizonKey, CallGrade> {
     priceAtCall: call.priceAtCall,
     priceTargetTo: call.priceTargetTo,
   };
-  return {
-    "30": gradeCall({ ...base, outcomePrice: call.price30d }, "30"),
-    "90": gradeCall({ ...base, outcomePrice: call.price90d }, "90"),
-    "365": gradeCall({ ...base, outcomePrice: call.price1y }, "365"),
-  };
+  return Object.fromEntries(
+    HORIZON_KEYS.map((horizon) => [horizon, gradeCall({ ...base, outcomePrice: call[outcomeField(horizon)] }, horizon)]),
+  ) as Record<HorizonKey, CallGrade>;
 }
 
 export const loadCalls = cache(async (): Promise<ScoredCall[]> => {
@@ -399,9 +399,9 @@ export async function rankedPeerScores(entity: "analyst" | "bank" | "ticker", ho
 
 export async function callPeerScores(): Promise<Record<HorizonKey, number[]>> {
   const calls = await loadCalls();
-  const scores: Record<HorizonKey, number[]> = { "30": [], "90": [], "365": [] };
+  const scores = Object.fromEntries(HORIZON_KEYS.map((horizon) => [horizon, [] as number[]])) as Record<HorizonKey, number[]>;
   for (const call of calls) {
-    for (const horizon of ["30", "90", "365"] as const) {
+    for (const horizon of HORIZON_KEYS) {
       const grade = call.grades[horizon];
       if (grade.gradeable && grade.score != null) scores[horizon].push(grade.score);
     }

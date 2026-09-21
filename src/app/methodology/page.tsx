@@ -68,7 +68,7 @@ export default function MethodologyPage() {
           </table>
         </div>
         <p>
-          Forward return is the price at the horizon divided by the price on the call date, minus one. Windows are calendar days: 30, 90, and 365. Each price is the split-adjusted close. A window that runs past the history is ungraded. A date with no quote is an error, not a blank.
+          Forward return is the price at the horizon divided by the price on the call date, minus one. Windows are calendar days: 14 (2 weeks), 30, 60, 90, and 365. Each price is the split-adjusted close. A window that runs past the history is ungraded. A date with no quote is an error, not a blank.
         </p>
         <p>
           A near-miss is not a hit. For up calls it is a return from half of T up to, but not including, T. Down calls mirror that. Flat calls are a near-miss when the absolute return is outside T but inside {FLAT_NEAR_MULTIPLIER}×T. Hit rate uses full hits only. Miss rate is one minus the hit rate, so near-misses count as misses.
@@ -152,7 +152,7 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="demo">
         <h2 className="font-serif text-3xl text-ink">What this vintage is</h2>
         <p>
-          Grades use real historical prices. The price at the call, and the prices 30, 90, and 365 calendar days later, are the Yahoo Finance adjusted close, already split-adjusted. If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no simulated price path.
+          Grades use real historical prices. The price at the call, and the prices 14, 30, 60, 90, and 365 calendar days later, are the Yahoo Finance adjusted close, already split-adjusted. If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no simulated price path.
         </p>
         <p>
           Analysts, notes, ratings, and price targets are a demo sample. Targets are fictional, and each one is kept in a band around the real price at the call. Firm names are labels for that sample. Each fictional analyst is given a skill level so the leaderboard has a spread. None of it is a track record, a forecast, or a description of anyone’s research.
@@ -168,7 +168,7 @@ export default function MethodologyPage() {
           BankTruth is not affiliated with any bank, broker-dealer, or third-party ratings site. It does not scrape rankings sites. Prices are adjusted closes, not a firm’s published targets.
         </p>
         <p>
-          The grader reads a rating, a price at the call, an optional target, and prices 30, 90, and 365 calendar days later. This vintage already fills those prices from adjusted closes. Replacing the sample analysts is a call archive in the CSV shape documented in the README. Every screen still carries a demo banner, because the people and the notes are not a live track record.
+          The grader reads a rating, a price at the call, an optional target, and prices 14, 30, 60, 90, and 365 calendar days later. This vintage already fills those prices from adjusted closes. Replacing the sample analysts is a call archive in the CSV shape documented in the README. Every screen still carries a demo banner, because the people and the notes are not a live track record.
         </p>
       </section>
 

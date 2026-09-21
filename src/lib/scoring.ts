@@ -1,4 +1,4 @@
-export const HORIZON_KEYS = ["30", "90", "365"] as const;
+export const HORIZON_KEYS = ["14", "30", "60", "90", "365"] as const;
 
 export type HorizonKey = (typeof HORIZON_KEYS)[number];
 
@@ -108,6 +108,14 @@ export const HORIZONS: Record<
     ptZero: number;
   }
 > = {
+  "14": {
+    days: 14,
+    label: "2 weeks",
+    short: "2W",
+    threshold: 0.01,
+    ptFull: 0.02,
+    ptZero: 0.08,
+  },
   "30": {
     days: 30,
     label: "30 days",
@@ -115,6 +123,14 @@ export const HORIZONS: Record<
     threshold: 0.02,
     ptFull: 0.04,
     ptZero: 0.12,
+  },
+  "60": {
+    days: 60,
+    label: "60 days",
+    short: "60D",
+    threshold: 0.04,
+    ptFull: 0.06,
+    ptZero: 0.16,
   },
   "90": {
     days: 90,
@@ -146,7 +162,7 @@ export function ratingDirection(rating: string): Direction | null {
 }
 
 export function parseHorizon(value: string | undefined | null): HorizonKey {
-  if (value === "30" || value === "365" || value === "90") return value;
+  if (value && (HORIZON_KEYS as readonly string[]).includes(value)) return value as HorizonKey;
   return "90";
 }
 
@@ -301,8 +317,10 @@ export function aggregateGrades(grades: CallGrade[]): Aggregate {
   };
 }
 
-export function outcomeField(horizon: HorizonKey): "price30d" | "price90d" | "price1y" {
+export function outcomeField(horizon: HorizonKey): "price14d" | "price30d" | "price60d" | "price90d" | "price1y" {
+  if (horizon === "14") return "price14d";
   if (horizon === "30") return "price30d";
+  if (horizon === "60") return "price60d";
   if (horizon === "90") return "price90d";
   return "price1y";
 }

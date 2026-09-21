@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import path from "path";
 import { RATING_NOTCH } from "../src/lib/labels";
 import { aggregateGrades, gradeCall } from "../src/lib/scoring";
-import { adjustedClose, clampTargetToSpot, forwardClose, isoDate } from "../src/lib/quotes";
+import { adjustedClose, clampTargetToSpot, isoDate, pricesForCall } from "../src/lib/quotes";
 import { ANALYSTS, BANKS, TICKERS, type TickerSeed } from "./universe";
 
 process.env.DATABASE_URL = `file:${path.join(process.cwd(), "prisma", "banktruth.db")}`;
@@ -142,7 +142,9 @@ async function main() {
     priceTargetFrom: number | null;
     priceTargetTo: number;
     priceAtCall: number;
+    price14d: number | null;
     price30d: number | null;
+    price60d: number | null;
     price90d: number | null;
     price1y: number | null;
     note: string;
@@ -168,10 +170,11 @@ async function main() {
     while (cursor <= scheduleEnd) {
       const ticker = names[turn % names.length];
       const spot = adjustedClose(ticker.symbol, cursor);
-      const future = forwardClose(ticker.symbol, cursor, 90);
-      if (future == null) {
+      const prices = pricesForCall(ticker.symbol, cursor);
+      const future = prices.price90d;
+      if (prices.price14d == null || prices.price30d == null || prices.price60d == null || future == null) {
         throw new Error(
-          `No 90-day adjusted close for ${ticker.symbol} on ${isoDate(cursor)}. Refusing to invent a price.`,
+          `Missing adjusted close for ${ticker.symbol} on ${isoDate(cursor)} inside 2 weeks, 30, 60, or 90 days. Refusing to invent a price.`,
         );
       }
       const forward = future / spot - 1;
@@ -212,10 +215,6 @@ async function main() {
         reasons.push("Price target moved more than 25%");
       }
 
-      const price30 = forwardClose(ticker.symbol, cursor, 30);
-      const price90 = future;
-      const price365 = forwardClose(ticker.symbol, cursor, 365);
-
       calls.push({
         id: `call_${String(sequence).padStart(4, "0")}`,
         analystId: analyst.slug,
@@ -228,9 +227,11 @@ async function main() {
         priceTargetFrom: previous?.target ?? null,
         priceTargetTo: target,
         priceAtCall: spot,
-        price30d: price30,
-        price90d: price90,
-        price1y: price365,
+        price14d: prices.price14d,
+        price30d: prices.price30d,
+        price60d: prices.price60d,
+        price90d: future,
+        price1y: prices.price1y,
         note: pick(callRand, NOTES[action] ?? NOTES.reiterate),
         controversial: reasons.length > 0,
         controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
@@ -302,8 +303,15 @@ async function main() {
     if (call.priceAtCall !== spot) {
       throw new Error(`${call.id} ${call.tickerId} price_at_call ${call.priceAtCall} does not match adjusted close ${spot}.`);
     }
-    if (call.price90d !== forwardClose(call.tickerId, call.callDate, 90)) {
-      throw new Error(`${call.id} ${call.tickerId} 90-day price does not match the adjusted close.`);
+    const expected = pricesForCall(call.tickerId, call.callDate);
+    if (
+      call.price14d !== expected.price14d ||
+      call.price30d !== expected.price30d ||
+      call.price60d !== expected.price60d ||
+      call.price90d !== expected.price90d ||
+      call.price1y !== expected.price1y
+    ) {
+      throw new Error(`${call.id} ${call.tickerId} horizon price does not match the adjusted close.`);
     }
     const multiple = call.priceTargetTo / call.priceAtCall;
     if (multiple < 0.5 || multiple > 1.6) {
