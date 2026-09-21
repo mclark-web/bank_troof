@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+.vercel
+*.log
+.env*.local
+prisma/banktruth.db
+prisma/banktruth.db-journal
+prisma/*.db
+prisma/*.db-journal
+.DS_Store

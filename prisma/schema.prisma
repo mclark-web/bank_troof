@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Bank {
+  id           String    @id
+  slug         String    @unique
+  name         String
+  shortName    String
+  headquarters String
+  description  String
+  analysts     Analyst[]
+  calls        Call[]
+}
+
+model Analyst {
+  id          String     @id
+  slug        String     @unique
+  name        String
+  title       String
+  bankId      String
+  bank        Bank       @relation(fields: [bankId], references: [id])
+  sector      String
+  bio         String
+  startedYear Int
+  coverage    Coverage[]
+  calls       Call[]
+}
+
+model Ticker {
+  id       String     @id
+  symbol   String     @unique
+  name     String
+  sector   String
+  industry String
+  exchange String
+  coverage Coverage[]
+  calls    Call[]
+}
+
+model Coverage {
+  analystId String
+  tickerId  String
+  analyst   Analyst @relation(fields: [analystId], references: [id])
+  ticker    Ticker  @relation(fields: [tickerId], references: [id])
+
+  @@id([analystId, tickerId])
+}
+
+model Call {
+  id                  String   @id
+  analystId           String
+  bankId              String
+  tickerId            String
+  analyst             Analyst  @relation(fields: [analystId], references: [id])
+  bank                Bank     @relation(fields: [bankId], references: [id])
+  ticker              Ticker   @relation(fields: [tickerId], references: [id])
+  callDate            DateTime
+  action              String
+  ratingFrom          String?
+  ratingTo            String
+  priceTargetFrom     Float?
+  priceTargetTo       Float?
+  priceAtCall         Float
+  price30d            Float?
+  price90d            Float?
+  price1y             Float?
+  note                String
+  controversial       Boolean  @default(false)
+  controversialReason String?
+  source              String   @default("demo")
+
+  @@index([analystId])
+  @@index([bankId])
+  @@index([tickerId])
+  @@index([callDate])
+}
