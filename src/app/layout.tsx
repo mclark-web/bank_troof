@@ -36,12 +36,10 @@ export const metadata: Metadata = {
   applicationName: "Charoof Analysts",
   openGraph: {
     siteName: "Charoof Analysts",
-    description,
     type: "website",
   },
   twitter: {
     card: "summary",
-    description,
   },
 };
 
