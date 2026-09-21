@@ -110,15 +110,27 @@ Do not scrape a rankings site. Use a licensed price history and a call archive y
 
 5. Postgres, if you outgrow the file: point `DATABASE_URL` at a `postgresql://` URL, change the Prisma datasource provider to `postgresql`, and run `prisma db push`. `src/lib/db.ts` already uses a Postgres URL when it sees one, and falls back to the SQLite file otherwise. Outcome prices still have to be supplied by your feed; this app does not call a market-data vendor.
 
-## Deploy
+## Deploy on Vercel
 
-The app is a Next.js App Router project and can be deployed as a Node server (including Vercel).
+Import the GitHub repository. No environment variables and no secrets. The demo database is created during the build and does not call a market-data API.
 
-- Build command: `npm run build` (this seeds SQLite during `prebuild`)
-- No environment variables are required for the demo
-- On Vercel the seeded file is copied to `/tmp` at runtime because the serverless filesystem is read-only outside that directory
-- Treat that deploy as a **read-only demo**. A writable production feed should use Postgres (or another hosted database) rather than SQLite on serverless disk
-- Set the framework preset to Next.js. Node 20 or newer
+Use these settings. The defaults already match; do not override the build command.
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | Next.js |
+| Root directory | `./` (repository root) |
+| Node.js version | 22.x |
+| Install command | `npm install` (leave the default) |
+| Build command | `npm run build` (leave the default) |
+| Output directory | leave the Next.js default |
+| Environment variables | none |
+
+`npm run build` runs `prebuild` first: Prisma generates the client, creates `prisma/banktruth.db`, and seeds it. That file is traced into the server bundle. On Vercel the filesystem is read-only except `/tmp`, so each instance copies the seed to `/tmp/banktruth.db` before reading it. Do not change the build command to bare `next build` — that skips the seed and the live routes will have no database.
+
+Do not set `DATABASE_URL` for the demo. Do not set `NODE_ENV` yourself. A `postgresql://` `DATABASE_URL` is only for a later hosted database, and it also requires changing the Prisma datasource provider to `postgresql`.
+
+This deploy is a read-only demo. A writable production feed should use Postgres rather than SQLite on serverless disk.
 
 ## Disclaimer
 

@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "prisma"],
   outputFileTracingIncludes: {
     "/*": ["./prisma/banktruth.db"],
+    "/**/*": ["./prisma/banktruth.db"],
   },
 };
 
