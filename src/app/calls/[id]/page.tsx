@@ -59,7 +59,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
         <Fact label="Action" value={actionLabel(call.action)} />
         <Fact label="Rating" value={<RatingPill rating={call.ratingTo} />} hint={call.ratingFrom ? `From ${ratingLabel(call.ratingFrom)}` : "First mark in the sample"} />
         <Fact label="Price target" value={usd(call.priceTargetTo)} hint={call.priceTargetFrom != null ? `Prior ${usd(call.priceTargetFrom)}` : "No prior target"} />
-        <Fact label="Price at call" value={usd(call.priceAtCall)} hint={SPLIT_ADJUSTED[call.ticker.symbol] ? "Split-adjusted" : undefined} />
+        <Fact label="Price at call" value={usd(call.priceAtCall)} hint={SPLIT_ADJUSTED[call.ticker.symbol] ? "Split-adjusted close" : "Adjusted close"} />
       </dl>
       {SPLIT_ADJUSTED[call.ticker.symbol] ? (
         <p className="mt-3 text-xs text-faint">

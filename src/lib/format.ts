@@ -17,12 +17,11 @@ export function scoreText(value: number | null | undefined): string {
 
 export function usd(value: number | null | undefined): string {
   if (value == null || Number.isNaN(value)) return "—";
-  const digits = value >= 200 ? 0 : 2;
   return value.toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 }
 

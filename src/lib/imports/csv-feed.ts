@@ -1,6 +1,7 @@
 import fs from "fs";
 import { ratingDirection } from "../scoring";
 import { ACTION_LABELS, RATING_LABELS } from "../labels";
+import { bindHistoricalPrices } from "../quotes";
 import type { CallFeedAdapter, ImportIssue, ImportParseResult, RawCallRecord } from "./types";
 
 const REQUIRED = [
@@ -163,7 +164,7 @@ export class CsvCallFeed implements CallFeedAdapter {
       const detail = parsed.issues.map((issue) => `row ${issue.row}: ${issue.message}`).join("\n");
       throw new Error(`CSV import failed.\n${detail}`);
     }
-    return parsed.records;
+    return parsed.records.map(bindRecord);
   }
 }
 
@@ -173,6 +174,18 @@ export class JsonCallFeed implements CallFeedAdapter {
   constructor(private readonly records: RawCallRecord[]) {}
 
   async pull(): Promise<RawCallRecord[]> {
-    return this.records;
+    return this.records.map(bindRecord);
   }
+}
+
+function bindRecord(record: RawCallRecord): RawCallRecord {
+  const prices = bindHistoricalPrices({
+    ticker: record.ticker,
+    date: record.date,
+    priceAtCall: record.priceAtCall,
+    price30d: record.price30d,
+    price90d: record.price90d,
+    price1y: record.price1y,
+  });
+  return { ...record, ...prices };
 }

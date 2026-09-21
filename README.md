@@ -71,9 +71,9 @@ SQLite via Prisma, file at `prisma/banktruth.db`.
 - A call stores the action, rating change, targets, price at the call, and prices 30, 90, and 365 days later
 - Grades are computed when pages render (`src/lib/scoring.ts`). They are not baked into the row, so a formula change does not require a reseed
 
-The demo generator (`prisma/seed.ts`) builds a price path per ticker around split-adjusted trading history, with a small seeded wiggle, and lets each fictional analyst be “right” on the 90-day move with a fixed probability. That is why the 90-day board has a spread. It is a demonstration of the product, not a reconstruction of anyone’s research.
+The demo generator (`prisma/seed.ts`) places fictional calls on real split-adjusted closes from Yahoo Finance. The price at the call and the 30-, 90-, and 365-day prices are that adjusted close. A missing quote aborts the seed. Each fictional analyst is “right” on the real 90-day move with a fixed probability, which is why the board has a spread. Analysts, notes, ratings, and targets are sample data. Targets stay in a band around the real price at the call.
 
-Firm names are recognizable labels so search behaves the way a reader expects. The people, notes, and hit rates are synthetic. Price levels sit in the band that name traded on that date.
+Firm names are recognizable labels so search behaves the way a reader expects. The people and the notes are not a research record. Hit rates are the grader applied to the real later prices.
 
 ## Replace the demo with a real feed
 

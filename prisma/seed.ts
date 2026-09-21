@@ -2,8 +2,8 @@ import { PrismaClient } from "@prisma/client";
 import path from "path";
 import { RATING_NOTCH } from "../src/lib/labels";
 import { aggregateGrades, gradeCall } from "../src/lib/scoring";
-import { PRICE_ANCHORS, trendPrice } from "../src/lib/price-anchors";
-import { ANALYSTS, AS_OF, BANKS, PATH_START, TICKERS, type TickerSeed } from "./universe";
+import { adjustedClose, clampTargetToSpot, forwardClose, isoDate } from "../src/lib/quotes";
+import { ANALYSTS, BANKS, TICKERS, type TickerSeed } from "./universe";
 
 process.env.DATABASE_URL = `file:${path.join(process.cwd(), "prisma", "banktruth.db")}`;
 
@@ -22,26 +22,10 @@ function mulberry32(seed: number) {
   };
 }
 
-function gaussian(rand: () => number) {
-  let u = 0;
-  let v = 0;
-  while (u === 0) u = rand();
-  while (v === 0) v = rand();
-  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-}
-
 function addDays(date: Date, days: number) {
   const next = new Date(date.getTime());
   next.setUTCDate(next.getUTCDate() + days);
   return next;
-}
-
-function dayIndex(date: Date) {
-  return Math.round((date.getTime() - PATH_START.getTime()) / 86400000);
-}
-
-function round2(value: number) {
-  return Math.round(value * 100) / 100;
 }
 
 function streetTarget(value: number, spot: number) {
@@ -91,42 +75,6 @@ const NOTES: Record<string, string[]> = {
   ],
 };
 
-type Path = {
-  ticker: TickerSeed;
-  prices: number[];
-};
-
-function buildPaths(rand: () => number): Map<string, Path> {
-  const totalDays = dayIndex(AS_OF);
-  const paths = new Map<string, Path>();
-  for (const ticker of TICKERS) {
-    const anchors = PRICE_ANCHORS[ticker.symbol];
-    if (!anchors) throw new Error(`Missing price anchors for ${ticker.symbol}`);
-    const prices: number[] = [];
-    const band = Math.min(0.06, Math.max(0.025, ticker.vol * 0.12));
-    const dailyVol = Math.min(0.012, ticker.vol / Math.sqrt(365));
-    let logDev = 0;
-    for (let i = 0; i <= totalDays; i += 1) {
-      const trend = trendPrice(anchors, addDays(PATH_START, i));
-      const shock = clamp(gaussian(rand), -2.5, 2.5) * dailyVol;
-      logDev = clamp(logDev * 0.97 + shock, -band, band);
-      const price = trend * Math.exp(logDev);
-      if (price < trend * 0.92 || price > trend * 1.08) {
-        throw new Error(`${ticker.symbol} left the historical band on day ${i}`);
-      }
-      prices.push(Math.max(1.5, price));
-    }
-    paths.set(ticker.symbol, { ticker, prices });
-  }
-  return paths;
-}
-
-function priceOn(path: Path, date: Date): number | null {
-  const index = dayIndex(date);
-  if (index < 0 || index >= path.prices.length) return null;
-  return round2(path.prices[index]);
-}
-
 function pick<T>(rand: () => number, items: T[]): T {
   return items[Math.floor(rand() * items.length)];
 }
@@ -149,9 +97,7 @@ function trueDirection(forward: number, threshold: number): "up" | "flat" | "dow
 }
 
 async function main() {
-  const pathRand = mulberry32(20240921);
   const callRand = mulberry32(20240922);
-  const paths = buildPaths(pathRand);
   const bankBySlug = new Map(BANKS.map((bank) => [bank.slug, bank]));
   const tickersBySector = new Map<string, TickerSeed[]>();
   for (const ticker of TICKERS) {
@@ -221,18 +167,12 @@ async function main() {
     let turn = 0;
     while (cursor <= scheduleEnd) {
       const ticker = names[turn % names.length];
-      const path = paths.get(ticker.symbol);
-      if (!path) {
-        cursor = addDays(cursor, 35);
-        turn += 1;
-        continue;
-      }
-      const spot = priceOn(path, cursor);
-      const future = priceOn(path, addDays(cursor, 90));
-      if (spot == null || future == null) {
-        cursor = addDays(cursor, 35);
-        turn += 1;
-        continue;
+      const spot = adjustedClose(ticker.symbol, cursor);
+      const future = forwardClose(ticker.symbol, cursor, 90);
+      if (future == null) {
+        throw new Error(
+          `No 90-day adjusted close for ${ticker.symbol} on ${isoDate(cursor)}. Refusing to invent a price.`,
+        );
       }
       const forward = future / spot - 1;
       const truth = trueDirection(forward, 0.05);
@@ -251,6 +191,7 @@ async function main() {
         target = streetTarget(spot * (0.97 + callRand() * 0.06), spot);
       }
       if (target <= 0) target = streetTarget(spot, spot);
+      target = streetTarget(clampTargetToSpot(target, spot), spot);
 
       let action = "initiate";
       if (previous) {
@@ -271,9 +212,9 @@ async function main() {
         reasons.push("Price target moved more than 25%");
       }
 
-      const price30 = priceOn(path, addDays(cursor, 30));
-      const price90 = addDays(cursor, 90) <= AS_OF ? future : null;
-      const price365 = priceOn(path, addDays(cursor, 365));
+      const price30 = forwardClose(ticker.symbol, cursor, 30);
+      const price90 = future;
+      const price365 = forwardClose(ticker.symbol, cursor, 365);
 
       calls.push({
         id: `call_${String(sequence).padStart(4, "0")}`,
@@ -287,9 +228,9 @@ async function main() {
         priceTargetFrom: previous?.target ?? null,
         priceTargetTo: target,
         priceAtCall: spot,
-        price30d: price30 != null && addDays(cursor, 30) <= AS_OF ? price30 : null,
+        price30d: price30,
         price90d: price90,
-        price1y: price365 != null && addDays(cursor, 365) <= AS_OF ? price365 : null,
+        price1y: price365,
         note: pick(callRand, NOTES[action] ?? NOTES.reiterate),
         controversial: reasons.length > 0,
         controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
@@ -348,6 +289,28 @@ async function main() {
     })),
   );
   await prisma.coverage.createMany({ data: coverageRows });
+  const canary = calls.find((call) => call.id === "call_0024");
+  const canarySpot = adjustedClose("NFLX", new Date("2026-04-21T00:00:00.000Z"));
+  if (!canary || canary.tickerId !== "NFLX" || canary.callDate.toISOString().slice(0, 10) !== "2026-04-21") {
+    throw new Error("call_0024 is not the NFLX call on 2026-04-21.");
+  }
+  if (canary.priceAtCall !== canarySpot || canary.price90d == null) {
+    throw new Error(`call_0024 price_at_call ${canary.priceAtCall} does not match the adjusted close ${canarySpot}.`);
+  }
+  for (const call of calls) {
+    const spot = adjustedClose(call.tickerId, call.callDate);
+    if (call.priceAtCall !== spot) {
+      throw new Error(`${call.id} ${call.tickerId} price_at_call ${call.priceAtCall} does not match adjusted close ${spot}.`);
+    }
+    if (call.price90d !== forwardClose(call.tickerId, call.callDate, 90)) {
+      throw new Error(`${call.id} ${call.tickerId} 90-day price does not match the adjusted close.`);
+    }
+    const multiple = call.priceTargetTo / call.priceAtCall;
+    if (multiple < 0.5 || multiple > 1.6) {
+      throw new Error(`${call.id} target ${call.priceTargetTo} is outside a plausible band around ${call.priceAtCall}.`);
+    }
+  }
+
   await prisma.call.createMany({ data: calls });
 
   const byBank = new Map<string, ReturnType<typeof gradeCall>[]>();

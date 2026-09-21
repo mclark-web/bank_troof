@@ -1,6 +1,7 @@
 import { cache } from "react";
 import type { Analyst, Bank, Call, Ticker } from "@prisma/client";
 import { prisma } from "./db";
+import { pricesForCall } from "./quotes";
 import { consensusBucket, ratingLabel } from "./labels";
 import {
   aggregateGrades,
@@ -53,7 +54,11 @@ export const loadCalls = cache(async (): Promise<ScoredCall[]> => {
     },
     orderBy: { callDate: "desc" },
   });
-  return calls.map((call) => ({ ...call, grades: gradeStored(call) }));
+  return calls.map((call) => {
+    const prices = pricesForCall(call.ticker.symbol, call.callDate);
+    const priced = { ...call, ...prices };
+    return { ...priced, grades: gradeStored(priced) };
+  });
 });
 
 export const loadSectors = cache(async (): Promise<string[]> => {
