@@ -1,0 +1,87 @@
+generator client {
+  provider      = "prisma-client-js"
+  // `native` matches the machine running `prisma generate` (the Vercel build image).
+  // `rhel-openssl-3.0.x` is the Vercel Node runtime (Amazon Linux, OpenSSL 3).
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Bank {
+  id           String    @id
+  slug         String    @unique
+  name         String
+  shortName    String
+  headquarters String
+  description  String
+  analysts     Analyst[]
+  calls        Call[]
+}
+
+model Analyst {
+  id          String     @id
+  slug        String     @unique
+  name        String
+  title       String
+  bankId      String
+  bank        Bank       @relation(fields: [bankId], references: [id])
+  sector      String
+  bio         String
+  startedYear Int
+  coverage    Coverage[]
+  calls       Call[]
+}
+
+model Ticker {
+  id       String     @id
+  symbol   String     @unique
+  name     String
+  sector   String
+  industry String
+  exchange String
+  coverage Coverage[]
+  calls    Call[]
+}
+
+model Coverage {
+  analystId String
+  tickerId  String
+  analyst   Analyst @relation(fields: [analystId], references: [id])
+  ticker    Ticker  @relation(fields: [tickerId], references: [id])
+
+  @@id([analystId, tickerId])
+}
+
+model Call {
+  id                  String   @id
+  analystId           String
+  bankId              String
+  tickerId            String
+  analyst             Analyst  @relation(fields: [analystId], references: [id])
+  bank                Bank     @relation(fields: [bankId], references: [id])
+  ticker              Ticker   @relation(fields: [tickerId], references: [id])
+  callDate            DateTime
+  action              String
+  ratingFrom          String?
+  ratingTo            String
+  priceTargetFrom     Float?
+  priceTargetTo       Float?
+  priceAtCall         Float
+  price14d            Float?
+  price30d            Float?
+  price60d            Float?
+  price90d            Float?
+  price1y             Float?
+  note                String
+  controversial       Boolean  @default(false)
+  controversialReason String?
+  source              String   @default("demo")
+
+  @@index([analystId])
+  @@index([bankId])
+  @@index([tickerId])
+  @@index([callDate])
+}
