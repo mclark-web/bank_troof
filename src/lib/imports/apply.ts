@@ -85,6 +85,8 @@ export async function applyCallFeed(
       controversialReason: null,
       source: adapter.name,
     };
+    // Identity is the call id. A second note on the same ticker is a new row,
+    // including a follow-up inside 90 days. Do not collapse those by ticker.
     await prisma.call.upsert({
       where: { id: record.id },
       update: callData,

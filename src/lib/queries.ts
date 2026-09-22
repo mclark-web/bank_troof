@@ -1,6 +1,7 @@
 import { cache } from "react";
 import type { Analyst, Bank, Call, Ticker } from "@prisma/client";
 import { prisma } from "./db";
+import { attachPriorCalls, type WithCallChain } from "./prior-calls";
 import { pricesForCall } from "./quotes";
 import { consensusBucket, ratingLabel } from "./labels";
 import {
@@ -16,12 +17,15 @@ import {
   type HorizonKey,
 } from "./scoring";
 
-export type ScoredCall = Call & {
+export type ScoredCallBase = Call & {
   analyst: Analyst & { bank: Bank };
   bank: Bank;
   ticker: Ticker;
   grades: Record<HorizonKey, CallGrade>;
 };
+
+/** A scored call plus its same-ticker chain. Links are display-only. */
+export type ScoredCall = WithCallChain<ScoredCallBase>;
 
 export type BoardRow = {
   kind: "analyst" | "bank";
@@ -65,11 +69,12 @@ export const loadCalls = cache(async (): Promise<ScoredCall[]> => {
     },
     orderBy: { callDate: "desc" },
   });
-  return calls.map((call) => {
+  const scored: ScoredCallBase[] = calls.map((call) => {
     const prices = pricesForCall(call.ticker.symbol, call.callDate);
     const priced = { ...call, ...prices };
     return { ...priced, grades: gradeStored(priced) };
   });
+  return attachPriorCalls(scored);
 });
 
 export const loadSectors = cache(async (): Promise<string[]> => {
@@ -267,6 +272,8 @@ export async function listTickers() {
   const peers = await rankedPeerScores("ticker", "90");
   return tickers.map((ticker) => {
     const mine = calls.filter((call) => call.tickerId === ticker.id);
+    // Consensus voice count uses each analyst's latest rating. `mine` still
+    // holds every call, including a prior inside 90 days, for the grade.
     const latest = new Map<string, ScoredCall>();
     for (const call of [...mine].reverse()) {
       latest.set(call.analystId, call);
@@ -349,6 +356,11 @@ export function sectorBreakdown(calls: ScoredCall[], horizon: HorizonKey) {
     .sort((a, b) => b.aggregate.graded - a.aggregate.graded);
 }
 
+/**
+ * Current sample rating per analyst. This is the consensus tally only.
+ * Older calls stay on the call list. A follow-up within 90 days still carries
+ * `priorCall` so the previous rating is not dropped from the record.
+ */
 export function latestConsensus(calls: ScoredCall[]) {
   const latest = new Map<string, ScoredCall>();
   const ordered = [...calls].sort((a, b) => a.callDate.getTime() - b.callDate.getTime());

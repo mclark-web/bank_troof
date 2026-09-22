@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Fragment } from "react";
+import { FollowUpBadge, PriorCallPanel } from "@/components/prior-call";
 import { formatDate, pct, returnTone, usd } from "@/lib/format";
 import { actionLabel, ratingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
@@ -73,24 +75,112 @@ export function BoardTable({
   );
 }
 
+function tickerGroups(calls: ScoredCall[]) {
+  const groups = new Map<string, ScoredCall[]>();
+  for (const call of calls) {
+    const list = groups.get(call.tickerId) ?? [];
+    list.push(call);
+    groups.set(call.tickerId, list);
+  }
+  return [...groups.values()]
+    .map((group) => {
+      const ordered = [...group].sort((a, b) => a.callDate.getTime() - b.callDate.getTime() || a.id.localeCompare(b.id));
+      return {
+        ticker: ordered[0].ticker,
+        calls: ordered,
+        newest: Math.max(...ordered.map((call) => call.callDate.getTime())),
+        hasFollowUp: ordered.some((call) => call.followUpWithin90Days),
+      };
+    })
+    .sort((a, b) => b.newest - a.newest || a.ticker.symbol.localeCompare(b.ticker.symbol));
+}
+
 export function CallTable({
   calls,
   horizon,
   showAnalyst = false,
   showTicker = true,
+  groupByTicker = false,
+  showPriorPanel = false,
 }: {
   calls: ScoredCall[];
   horizon: HorizonKey;
   showAnalyst?: boolean;
   showTicker?: boolean;
+  groupByTicker?: boolean;
+  showPriorPanel?: boolean;
 }) {
+  const tickerColumn = showTicker && !groupByTicker;
+  const columnCount = 8 + (tickerColumn ? 1 : 0) + (showAnalyst ? 1 : 0);
+  const groups = groupByTicker ? tickerGroups(calls) : null;
+
+  function renderCall(call: ScoredCall) {
+    const grade = call.grades[horizon];
+    const after = call[outcomeField(horizon)];
+    return (
+      <Fragment key={call.id}>
+        <tr>
+          <td className="whitespace-nowrap">
+            <Link href={`/calls/${call.id}`} className="hover:text-brass">
+              {formatDate(call.callDate)}
+            </Link>
+            {call.followUpWithin90Days ? <span className="block"><FollowUpBadge /></span> : null}
+            {call.controversial ? (
+              <span className="mt-1 block text-[10px] uppercase tracking-wider text-brass">Controversial</span>
+            ) : null}
+            {call.priorCall && !showPriorPanel ? (
+              <Link href={`/calls/${call.priorCall.id}`} className="mt-1 block text-[10px] uppercase tracking-wider text-brass">
+                Prior call
+              </Link>
+            ) : null}
+          </td>
+          {tickerColumn ? (
+            <td>
+              <Link href={`/tickers/${call.ticker.symbol}`} className="num font-medium hover:text-brass">
+                {call.ticker.symbol}
+              </Link>
+              <p className="text-xs text-faint">{call.ticker.name}</p>
+            </td>
+          ) : null}
+          {showAnalyst ? (
+            <td>
+              <Link href={`/analysts/${call.analyst.slug}`} className="hover:text-brass">
+                {call.analyst.name}
+              </Link>
+              <p className="text-xs text-faint">{call.bank.shortName}</p>
+            </td>
+          ) : null}
+          <td className="text-muted">{actionLabel(call.action)}</td>
+          <td>
+            <RatingPill rating={call.ratingTo} />
+            <p className="mt-1 hidden text-[11px] text-faint xl:block">{ratingChange(call)}</p>
+          </td>
+          <td className="num hidden lg:table-cell">{usd(call.priceTargetTo)}</td>
+          <td className="num hidden text-muted md:table-cell">{usd(call.priceAtCall)}</td>
+          <td className="num">{usd(after)}</td>
+          <td className={`num ${returnTone(grade.forwardReturn)}`}>{pct(grade.forwardReturn)}</td>
+          <td>
+            <GradePill result={grade.directionResult} />
+          </td>
+        </tr>
+        {showPriorPanel && call.priorCall ? (
+          <tr>
+            <td colSpan={columnCount} className="bg-inset/80">
+              <PriorCallPanel call={call.priorCall} emphasize={horizon} compact />
+            </td>
+          </tr>
+        ) : null}
+      </Fragment>
+    );
+  }
+
   return (
     <div className="panel overflow-x-auto">
       <table className="data-table">
         <thead>
           <tr>
             <th>Date</th>
-            {showTicker ? <th>Ticker</th> : null}
+            {tickerColumn ? <th>Ticker</th> : null}
             {showAnalyst ? <th>Analyst</th> : null}
             <th>Action</th>
             <th>Rating</th>
@@ -102,50 +192,24 @@ export function CallTable({
           </tr>
         </thead>
         <tbody>
-          {calls.map((call) => {
-            const grade = call.grades[horizon];
-            const after = call[outcomeField(horizon)];
-            return (
-              <tr key={call.id}>
-                <td className="whitespace-nowrap">
-                  <Link href={`/calls/${call.id}`} className="hover:text-brass">
-                    {formatDate(call.callDate)}
-                  </Link>
-                  {call.controversial ? (
-                    <span className="mt-1 block text-[10px] uppercase tracking-wider text-brass">Controversial</span>
-                  ) : null}
-                </td>
-                {showTicker ? (
-                  <td>
-                    <Link href={`/tickers/${call.ticker.symbol}`} className="num font-medium hover:text-brass">
-                      {call.ticker.symbol}
-                    </Link>
-                    <p className="text-xs text-faint">{call.ticker.name}</p>
-                  </td>
-                ) : null}
-                {showAnalyst ? (
-                  <td>
-                    <Link href={`/analysts/${call.analyst.slug}`} className="hover:text-brass">
-                      {call.analyst.name}
-                    </Link>
-                    <p className="text-xs text-faint">{call.bank.shortName}</p>
-                  </td>
-                ) : null}
-                <td className="text-muted">{actionLabel(call.action)}</td>
-                <td>
-                  <RatingPill rating={call.ratingTo} />
-                  <p className="mt-1 hidden text-[11px] text-faint xl:block">{ratingChange(call)}</p>
-                </td>
-                <td className="num hidden lg:table-cell">{usd(call.priceTargetTo)}</td>
-                <td className="num hidden text-muted md:table-cell">{usd(call.priceAtCall)}</td>
-                <td className="num">{usd(after)}</td>
-                <td className={`num ${returnTone(grade.forwardReturn)}`}>{pct(grade.forwardReturn)}</td>
-                <td>
-                  <GradePill result={grade.directionResult} />
-                </td>
-              </tr>
-            );
-          })}
+          {groups
+            ? groups.map((group) => (
+                <Fragment key={group.ticker.id}>
+                  <tr>
+                    <td colSpan={columnCount} className="bg-[#101318]">
+                      <Link href={`/tickers/${group.ticker.symbol}`} className="num font-medium hover:text-brass">
+                        {group.ticker.symbol}
+                      </Link>
+                      <span className="ml-2 text-xs text-faint">{group.ticker.name}</span>
+                      {group.hasFollowUp ? (
+                        <span className="ml-2 text-[10px] uppercase tracking-wider text-brass">Updated call in this chain</span>
+                      ) : null}
+                    </td>
+                  </tr>
+                  {group.calls.map((call) => renderCall(call))}
+                </Fragment>
+              ))
+            : calls.map((call) => renderCall(call))}
         </tbody>
       </table>
     </div>
@@ -179,7 +243,7 @@ export function ConsensusBar({ buckets, total }: { buckets: { buy: number; hold:
         ))}
       </ul>
       <p className="mt-2 text-xs text-faint">
-        Latest rating from each analyst still in the sample. {ratingLabel("strong_buy")} counts with Buy; Underperform counts with Sell.
+        Latest rating from each analyst still in the sample. A follow-up within 90 days does not erase the prior call. {ratingLabel("strong_buy")} counts with Buy; Underperform counts with Sell.
       </p>
     </div>
   );

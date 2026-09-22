@@ -188,6 +188,11 @@ export type CallGrade = {
   nearFloor: number | null;
 };
 
+/**
+ * Grades this call from its own rating, entry price, target, and later print.
+ * A prior call on the same ticker is not an input. Follow-ups within 90 days
+ * stay in the average as separate grades.
+ */
 export function gradeCall(call: CallInput, horizon: HorizonKey): CallGrade {
   const spec = HORIZONS[horizon];
   const expected = ratingDirection(call.ratingTo);

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GradeLedger } from "@/components/grade-ledger";
+import { FollowUpBadge, PriorCallPanel } from "@/components/prior-call";
 import { RatingPill } from "@/components/ui";
 import { callHeadline, formatDate, usd } from "@/lib/format";
 import { actionLabel, ratingLabel } from "@/lib/labels";
@@ -54,6 +55,11 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
         {" · "}
         {call.ticker.sector}
       </p>
+      {call.followUpWithin90Days ? (
+        <p className="mt-3">
+          <FollowUpBadge />
+        </p>
+      ) : null}
 
       <dl className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Fact label="Action" value={actionLabel(call.action)} />
@@ -70,6 +76,37 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
       {call.controversial ? (
         <p className="mt-4 rounded-md border border-brass/40 bg-brass/10 px-4 py-3 text-sm text-brass">
           Flagged controversial. {call.controversialReason}
+        </p>
+      ) : null}
+
+      {call.priorCall ? (
+        <div className="mt-6 max-w-3xl">
+          <PriorCallPanel call={call.priorCall} />
+          {call.priors.length > 1 ? (
+            <ul className="mt-3 space-y-1 text-sm text-muted">
+              {call.priors.slice(1).map((older) => (
+                <li key={older.id}>
+                  Earlier in this chain:{" "}
+                  <Link href={`/calls/${older.id}`} className="text-brass hover:text-ink">
+                    {formatDate(older.callDate)}
+                  </Link>
+                  {" · "}
+                  {actionLabel(older.action)} · {ratingLabel(older.ratingTo)} · target {usd(older.priceTargetTo)} · entry{" "}
+                  {usd(older.priceAtCall)}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <p className="mt-2 text-xs text-faint">Each call in the chain is graded on its own. The newer call does not replace the prior grade.</p>
+        </div>
+      ) : null}
+      {call.nextCall ? (
+        <p className="mt-4 text-sm text-muted">
+          Followed within 90 days by{" "}
+          <Link href={`/calls/${call.nextCall.id}`} className="text-brass hover:text-ink">
+            {formatDate(call.nextCall.callDate)} {actionLabel(call.nextCall.action).toLowerCase()}
+          </Link>
+          . This call stays on the record.
         </p>
       ) : null}
 
