@@ -4,7 +4,7 @@ import { actionLabel, ratingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
 import { ratingChange } from "@/lib/queries";
 import { outcomeField, type HorizonKey } from "@/lib/scoring";
-import { GradePill, PointsCell, RatingPill } from "./ui";
+import { GradePill, PointsCell, RatingPill, SupersessionNotes } from "./ui";
 
 export function BoardTable({
   rows,
@@ -114,6 +114,7 @@ export function CallTable({
                   {call.controversial ? (
                     <span className="mt-1 block text-[10px] uppercase tracking-wider text-brass">Controversial</span>
                   ) : null}
+                  <SupersessionNotes mark={call.supersession} />
                 </td>
                 {showTicker ? (
                   <td>
@@ -141,7 +142,12 @@ export function CallTable({
                 <td className="num">{usd(after)}</td>
                 <td className={`num ${returnTone(grade.forwardReturn)}`}>{pct(grade.forwardReturn)}</td>
                 <td>
-                  <GradePill result={grade.directionResult} />
+                  <span className={call.supersession.status === "nullified" ? "line-through decoration-miss/70" : undefined}>
+                    <GradePill result={grade.directionResult} />
+                  </span>
+                  {call.supersession.status === "nullified" ? (
+                    <p className="mt-1 text-[10px] uppercase tracking-wider text-faint">Not scored</p>
+                  ) : null}
                 </td>
               </tr>
             );

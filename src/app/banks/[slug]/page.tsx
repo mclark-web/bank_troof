@@ -5,8 +5,8 @@ import { CallTable } from "@/components/tables";
 import { AggregateStats, HorizonChips, PageIntro, ScoreBar } from "@/components/ui";
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
-import { aggregateGrades, parseHorizon } from "@/lib/scoring";
-import { analystRowsForCalls, getBank, rankedPeerScores, sectorBreakdown } from "@/lib/queries";
+import { parseHorizon } from "@/lib/scoring";
+import { analystRowsForCalls, getBank, rankedPeerScores, scoreAggregate, sectorBreakdown } from "@/lib/queries";
 
 type Params = { slug: string };
 
@@ -38,7 +38,8 @@ export default async function BankPage({
   const data = await getBank(slug);
   if (!data) notFound();
   const { bank, calls } = data;
-  const aggregate = aggregateGrades(calls.map((call) => call.grades[horizon]));
+  const aggregate = scoreAggregate(calls, horizon);
+  const nullified = calls.filter((call) => call.supersession.status === "nullified").length;
   const peers = await rankedPeerScores("bank", horizon);
   const sectors = sectorBreakdown(calls, horizon);
   const roster = analystRowsForCalls(calls, horizon);
@@ -58,6 +59,11 @@ export default async function BankPage({
           <HorizonChips path={`/banks/${bank.slug}`} current={{}} horizon={horizon} />
         </div>
         <AggregateStats aggregate={aggregate} horizon={horizon} peers={peers} />
+        {nullified > 0 ? (
+          <p className="mt-4 text-xs leading-5 text-faint">
+            {nullified} earlier {nullified === 1 ? "call is" : "calls are"} nullified for this firm score. The call list still shows the date, rating, target, and horizon outcome.
+          </p>
+        ) : null}
       </div>
       <section className="mb-8 grid gap-4 lg:grid-cols-2">
         <div className="panel p-5">

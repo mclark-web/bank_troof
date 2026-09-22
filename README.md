@@ -22,13 +22,14 @@ Other commands:
 
 | Command | What it does |
 | --- | --- |
-| `npm test` | Scoring and CSV-parser checks |
+| `npm test` | Scoring, 90-day supersession, and CSV-parser checks |
 | `npm run db:seed` | Rebuild the demo rows in place |
 | `npm run db:reset` | Recreate the SQLite file and seed it |
 | `npm run build` | Generate the client, push the schema, seed, and build Next.js |
 | `npm start` | Serve the production build |
 | `npm run import:calls -- data/your-feed.csv` | Upsert a CSV feed |
 | `npm run import:calls -- data/your-feed.csv --replace` | Replace the database contents with that CSV |
+| `npx tsx scripts/scan-supersession-report.ts` | Recount 90-day same-ticker pairs in the current database |
 
 `npm install && npm run build` is enough for a production build. The `prebuild` step creates `prisma/banktruth.db` (gitignored) before `next build`.
 
@@ -63,6 +64,7 @@ The full write-up is the Methodology page at `/methodology`. In short:
 - Analyst and bank grades use the average raw score, then that same map. Banks are weighted by calls, not by headcount.
 - “If followed” averages the stock return on buys and the inverse return on sells. Holds are excluded.
 - Leaderboards hide thin samples (8 graded calls for an analyst, 20 for a bank; lower inside a sector filter).
+- A later call by the same analyst on the same ticker within 90 calendar days nullifies the earlier call for scoring. Only the latest call in an unbroken 90-day streak counts. The earlier call stays visible, with a note on both sides. A longer gap leaves both calls active. BRK.B and BRK-B are the same ticker.
 
 The score is not market-adjusted. A buy in a rising tape can hit without insight. That limit is stated on the methodology page.
 
@@ -73,6 +75,7 @@ SQLite via Prisma, file at `prisma/banktruth.db`.
 - `Bank`, `Analyst`, `Ticker`, `Coverage`, `Call`
 - A call stores the action, rating change, targets, price at the call, and prices 14, 30, 60, 90, and 365 calendar days later
 - Grades are computed when pages render (`src/lib/scoring.ts`). They are not baked into the row, so a formula change does not require a reseed
+- The 90-day same-ticker rule is computed the same way (`src/lib/supersession.ts`) for every call in the database, including the demo seed and CSV imports. Nullified rows are not stored as a separate flag
 
 The demo generator (`prisma/seed.ts`) places fictional calls on real split-adjusted closes from Yahoo Finance. The price at the call and the 14-, 30-, 60-, 90-, and 365-day prices are that adjusted close. A missing quote aborts the seed. A horizon that runs past 21 Sep 2026 is stored blank and left ungraded. Each fictional analyst is “right” on the real move (the longest window that has closed, or 90 days when that print exists) with a fixed probability, which is why the board has a spread. Calls run from February 2024 through 21 Sep 2026. From July 2026 the book is denser, so upgrades, downgrades, and target changes cluster in the last quarter instead of stopping in June. Analysts, notes, ratings, and targets are sample data. Targets stay in a band around the real price at the call.
 

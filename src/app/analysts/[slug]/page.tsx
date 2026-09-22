@@ -5,8 +5,8 @@ import { CallTable } from "@/components/tables";
 import { AggregateStats, Avatar, HorizonChips, PageIntro } from "@/components/ui";
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
-import { aggregateGrades, parseHorizon } from "@/lib/scoring";
-import { getAnalyst, rankedPeerScores } from "@/lib/queries";
+import { parseHorizon } from "@/lib/scoring";
+import { getAnalyst, rankedPeerScores, scoreAggregate } from "@/lib/queries";
 
 type Params = { slug: string };
 
@@ -41,7 +41,8 @@ export default async function AnalystPage({
   if (!data) notFound();
   const { analyst, calls } = data;
   const visible = focus === "controversial" ? calls.filter((call) => call.controversial) : calls;
-  const aggregate = aggregateGrades(calls.map((call) => call.grades[horizon]));
+  const aggregate = scoreAggregate(calls, horizon);
+  const nullified = calls.filter((call) => call.supersession.status === "nullified").length;
   const peers = await rankedPeerScores("analyst", horizon);
   const shown = visible.slice(0, 40);
 
@@ -71,6 +72,11 @@ export default async function AnalystPage({
           <HorizonChips path={`/analysts/${analyst.slug}`} current={{ focus }} horizon={horizon} />
         </div>
         <AggregateStats aggregate={aggregate} horizon={horizon} peers={peers} />
+        {nullified > 0 ? (
+          <p className="mt-4 text-xs leading-5 text-faint">
+            {nullified} earlier {nullified === 1 ? "call stays" : "calls stay"} in the list and {nullified === 1 ? "is" : "are"} left out of this record. A later call on the same ticker within 90 days replaces the prior one for scoring.
+          </p>
+        ) : null}
       </div>
       <section className="mb-8">
         <h2 className="mb-3 font-serif text-2xl">Coverage</h2>

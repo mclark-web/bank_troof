@@ -6,8 +6,8 @@ import { AggregateStats, HorizonChips, PageIntro, ScoreBar } from "@/components/
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { ratingLabel } from "@/lib/labels";
-import { aggregateGrades, parseHorizon } from "@/lib/scoring";
-import { analystRowsForCalls, getTicker, latestConsensus, rankedPeerScores } from "@/lib/queries";
+import { parseHorizon } from "@/lib/scoring";
+import { analystRowsForCalls, getTicker, latestConsensus, rankedPeerScores, scoreAggregate } from "@/lib/queries";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { symbol: string };
@@ -41,7 +41,8 @@ export default async function TickerPage({
   if (!data) notFound();
   const { ticker, calls } = data;
   const consensus = latestConsensus(calls);
-  const aggregate = aggregateGrades(calls.map((call) => call.grades[horizon]));
+  const aggregate = scoreAggregate(calls, horizon);
+  const nullified = calls.filter((call) => call.supersession.status === "nullified").length;
   const peers = await rankedPeerScores("ticker", horizon);
   const byAnalyst = analystRowsForCalls(calls, horizon);
   const hitPct = aggregate.hitRate == null ? null : Math.round(aggregate.hitRate * 100);
@@ -95,6 +96,9 @@ export default async function TickerPage({
             {hitPct == null
               ? "No graded calls in this window yet."
               : `Under that grade, calls on ${ticker.symbol} were a full hit ${hitPct}% of the time. Hit rate is not the rank.`}
+            {nullified > 0
+              ? ` ${nullified} earlier ${nullified === 1 ? "call is" : "calls are"} nullified because the same analyst published again within 90 days.`
+              : ""}
           </p>
         </section>
       </div>
