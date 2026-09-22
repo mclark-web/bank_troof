@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CallTable } from "@/components/tables";
-import { AggregateStats, HorizonChips, PageIntro, ScoreBar } from "@/components/ui";
+import { CallBook, parseBook } from "@/components/tables";
+import { HorizonChips, OverallFactorCard, PageIntro, ScoreBar } from "@/components/ui";
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { parseHorizon } from "@/lib/scoring";
-import { analystRowsForCalls, getBank, rankedPeerScores, scoreAggregate, sectorBreakdown } from "@/lib/queries";
+import { analystRowsForCalls, factorForCalls, getBank, rankedPeerScores, sectorBreakdown } from "@/lib/queries";
 
 type Params = { slug: string };
 
@@ -35,15 +35,19 @@ export default async function BankPage({
   const { slug } = await params;
   const raw = await searchParams;
   const horizon = parseHorizon(Array.isArray(raw.horizon) ? raw.horizon[0] : raw.horizon);
+  const book = parseBook(Array.isArray(raw.book) ? raw.book[0] : raw.book);
   const data = await getBank(slug);
   if (!data) notFound();
   const { bank, calls } = data;
-  const aggregate = scoreAggregate(calls, horizon);
-  const nullified = calls.filter((call) => call.supersession.status === "nullified").length;
+  const factor = factorForCalls(calls, horizon);
   const peers = await rankedPeerScores("bank", horizon);
   const sectors = sectorBreakdown(calls, horizon);
   const roster = analystRowsForCalls(calls, horizon);
   const maxGraded = Math.max(...sectors.map((item) => item.aggregate.graded), 1);
+  const current = {
+    horizon: horizon === "90" ? undefined : horizon,
+    book: book === "all" ? undefined : book,
+  };
 
   return (
     <div>
@@ -55,15 +59,10 @@ export default async function BankPage({
       </p>
       <div className="panel mb-8 p-5">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-serif text-2xl">Aggregate accuracy</h2>
-          <HorizonChips path={`/banks/${bank.slug}`} current={{}} horizon={horizon} />
+          <h2 className="font-serif text-2xl">Overall factor</h2>
+          <HorizonChips path={`/banks/${bank.slug}`} current={current} horizon={horizon} />
         </div>
-        <AggregateStats aggregate={aggregate} horizon={horizon} peers={peers} />
-        {nullified > 0 ? (
-          <p className="mt-4 text-xs leading-5 text-faint">
-            {nullified} earlier {nullified === 1 ? "call is" : "calls are"} nullified for this firm score. The call list still shows the date, rating, target, and horizon outcome.
-          </p>
-        ) : null}
+        <OverallFactorCard factor={factor} horizon={horizon} peers={peers} />
       </div>
       <section className="mb-8 grid gap-4 lg:grid-cols-2">
         <div className="panel p-5">
@@ -98,8 +97,8 @@ export default async function BankPage({
                 <th>Analyst</th>
                 <th>Hit</th>
                 <th>
-                  Chad
-                  <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">1–10 · /100</span>
+                  Overall factor
+                  <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · Chad 1–10</span>
                 </th>
               </tr>
             </thead>
@@ -123,8 +122,15 @@ export default async function BankPage({
         </div>
       </section>
       <section>
-        <h2 className="mb-3 font-serif text-2xl">Recent calls</h2>
-        <CallTable calls={calls.slice(0, 30)} horizon={horizon} showAnalyst />
+        <h2 className="mb-3 font-serif text-2xl">Calls</h2>
+        <CallBook
+          calls={calls}
+          horizon={horizon}
+          book={book}
+          path={`/banks/${bank.slug}`}
+          current={current}
+          showAnalyst
+        />
       </section>
     </div>
   );

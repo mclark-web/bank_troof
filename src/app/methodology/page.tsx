@@ -16,6 +16,7 @@ import {
   NEAR_MISS_FACTOR,
   TARGET_WEIGHT,
 } from "@/lib/scoring";
+import { OVERALL_FACTOR_FORMULA } from "@/lib/overall-factor";
 import { SUPERSESSION_WINDOW_DAYS } from "@/lib/supersession";
 
 export const metadata: Metadata = {
@@ -130,13 +131,24 @@ export default function MethodologyPage() {
         </p>
       </section>
 
+      <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="overall-factor">
+        <h2 className="font-serif text-3xl text-ink">Overall factor</h2>
+        <p>{OVERALL_FACTOR_FORMULA}</p>
+        <p>
+          That average is the same report-card rollup the leaderboards use. It is not a second formula and it is not a blend of horizons. Pick 2W, 30D, 60D, 90D, or 1Y, and the factor is the mean grade of the active calls at that window. An open window is not graded yet, so it waits. The Chad integer on the same card is this factor placed on the 1–10 scale against the ranked peers. It is not a separate average.
+        </p>
+        <p>
+          The card also shows how many active calls are graded, how many calls are superseded, and the hit rate on the active book only. Superseded calls stay in their own list, with the nullified and supersedes notes still attached.
+        </p>
+      </section>
+
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="aggregation">
         <h2 className="font-serif text-3xl text-ink">Leaderboards</h2>
         <p>
-          An analyst’s score is the average of that person’s graded calls at the selected horizon, on the 0–100 scale. The Chad integer is that average, placed with the rules above against other analysts who clear the sample floor. A bank uses the average of the bank’s calls, not the average of its analysts, and is ranked among banks. One analyst with forty calls outweighs one analyst with eight. That is deliberate: the firm published the calls.
+          An analyst’s overall factor is the average of that person’s active graded calls at the selected horizon, on the 0–100 scale. The Chad integer is that same factor, placed with the rules above against other analysts who clear the sample floor. A bank uses the average of the bank’s active calls, not the average of its analysts, and is ranked among banks. One analyst with forty active calls outweighs one analyst with eight. That is deliberate: the firm published the calls.
         </p>
         <p>
-          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the Chad integer and the score out of 100 are columns. The default order is the 100-point score, the full grade. Sorting by the Chad integer is on the page; names that share a bucket keep the higher 100-point score ahead. Worst offenders reverse whichever key is selected. It gets chuddy under {CHUD_LINE}. Top 30% earns chaddiness.
+          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} active graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the Chad integer and the overall factor are columns. The default order is the overall factor. Sorting by the Chad integer is on the page; names that share a bucket keep the higher overall factor ahead. Worst offenders reverse whichever key is selected. It gets chuddy under {CHUD_LINE}. Top 30% earns chaddiness.
         </p>
         <p>
           Sector filters keep calls whose ticker is in that sector. An analyst who only covers technology is unchanged. A generalist would be scored only on the names in the filter.
@@ -146,7 +158,7 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="supersession">
         <h2 className="font-serif text-3xl text-ink">Same ticker within {SUPERSESSION_WINDOW_DAYS} days</h2>
         <p>
-          When the same analyst publishes another call on the same ticker, and the new call’s date is within {SUPERSESSION_WINDOW_DAYS} calendar days of the previous call on that pair, the older call is nullified for scoring. It does not enter Chad, Chud, hit rate, sample size, or any other report-card average. The newer call is the one that counts.
+          When the same analyst publishes another call on the same ticker, and the new call’s date is within {SUPERSESSION_WINDOW_DAYS} calendar days of the previous call on that pair, the older call is nullified for scoring. It does not enter the overall factor, the Chad bucket, the hit rate, or the sample size. The newer call is the one that counts. Profiles and call lists keep the active book and the superseded history in separate sections.
         </p>
         <p>
           A run of calls stays one streak while each step is {SUPERSESSION_WINDOW_DAYS} days or closer. Only the latest call in that streak is active. Every earlier call is nullified, and each one points at the call that replaced it. A gap longer than {SUPERSESSION_WINDOW_DAYS} days starts a new streak. Both sides of that gap stay active, and neither gets a nullify note.

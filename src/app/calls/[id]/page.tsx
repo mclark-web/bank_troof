@@ -84,8 +84,8 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
           <SupersessionNotes mark={call.supersession} />
           <p className="mt-2 leading-6">
             {call.supersession.status === "nullified"
-              ? "The date, rating, target, entry price, and horizon outcomes stay on this page. This call is left out of Chad, Chud, and report-card averages."
-              : "This is the call that counts for scoring on this ticker. The prior call stays visible and is left out of the averages."}
+              ? "The date, rating, target, entry price, and horizon outcomes stay on this page. This call is left out of the overall factor, the Chad bucket, and the hit rate."
+              : "This call is in the active book and counts toward the overall factor. The prior call stays visible and does not score."}
           </p>
           <p className="mt-2">
             <Link href="/methodology#supersession" className="text-brass hover:text-ink">

@@ -41,7 +41,7 @@ export default async function HomePage() {
             <Count label="Analysts" value={home.analystCount} />
             <Count label="Banks" value={home.bankCount} />
             <Count label="Tickers" value={home.tickerCount} />
-            <Count label="Calls graded, 90D" value={home.graded90} />
+            <Count label="Active graded, 90D" value={home.graded90} />
           </dl>
         </div>
         <aside className="panel overflow-hidden">
@@ -69,6 +69,8 @@ export default async function HomePage() {
                     </Link>
                     <p className="mt-1 text-xs text-faint">
                       {call.bank.shortName} · {formatDate(call.callDate)}
+                      {" · "}
+                      {call.supersession.status === "nullified" ? "Superseded · not scored" : "Active book"}
                     </p>
                     <SupersessionNotes mark={call.supersession} verbose={false} />
                   </div>
@@ -88,8 +90,8 @@ export default async function HomePage() {
 
       <section className="mt-10">
         <p className="mb-3 text-sm text-muted">
-          Every card leads with a Chad score from 1 to 10. <span className="text-ink">1 is Chud</span>, a terrible track record.{" "}
-          <span className="text-ink">10 is Chad</span>, an excellent one. The full score out of 100 sits beside it. It gets chuddy under 70. Top 30% earns chaddiness. Hit rate is underneath.
+          Every card leads with the overall factor, the average 0–100 grade of active calls. The Chad score sits beside it, from{" "}
+          <span className="text-ink">1 (Chud)</span> to <span className="text-ink">10 (Chad)</span>. Superseded calls do not enter the factor. It gets chuddy under 70. Top 30% earns chaddiness. Hit rate is underneath, on the active book only.
         </p>
         <div className="grid gap-4 lg:grid-cols-3">
         <MiniLeaderboard title="Top analysts" href="/leaderboards?view=analysts" rows={home.analysts.map(toRow)} />
@@ -168,6 +170,8 @@ export default async function HomePage() {
                       </Link>
                       <p className="text-xs text-faint">
                         {call.bank.shortName} · {formatDate(call.callDate)} · {ratingLabel(call.ratingTo)}
+                        {" · "}
+                        {call.supersession.status === "nullified" ? "Superseded · not scored" : "Active book"}
                       </p>
                       <SupersessionNotes mark={call.supersession} />
                     </td>

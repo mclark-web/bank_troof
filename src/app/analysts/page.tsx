@@ -15,7 +15,7 @@ export default async function AnalystsPage() {
       <PageIntro
         kicker="Directory"
         title="Analysts"
-        lede="Every name on this desk is fictional. The number is the 90-day Chad score: 1 is Chud, 10 is Chad."
+        lede="Every name on this desk is fictional. The number is the 90-day overall factor: the average score of active calls, with the Chad bucket beside it. 1 is Chud. 10 is Chad."
       />
       <ScaleLegend className="mb-3" />
       <div className="panel overflow-x-auto">
@@ -28,8 +28,8 @@ export default async function AnalystsPage() {
               <th>N</th>
               <th>Hit</th>
               <th>
-                Chad
-                <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">1–10 · /100</span>
+                Overall factor
+                <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · Chad 1–10</span>
               </th>
             </tr>
           </thead>
