@@ -2,7 +2,7 @@ import { cache } from "react";
 import type { Analyst, Bank, Call, Ticker } from "@prisma/client";
 import { prisma } from "./db";
 import { pricesForCall } from "./quotes";
-import { consensusBucket, ratingLabel } from "./labels";
+import { consensusBucket } from "./labels";
 import {
   gradeCall,
   HORIZON_KEYS,
@@ -441,11 +441,6 @@ export async function callPeerScores(): Promise<Record<HorizonKey, number[]>> {
     }
   }
   return scores;
-}
-
-export function ratingChange(call: { ratingFrom: string | null; ratingTo: string }) {
-  if (!call.ratingFrom || call.ratingFrom === call.ratingTo) return ratingLabel(call.ratingTo);
-  return `${ratingLabel(call.ratingFrom)} → ${ratingLabel(call.ratingTo)}`;
 }
 
 function publishedFactor(calls: ScoredCall[]) {

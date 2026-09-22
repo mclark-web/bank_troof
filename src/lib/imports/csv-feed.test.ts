@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { recommendationLabel } from "../labels";
 import { parseCallCsv } from "./csv-feed";
 
 const header =
@@ -15,6 +16,17 @@ describe("parseCallCsv", () => {
     assert.equal(result.records[0].price90d, 130);
     assert.equal(result.records[0].note, "Raised target, citing demand");
     assert.equal(result.records[0].bankShort, "Goldman Sachs");
+    assert.equal(
+      recommendationLabel(result.records[0]),
+      "Upgrade to Buy",
+    );
+  });
+
+  it("labels a target raise from the action, not the desk rating", () => {
+    const csv = `${header}\nimp-2,2026-09-01,bernstein,Bernstein,owen-briggs,Owen Briggs,CAT,Caterpillar,Industrials,target_raise,sell,779.16,896,,\n`;
+    const result = parseCallCsv(csv);
+    assert.equal(result.issues.length, 0);
+    assert.equal(recommendationLabel(result.records[0]), "Target raise");
   });
 
   it("reports unknown ratings and missing prices", () => {

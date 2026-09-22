@@ -30,13 +30,26 @@ export default function MethodologyPage() {
       <PageIntro
         kicker="Methodology"
         title="How a call gets a grade"
-        lede="The score is arithmetic. A rating implies a direction. The direction is checked against the return over a fixed window. A price target is checked against how far the later price landed from that target."
+        lede="The score is arithmetic. The headline on a call is the recommendation. The grade uses a direction bucket taken from the desk rating, then checks that bucket against the return over a fixed window. A price target is checked against how far the later price landed from that target."
       />
 
-      <section className="space-y-4 text-sm leading-7 text-muted" id="direction">
+      <section className="space-y-4 text-sm leading-7 text-muted" id="recommendation">
+        <h2 className="font-serif text-3xl text-ink">Recommendation and direction</h2>
+        <p>
+          The label on a call, in a book, and on the home tape is the recommendation: what the analyst did. Initiate Buy. Upgrade to Overweight. Downgrade to Neutral. Reiterate Outperform. Maintain Hold, Maintain Neutral, or Maintain Equal-Weight when the desk word is in the hold family and the rating did not change. Target raise. Target cut.
+        </p>
+        <p>
+          A target raise or a target cut is that action. It is not rewritten as Buy or Sell. The desk rating — the house word on the note — sits under the recommendation. When the action is only a target change, that word does not become the headline. Owen Briggs raising the CAT target while the desk stays at Sell is labeled <strong className="font-medium text-ink">Target raise</strong>. Sell is not the title of that page.
+        </p>
+        <p>
+          Direction for grading is a coarser bucket, used only by the score. Strong Buy, Buy, Overweight, and Outperform are Buy. Hold, Neutral, and Equal-Weight are Hold. Underperform, Underweight, and Sell are Sell. Screens that still show Buy, Hold, or Sell mark that column “direction for grading.” The same call can be headlined Target raise and graded as Sell, because the desk did not change the rating. The grade asks whether the shares moved the way that bucket required. The target is scored on its own.
+        </p>
+      </section>
+
+      <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="direction">
         <h2 className="font-serif text-3xl text-ink">Direction</h2>
         <p>
-          The rating after the call is what gets graded. Strong Buy, Buy, Overweight, and Outperform are up. Hold, Neutral, and Equal-Weight are flat. Underperform, Underweight, and Sell are down.
+          The direction bucket after the call is what gets graded, not the recommendation verb. Strong Buy, Buy, Overweight, and Outperform are up. Hold, Neutral, and Equal-Weight are flat. Underperform, Underweight, and Sell are down.
         </p>
         <p>Each horizon has one threshold, T. The bands do not overlap except on the exact boundary, where both the directional call and a hold receive a hit.</p>
         <ul className="list-disc space-y-1 pl-5">
@@ -164,7 +177,7 @@ export default function MethodologyPage() {
           A run of calls stays one streak while each step is {SUPERSESSION_WINDOW_DAYS} days or closer. Only the latest call in that streak is active. Every earlier call is nullified, and each one points at the call that replaced it. A gap longer than {SUPERSESSION_WINDOW_DAYS} days starts a new streak. Both sides of that gap stay active, and neither gets a nullify note.
         </p>
         <p>
-          The older row reads “Nullified — superseded by later call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” The newer row reads “Supersedes prior call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” A call in the middle of a streak carries both sentences. The date, action, rating, target, entry price, and 2W / 30D / 60D / 90D / 1Y outcomes stay on the page. The horizon math does not change. Prices stay split-adjusted.
+          The older row reads “Nullified — superseded by later call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” The newer row reads “Supersedes prior call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” A call in the middle of a streak carries both sentences. The date, recommendation, desk rating, target, entry price, and 2W / 30D / 60D / 90D / 1Y outcomes stay on the page. The horizon math does not change. Prices stay split-adjusted.
         </p>
         <p>
           Tickers match after dots and slashes are folded to hyphens, so BRK.B and BRK-B are one name. Two calls on the same calendar day are inside the window. The later timestamp wins, and if the timestamps match, the higher call id is treated as later. That same-day order is reported as ambiguous because the calendar date alone does not say which note came first. A call with no date is left active and is not chained.

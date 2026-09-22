@@ -1,5 +1,5 @@
 import { pct, pctUnsigned, usd } from "@/lib/format";
-import { ratingLabel } from "@/lib/labels";
+import { directionForGradingLabel } from "@/lib/labels";
 import { formatPoints, HORIZONS, HORIZON_KEYS, outcomeField, placeChad, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
 import { GradePill, SideNote } from "./ui";
@@ -7,13 +7,14 @@ import { GradePill, SideNote } from "./ui";
 function expectation(grade: CallGrade, rating: string, horizon: HorizonKey) {
   const hurdle = pctUnsigned(grade.threshold, 0);
   const window = HORIZONS[horizon].label;
+  const bucket = directionForGradingLabel(rating);
   if (grade.expected === "up") {
-    return `${ratingLabel(rating)} expects the shares to rise at least ${hurdle} over ${window}.`;
+    return `Direction for grading is ${bucket}. That bucket expects the shares to rise at least ${hurdle} over ${window}.`;
   }
   if (grade.expected === "down") {
-    return `${ratingLabel(rating)} expects a decline of at least ${hurdle} over ${window}.`;
+    return `Direction for grading is ${bucket}. That bucket expects a decline of at least ${hurdle} over ${window}.`;
   }
-  return `${ratingLabel(rating)} expects the absolute move to stay within ${hurdle} over ${window}.`;
+  return `Direction for grading is ${bucket}. That bucket expects the absolute move to stay within ${hurdle} over ${window}.`;
 }
 
 function priceFor(call: ScoredCall, horizon: HorizonKey) {

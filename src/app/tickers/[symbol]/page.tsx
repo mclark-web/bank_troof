@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CallBook, ConsensusBar, parseBook } from "@/components/tables";
-import { HorizonChips, OverallFactorCard, PageIntro, ScoreBar } from "@/components/ui";
+import { HorizonChips, OverallFactorCard, PageIntro, RecommendationPill, ScoreBar } from "@/components/ui";
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
-import { ratingLabel } from "@/lib/labels";
+import { directionForGradingLabel } from "@/lib/labels";
 import { parseHorizon } from "@/lib/scoring";
 import { analystRowsForCalls, factorForCalls, getTicker, latestConsensus, rankedPeerScores } from "@/lib/queries";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
@@ -56,7 +56,7 @@ export default async function TickerPage({
       <PageIntro
         kicker={`${ticker.exchange} · ${ticker.sector}`}
         title={ticker.symbol}
-        lede={`${ticker.name} · ${ticker.industry}. Historical grades below use the sample calls only. Consensus is the latest rating from each fictional analyst, not a live street tally.`}
+        lede={`${ticker.name} · ${ticker.industry}. Historical grades below use the sample calls only. The list is each analyst’s latest recommendation. The bar under it is the direction for grading, not a live street tally.`}
       >
         <WatchButton kind="ticker" slug={ticker.symbol} label={ticker.symbol} meta={ticker.name} />
       </PageIntro>
@@ -68,7 +68,7 @@ export default async function TickerPage({
 
       <div className="mb-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="panel p-5">
-          <h2 className="font-serif text-2xl">Consensus in the sample</h2>
+          <h2 className="font-serif text-2xl">Latest recommendations</h2>
           <div className="mt-4">
             <ConsensusBar buckets={consensus.buckets} total={consensus.total} />
           </div>
@@ -82,8 +82,11 @@ export default async function TickerPage({
                       {call.analyst.name}
                       <span className="text-faint"> · {call.bank.shortName}</span>
                     </Link>
-                    <Link href={`/calls/${call.id}`} className="num text-xs uppercase tracking-wide text-muted hover:text-brass">
-                      {ratingLabel(call.ratingTo)}
+                    <Link href={`/calls/${call.id}`} className="text-right hover:text-brass">
+                      <RecommendationPill call={call} />
+                      <span className="mt-1 block text-[10px] normal-case tracking-normal text-faint">
+                        Direction for grading: {directionForGradingLabel(call.ratingTo)}
+                      </span>
                     </Link>
                   </li>
                 ))}

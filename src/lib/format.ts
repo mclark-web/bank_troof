@@ -1,3 +1,5 @@
+import { maintainsDesk, ratingLabel } from "./labels";
+
 export function pct(value: number | null | undefined, digits = 1): string {
   if (value == null || Number.isNaN(value)) return "—";
   const scaled = value * 100;
@@ -48,22 +50,22 @@ export function callHeadline(input: {
   action: string;
   symbol: string;
   ratingTo: string;
-  ratingLabel: string;
 }): string {
-  const { action, symbol, ratingLabel: rating } = input;
+  const { action, symbol, ratingTo } = input;
+  const desk = ratingLabel(ratingTo);
   switch (action) {
     case "initiate":
-      return `initiated ${symbol} at ${rating}`;
+      return `initiated ${symbol} at ${desk}`;
     case "upgrade":
-      return `upgraded ${symbol} to ${rating}`;
+      return `upgraded ${symbol} to ${desk}`;
     case "downgrade":
-      return `downgraded ${symbol} to ${rating}`;
+      return `downgraded ${symbol} to ${desk}`;
     case "target_raise":
-      return `raised the ${symbol} target, staying at ${rating}`;
+      return `raised the ${symbol} target`;
     case "target_cut":
-      return `cut the ${symbol} target, staying at ${rating}`;
+      return `cut the ${symbol} target`;
     default:
-      return `reiterated ${rating} on ${symbol}`;
+      return maintainsDesk(ratingTo) ? `maintained ${desk} on ${symbol}` : `reiterated ${desk} on ${symbol}`;
   }
 }
 

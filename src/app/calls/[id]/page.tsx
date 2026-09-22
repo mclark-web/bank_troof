@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GradeLedger } from "@/components/grade-ledger";
-import { RatingPill, SupersessionNotes } from "@/components/ui";
+import { RecommendationPill, SupersessionNotes } from "@/components/ui";
 import { callHeadline, formatDate, usd } from "@/lib/format";
-import { actionLabel, ratingLabel } from "@/lib/labels";
+import { callPageTitle, deskRatingNote, directionForGradingLabel, recommendationLabel } from "@/lib/labels";
 import { callPeerScores, getCall } from "@/lib/queries";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const call = await getCall(id);
   if (!call) return { title: "Call" };
   return {
-    title: `${call.ticker.symbol} ${ratingLabel(call.ratingTo)}`,
-    description: `${call.analyst.name} ${actionLabel(call.action).toLowerCase()} ${call.ticker.symbol}. Sample grade from Charoof Analysts.`,
+    title: callPageTitle(call.ticker.symbol, call),
+    description: `${call.analyst.name}: ${recommendationLabel(call)} on ${call.ticker.symbol}. Sample grade from Charoof Analysts.`,
   };
 }
 
@@ -29,7 +29,6 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
     action: call.action,
     symbol: call.ticker.symbol,
     ratingTo: call.ratingTo,
-    ratingLabel: ratingLabel(call.ratingTo),
   });
 
   return (
@@ -56,10 +55,18 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
       </p>
 
       <dl className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Fact label="Action" value={actionLabel(call.action)} />
-        <Fact label="Rating" value={<RatingPill rating={call.ratingTo} />} hint={call.ratingFrom ? `From ${ratingLabel(call.ratingFrom)}` : "First mark in the sample"} />
+        <Fact
+          label="Recommendation"
+          value={<RecommendationPill call={call} />}
+          hint={deskRatingNote(call)}
+        />
         <Fact label="Price target" value={usd(call.priceTargetTo)} hint={call.priceTargetFrom != null ? `Prior ${usd(call.priceTargetFrom)}` : "No prior target"} />
         <Fact label="Price at call" value={usd(call.priceAtCall)} hint={SPLIT_ADJUSTED[call.ticker.symbol] ? "Split-adjusted close" : "Adjusted close"} />
+        <Fact
+          label="Direction for grading"
+          value={<span className="text-base text-muted">{directionForGradingLabel(call.ratingTo)}</span>}
+          hint="Buy, Hold, or Sell bucket used by the score."
+        />
       </dl>
       {SPLIT_ADJUSTED[call.ticker.symbol] ? (
         <p className="mt-3 text-xs text-faint">
@@ -84,7 +91,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
           <SupersessionNotes mark={call.supersession} />
           <p className="mt-2 leading-6">
             {call.supersession.status === "nullified"
-              ? "The date, rating, target, entry price, and horizon outcomes stay on this page. This call is left out of the overall factor, the Chad bucket, and the hit rate."
+              ? "The date, recommendation, desk rating, target, entry price, and horizon outcomes stay on this page. This call is left out of the overall factor, the Chad bucket, and the hit rate."
               : "This call is in the active book and counts toward the overall factor. The prior call stays visible and does not score."}
           </p>
           <p className="mt-2">

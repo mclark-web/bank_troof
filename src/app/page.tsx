@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { GradePill, SupersessionNotes } from "@/components/ui";
-import { MiniLeaderboard } from "@/components/ui";
+import { GradePill, MiniLeaderboard, RecommendationPill, SupersessionNotes } from "@/components/ui";
 import { callHeadline, formatDate, pct } from "@/lib/format";
-import { ratingLabel } from "@/lib/labels";
+import { recommendationLabel } from "@/lib/labels";
 import { getHome, longestClosed } from "@/lib/queries";
 import { HORIZONS } from "@/lib/scoring";
 
@@ -63,14 +62,16 @@ export default async function HomePage() {
                           action: call.action,
                           symbol: call.ticker.symbol,
                           ratingTo: call.ratingTo,
-                          ratingLabel: ratingLabel(call.ratingTo),
                         })}
                       </span>
                     </Link>
-                    <p className="mt-1 text-xs text-faint">
-                      {call.bank.shortName} · {formatDate(call.callDate)}
-                      {" · "}
-                      {call.supersession.status === "nullified" ? "Superseded · not scored" : "Active book"}
+                    <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-faint">
+                      <RecommendationPill call={call} />
+                      <span>
+                        {call.bank.shortName} · {formatDate(call.callDate)}
+                        {" · "}
+                        {call.supersession.status === "nullified" ? "Superseded · not scored" : "Active book"}
+                      </span>
                     </p>
                     <SupersessionNotes mark={call.supersession} verbose={false} />
                   </div>
@@ -118,12 +119,12 @@ export default async function HomePage() {
           <p className="kicker">No black box</p>
           <h2 className="mt-2 font-serif text-3xl tracking-tight">The grade is the product.</h2>
           <p className="mt-3 text-sm leading-6 text-muted">
-            A call is a direction plus an optional target. Those pieces add up to a score from 0 to 100, shown in full. Under 70 that score is Chud territory. The top 30% of peers who also cleared 70 are on the Chad side. Near-misses get half credit and do not count as hits.
+            A call leads with the recommendation: an upgrade, a target raise, a reiteration. The grade uses a separate direction bucket, plus an optional target. Those pieces add up to a score from 0 to 100, shown in full. Under 70 that score is Chud territory. The top 30% of peers who also cleared 70 are on the Chad side. Near-misses get half credit and do not count as hits.
           </p>
         </div>
         <ol className="grid gap-3 sm:grid-cols-3">
           {[
-            ["01", "Direction", "Buy has to rise. Sell has to fall. Hold has to stay inside the band."],
+            ["01", "Direction", "The grade uses a Buy, Hold, or Sell bucket. Buy has to rise. Sell has to fall. Hold has to stay inside the band. That bucket is not the headline."],
             ["02", "Target", "The price after the window is compared with the target, not with the press release."],
             ["03", "The desk", "Firm scores are call-weighted. A loud analyst moves the bank."],
           ].map(([n, title, body]) => (
@@ -169,7 +170,7 @@ export default async function HomePage() {
                         {call.analyst.name} on {call.ticker.symbol}
                       </Link>
                       <p className="text-xs text-faint">
-                        {call.bank.shortName} · {formatDate(call.callDate)} · {ratingLabel(call.ratingTo)}
+                        {call.bank.shortName} · {formatDate(call.callDate)} · {recommendationLabel(call)}
                         {" · "}
                         {call.supersession.status === "nullified" ? "Superseded · not scored" : "Active book"}
                       </p>
@@ -224,7 +225,6 @@ function Featured({
             action: call.action,
             symbol: call.ticker.symbol,
             ratingTo: call.ratingTo,
-            ratingLabel: ratingLabel(call.ratingTo),
           })}
         </Link>
       </h2>

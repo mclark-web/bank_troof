@@ -57,6 +57,80 @@ export function ratingTone(rating: string): "up" | "flat" | "down" {
   return "flat";
 }
 
+const FLAT_DESK = new Set(["hold", "neutral", "equal_weight"]);
+
+export type RecommendationCall = {
+  action: string;
+  ratingTo: string;
+  ratingFrom?: string | null;
+};
+
+/** Hold-family desk words are maintained. Everything else is reiterated. */
+export function maintainsDesk(rating: string | null | undefined): boolean {
+  return Boolean(rating && FLAT_DESK.has(rating));
+}
+
+/**
+ * Headline for a call. This is the analyst's recommendation, not the Buy/Hold/Sell
+ * bucket the grader uses. A target raise stays "Target raise" even when the desk
+ * rating is still Sell.
+ */
+export function recommendationLabel(call: RecommendationCall): string {
+  const desk = ratingLabel(call.ratingTo);
+  switch (call.action) {
+    case "initiate":
+      return `Initiate ${desk}`;
+    case "upgrade":
+      return `Upgrade to ${desk}`;
+    case "downgrade":
+      return `Downgrade to ${desk}`;
+    case "reiterate":
+      return maintainsDesk(call.ratingTo) ? `Maintain ${desk}` : `Reiterate ${desk}`;
+    case "target_raise":
+      return "Target raise";
+    case "target_cut":
+      return "Target cut";
+    default:
+      return desk;
+  }
+}
+
+/** Buy / Hold / Sell collapsed from the desk rating. Scoring input only. */
+export function directionForGradingLabel(rating: string | null | undefined): string {
+  const bucket = rating ? consensusBucket(rating) : null;
+  if (bucket === "buy") return "Buy";
+  if (bucket === "hold") return "Hold";
+  if (bucket === "sell") return "Sell";
+  return "—";
+}
+
+/** Color follows the recommendation. A target raise is not painted as a Sell. */
+export function recommendationTone(call: RecommendationCall): "up" | "flat" | "down" {
+  switch (call.action) {
+    case "target_raise":
+    case "upgrade":
+      return "up";
+    case "target_cut":
+    case "downgrade":
+      return "down";
+    default:
+      return ratingTone(call.ratingTo);
+  }
+}
+
+/** Secondary line under the recommendation. Names the desk rating without leading with it. */
+export function deskRatingNote(call: RecommendationCall): string {
+  const to = ratingLabel(call.ratingTo);
+  const from = call.ratingFrom ? ratingLabel(call.ratingFrom) : null;
+  if (!from) return "First desk rating in the sample";
+  if (from === to) return `Desk rating stays ${to}`;
+  return `Desk rating ${from} → ${to}`;
+}
+
+export function callPageTitle(symbol: string, call: RecommendationCall): string {
+  return `${symbol} ${recommendationLabel(call)}`;
+}
+
 export const DATASET = {
   vintageIso: "2026-09-21",
   vintageLabel: "21 Sep 2026",

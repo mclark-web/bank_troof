@@ -16,7 +16,7 @@ export default async function TickersPage() {
       <PageIntro
         kicker="Directory"
         title="Tickers"
-        lede="The overall factor is the average 0–100 grade of active 90-day calls on the name, with the Chad bucket beside it. 1 is Chud. 10 is Chad. Consensus is the latest active rating from each analyst. Hit rate is on the active book only."
+        lede="The overall factor is the average 0–100 grade of active 90-day calls on the name, with the Chad bucket beside it. 1 is Chud. 10 is Chad. Buy, Hold, and Sell here are the direction for grading, collapsed from each analyst’s latest desk rating. They are not the recommendation on the call. Hit rate is on the active book only."
       />
       <ScaleLegend className="mb-6" />
       <div className="space-y-8">
@@ -30,9 +30,24 @@ export default async function TickersPage() {
                     <th>Ticker</th>
                     <th className="hidden md:table-cell">Name</th>
                     <th>Voices</th>
-                    <th>Buy</th>
-                    <th>Hold</th>
-                    <th>Sell</th>
+                    <th>
+                      Buy
+                      <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                        direction
+                      </span>
+                    </th>
+                    <th>
+                      Hold
+                      <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                        direction
+                      </span>
+                    </th>
+                    <th>
+                      Sell
+                      <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                        direction
+                      </span>
+                    </th>
                     <th>
                       Overall factor
                       <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · Chad 1–10</span>

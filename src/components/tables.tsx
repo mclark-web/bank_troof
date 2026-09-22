@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { formatDate, pct, returnTone, usd } from "@/lib/format";
-import { actionLabel, ratingLabel } from "@/lib/labels";
+import { deskRatingNote, directionForGradingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
-import { ratingChange } from "@/lib/queries";
 import { outcomeField, type HorizonKey } from "@/lib/scoring";
-import { GradePill, hrefWith, PointsCell, RatingPill, SupersessionNotes } from "./ui";
+import { GradePill, hrefWith, PointsCell, RecommendationPill, SupersessionNotes } from "./ui";
 
 export type BookView = "all" | "active" | "superseded";
 
@@ -111,8 +110,13 @@ export function CallTable({
             <th>Date</th>
             {showTicker ? <th>Ticker</th> : null}
             {showAnalyst ? <th>Analyst</th> : null}
-            <th>Action</th>
-            <th>Rating</th>
+            <th>Recommendation</th>
+            <th className="hidden lg:table-cell">
+              Direction
+              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                for grading
+              </span>
+            </th>
             <th className="hidden lg:table-cell">Target</th>
             <th className="hidden md:table-cell">Then</th>
             <th>After</th>
@@ -151,11 +155,11 @@ export function CallTable({
                     <p className="text-xs text-faint">{call.bank.shortName}</p>
                   </td>
                 ) : null}
-                <td className="text-muted">{actionLabel(call.action)}</td>
                 <td>
-                  <RatingPill rating={call.ratingTo} />
-                  <p className="mt-1 hidden text-[11px] text-faint xl:block">{ratingChange(call)}</p>
+                  <RecommendationPill call={call} />
+                  <p className="mt-1 max-w-[14rem] text-[11px] normal-case tracking-normal text-faint">{deskRatingNote(call)}</p>
                 </td>
+                <td className="hidden text-sm text-muted lg:table-cell">{directionForGradingLabel(call.ratingTo)}</td>
                 <td className="num hidden lg:table-cell">{usd(call.priceTargetTo)}</td>
                 <td className="num hidden text-muted md:table-cell">{usd(call.priceAtCall)}</td>
                 <td className="num">{usd(after)}</td>
@@ -311,7 +315,7 @@ export function ConsensusBar({ buckets, total }: { buckets: { buy: number; hold:
         ))}
       </ul>
       <p className="mt-2 text-xs text-faint">
-        Latest rating from each analyst still in the sample. {ratingLabel("strong_buy")} counts with Buy; Underperform counts with Sell.
+        Direction for grading, from the latest active call of each analyst. Strong Buy, Buy, Overweight, and Outperform count as Buy. Hold, Neutral, and Equal-Weight count as Hold. Underperform, Underweight, and Sell count as Sell. The recommendation on the call — Target raise, Upgrade to Buy, Reiterate Overweight — is a separate label.
       </p>
     </div>
   );

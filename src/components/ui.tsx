@@ -2,7 +2,7 @@ import Link from "next/link";
 import { OVERALL_FACTOR_FORMULA, type OverallFactor } from "@/lib/overall-factor";
 import { HORIZONS, HORIZON_KEYS, formatPoints, placeChad, type ChadPlacement, type HorizonKey } from "@/lib/scoring";
 import { avatarColor, cx, initials, pct } from "@/lib/format";
-import { actionLabel, ratingLabel, ratingTone } from "@/lib/labels";
+import { actionLabel, recommendationLabel, recommendationTone, type RecommendationCall } from "@/lib/labels";
 import type { SupersessionMark } from "@/lib/supersession";
 
 export function hrefWith(
@@ -249,11 +249,10 @@ export function GradePill({ result }: { result: "hit" | "near" | "miss" | null }
   return <span className={cx("inline-flex rounded-full border px-2 py-0.5 text-[11px] uppercase tracking-wider", cls)}>{label}</span>;
 }
 
-export function RatingPill({ rating }: { rating: string }) {
-  const tone = ratingTone(rating);
-  const cls =
-    tone === "up" ? "text-hit" : tone === "down" ? "text-miss" : "text-muted";
-  return <span className={cx("num text-xs uppercase tracking-wide", cls)}>{ratingLabel(rating)}</span>;
+export function RecommendationPill({ call }: { call: RecommendationCall }) {
+  const tone = recommendationTone(call);
+  const cls = tone === "up" ? "text-hit" : tone === "down" ? "text-miss" : "text-muted";
+  return <span className={cx("num text-sm font-medium uppercase tracking-wide", cls)}>{recommendationLabel(call)}</span>;
 }
 
 export function Avatar({ name, seed }: { name: string; seed?: string }) {
