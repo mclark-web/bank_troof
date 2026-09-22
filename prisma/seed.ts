@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import path from "path";
 import { RATING_NOTCH } from "../src/lib/labels";
+import { attachPriorCalls, calendarDaysApart } from "../src/lib/prior-calls";
 import { aggregateGrades, gradeCall, HORIZONS, type HorizonKey } from "../src/lib/scoring";
 import { adjustedClose, clampTargetToSpot, isoDate, pricesForCall } from "../src/lib/quotes";
 import { ANALYSTS, BANKS, TICKERS, type TickerSeed } from "./universe";
@@ -414,6 +415,80 @@ async function main() {
     publishRecent(analyst, ticker, new Date("2026-09-16T00:00:00.000Z"));
   }
 
+  // Labeled pair so Helen Voss's profile always shows a same-ticker chain.
+  // 4 Sep 2026 → 18 Sep 2026 is 14 days, after her last generated NVDA call.
+  // Both rows stay; nothing is overwritten.
+  const chainAnalyst = ANALYSTS.find((item) => item.slug === "helen-voss");
+  const chainTicker = TICKERS.find((item) => item.symbol === "NVDA");
+  if (!chainAnalyst || !chainTicker || !bankBySlug.get(chainAnalyst.bankSlug)) {
+    throw new Error("NVDA chain fixture is missing Helen Voss.");
+  }
+  const chainPlans = [
+    {
+      id: "call_chain_nvda_a",
+      date: "2026-09-04",
+      ratingTo: "buy",
+      multiple: 1.08,
+      note: "Chain fixture. NVDA follow-up within 90 days of her prior call. That earlier call stays on the record.",
+    },
+    {
+      id: "call_chain_nvda_b",
+      date: "2026-09-18",
+      ratingTo: "buy",
+      multiple: 1.12,
+      note: "Chain fixture. Second NVDA follow-up within 90 days. The 4 Sep call is kept, not replaced.",
+    },
+  ];
+  for (const plan of chainPlans) {
+    const cursor = new Date(`${plan.date}T00:00:00.000Z`);
+    const prices = pricesForCall(chainTicker.symbol, cursor);
+    const spot = prices.priceAtCall;
+    const target = streetTarget(clampTargetToSpot(spot * plan.multiple, spot), spot);
+    const previous = calls
+      .filter((call) => call.analystId === chainAnalyst.slug && call.tickerId === chainTicker.symbol && call.callDate < cursor)
+      .sort((a, b) => b.callDate.getTime() - a.callDate.getTime())[0];
+    let action = "initiate";
+    const reasons: string[] = [];
+    if (previous) {
+      const fromNotch = RATING_NOTCH[previous.ratingTo] ?? 3;
+      const toNotch = RATING_NOTCH[plan.ratingTo] ?? 3;
+      if (toNotch > fromNotch) action = "upgrade";
+      else if (toNotch < fromNotch) action = "downgrade";
+      else if (target > previous.priceTargetTo * 1.03) action = "target_raise";
+      else if (target < previous.priceTargetTo * 0.97) action = "target_cut";
+      else action = "reiterate";
+      if (Math.abs(toNotch - fromNotch) >= 2) reasons.push("Two-notch rating change");
+      if (previous.priceTargetTo > 0 && Math.abs(target - previous.priceTargetTo) / previous.priceTargetTo >= 0.25) {
+        reasons.push("Price target moved more than 25%");
+      }
+    }
+    calls.push({
+      id: plan.id,
+      analystId: chainAnalyst.slug,
+      bankId: chainAnalyst.bankSlug,
+      tickerId: chainTicker.symbol,
+      callDate: cursor,
+      action,
+      ratingFrom: previous?.ratingTo ?? null,
+      ratingTo: plan.ratingTo,
+      priceTargetFrom: previous?.priceTargetTo ?? null,
+      priceTargetTo: target,
+      priceAtCall: spot,
+      price14d: prices.price14d,
+      price30d: prices.price30d,
+      price60d: prices.price60d,
+      price90d: prices.price90d,
+      price1y: prices.price1y,
+      note: plan.note,
+      controversial: reasons.length > 0,
+      controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
+      source: "demo",
+    });
+  }
+  const chainCoverage = coverage.get(chainAnalyst.slug) ?? [];
+  if (!chainCoverage.some((item) => item.symbol === chainTicker.symbol)) chainCoverage.push(chainTicker);
+  coverage.set(chainAnalyst.slug, chainCoverage);
+
   await prisma.call.deleteMany();
   await prisma.coverage.deleteMany();
   await prisma.analyst.deleteMany();
@@ -512,6 +587,33 @@ async function main() {
     if (!septemberSymbols.has(symbol)) {
       throw new Error(`${symbol} has no September 2026 demo call.`);
     }
+  }
+
+  const linked = attachPriorCalls(calls);
+  const newer = linked.find((call) => call.id === "call_chain_nvda_b");
+  const older = calls.find((call) => call.id === "call_chain_nvda_a");
+  if (!newer?.priorCall || !older) {
+    throw new Error("NVDA chain fixture is missing a prior call within 90 days.");
+  }
+  if (!calls.some((call) => call.id === newer.priorCall?.id) || !calls.some((call) => call.id === older.id)) {
+    throw new Error("A prior call was dropped while linking the 90-day chain.");
+  }
+  if (newer.priorCall.id === newer.id || older.id === newer.id) {
+    throw new Error("Follow-up replaced the prior call.");
+  }
+  const chainGap = calendarDaysApart(newer.callDate, newer.priorCall.callDate);
+  if (chainGap > 90) {
+    throw new Error(`NVDA follow-up is ${chainGap} days after its prior call.`);
+  }
+  if (newer.priorCall.id !== older.id) {
+    throw new Error(`NVDA follow-up prior is ${newer.priorCall.id}, not the 4 Sep call.`);
+  }
+  if (isoDate(older.callDate) !== "2026-09-04" || isoDate(newer.callDate) !== "2026-09-18") {
+    throw new Error("NVDA chain fixture dates moved.");
+  }
+  const followUps = linked.filter((call) => call.followUpWithin90Days);
+  if (followUps.length === 0) {
+    throw new Error("Seed has no same-ticker follow-up within 90 days.");
   }
 
   await prisma.call.createMany({ data: calls });

@@ -87,7 +87,12 @@ export default async function AnalystPage({
       </section>
       <section>
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-          <h2 className="font-serif text-2xl">Calls</h2>
+          <div>
+            <h2 className="font-serif text-2xl">Calls</h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">
+              Same-ticker calls are grouped from oldest to newest. A new call within 90 days keeps the previous one underneath it.
+            </p>
+          </div>
           <div className="flex gap-2">
             <Link href={`/analysts/${analyst.slug}?horizon=${horizon}`} className={focus === "controversial" ? "chip" : "chip-on"}>
               All
@@ -103,7 +108,7 @@ export default async function AnalystPage({
         {shown.length === 0 ? (
           <p className="panel px-4 py-8 text-center text-sm text-muted">No calls in this cut.</p>
         ) : (
-          <CallTable calls={shown} horizon={horizon} />
+          <CallTable calls={shown} horizon={horizon} groupByTicker showPriorPanel />
         )}
         {visible.length > shown.length ? (
           <p className="mt-3 text-xs text-faint">Showing the {shown.length} most recent of {visible.length} calls.</p>

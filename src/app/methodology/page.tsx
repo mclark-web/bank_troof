@@ -142,6 +142,16 @@ export default function MethodologyPage() {
         </p>
       </section>
 
+      <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="repeat-calls">
+        <h2 className="font-serif text-3xl text-ink">Repeat calls within 90 days</h2>
+        <p>
+          When the same analyst files another call on a ticker they already called, and the new date is within 90 calendar days of the previous call on that name, both calls stay. The newer call is marked as a follow-up. The earlier call remains, with its date, action, rating, price target, entry price, and horizon grades. The analyst profile groups that ticker and shows the prior call under the newer row. A gap longer than 90 days is a separate call. The history still lists it.
+        </p>
+        <p>
+          Each call is graded on its own rating, target, and later prices. The prior call does not change the newer grade, and the newer call does not replace the prior grade. Leaderboards average every graded call. They do not collapse a chain into one score. Consensus on a ticker page still shows each analyst’s latest rating, and that row links the prior call when the update landed inside 90 days.
+        </p>
+      </section>
+
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="controversial">
         <h2 className="font-serif text-3xl text-ink">Controversial flags</h2>
         <p>

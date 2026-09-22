@@ -70,6 +70,15 @@ export default async function HomePage() {
                     <p className="mt-1 text-xs text-faint">
                       {call.bank.shortName} · {formatDate(call.callDate)}
                     </p>
+                    {call.followUpWithin90Days && call.priorCall ? (
+                      <p className="mt-1 text-[11px] text-faint">
+                        <Link href={`/calls/${call.priorCall.id}`} className="text-brass hover:text-ink">
+                          Prior call (within 90 days)
+                        </Link>
+                        {" · "}
+                        {formatDate(call.priorCall.callDate)}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="text-right">
                     <GradePill result={closed?.grade.directionResult ?? null} />

@@ -5,6 +5,7 @@ import { CallTable, ConsensusBar } from "@/components/tables";
 import { AggregateStats, HorizonChips, PageIntro, ScoreBar } from "@/components/ui";
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
+import { formatDate } from "@/lib/format";
 import { ratingLabel } from "@/lib/labels";
 import { aggregateGrades, parseHorizon } from "@/lib/scoring";
 import { analystRowsForCalls, getTicker, latestConsensus, rankedPeerScores } from "@/lib/queries";
@@ -73,10 +74,21 @@ export default async function TickerPage({
                 .sort((a, b) => b.callDate.getTime() - a.callDate.getTime())
                 .map((call) => (
                   <li key={call.id} className="flex items-center justify-between gap-3 py-2 text-sm">
-                    <Link href={`/analysts/${call.analyst.slug}`} className="hover:text-brass">
-                      {call.analyst.name}
-                      <span className="text-faint"> · {call.bank.shortName}</span>
-                    </Link>
+                    <div>
+                      <Link href={`/analysts/${call.analyst.slug}`} className="hover:text-brass">
+                        {call.analyst.name}
+                        <span className="text-faint"> · {call.bank.shortName}</span>
+                      </Link>
+                      {call.followUpWithin90Days && call.priorCall ? (
+                        <p className="text-[11px] text-faint">
+                          <Link href={`/calls/${call.priorCall.id}`} className="text-brass hover:text-ink">
+                            Prior call (within 90 days)
+                          </Link>
+                          {" · "}
+                          {formatDate(call.priorCall.callDate)} · {ratingLabel(call.priorCall.ratingTo)}
+                        </p>
+                      ) : null}
+                    </div>
                     <Link href={`/calls/${call.id}`} className="num text-xs uppercase tracking-wide text-muted hover:text-brass">
                       {ratingLabel(call.ratingTo)}
                     </Link>
