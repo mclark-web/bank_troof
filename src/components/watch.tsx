@@ -81,6 +81,7 @@ type ScoreRow = {
   href: string;
   found: boolean;
   aggregate: { avgScore: number | null; hitRate: number | null; graded: number };
+  overallFactor: { score: number | null; activeGraded: number; superseded: number; hitRate: number | null };
   placement: ChadPlacement;
 };
 
@@ -162,25 +163,26 @@ export function WatchlistBoard() {
               <p className="text-sm text-muted">{item.meta}</p>
             </div>
             <div className="sm:text-right">
-              {score?.found ? (
+              {score?.found && score.overallFactor ? (
                 <>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-faint sm:text-right">Overall factor</p>
                   <p className="flex items-baseline gap-2 sm:justify-end">
-                    <span className="num text-4xl leading-none">{score.placement.chad ?? "—"}</span>
-                    <span className="num text-lg text-faint">/10</span>
+                    <span className="num text-4xl leading-none">{formatPoints(score.overallFactor.score)}</span>
+                    <span className="num text-lg text-faint">/100</span>
                   </p>
-                  <p className="mt-1 text-[11px] text-faint">1 = Chud · 10 = Chad</p>
-                  <p className="mt-1 text-xs text-muted">{score.placement.label}</p>
-                  <p className="num text-sm text-muted">
-                    Score {formatPoints(score.aggregate.avgScore)}
-                    <span className="text-faint">/100</span>
+                  <p className="num mt-1 text-sm text-muted sm:text-right">
+                    Chad {score.placement.chad ?? "—"}
+                    <span className="text-faint">/10</span>
+                    <span className="text-faint"> · 1 = Chud · 10 = Chad</span>
                   </p>
-                  <p className="num mt-1 text-sm text-muted">
-                    Hit {score.aggregate.hitRate == null ? "—" : `${Math.round(score.aggregate.hitRate * 100)}%`} ·{" "}
-                    {score.aggregate.graded} graded
+                  <p className="mt-1 text-xs text-muted sm:text-right">{score.placement.label}</p>
+                  <p className="num mt-1 text-sm text-muted sm:text-right">
+                    Hit {score.overallFactor.hitRate == null ? "—" : `${Math.round(score.overallFactor.hitRate * 100)}%`} ·{" "}
+                    {score.overallFactor.activeGraded} active · {score.overallFactor.superseded} superseded
                   </p>
                 </>
               ) : (
-                <p className="text-sm text-muted">Looking up the Chad score…</p>
+                <p className="text-sm text-muted">Looking up the overall factor…</p>
               )}
             </div>
             <button type="button" className="btn-ghost" onClick={() => remove(item)}>

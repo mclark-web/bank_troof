@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CallTable, ConsensusBar } from "@/components/tables";
-import { AggregateStats, HorizonChips, PageIntro, ScoreBar } from "@/components/ui";
+import { CallBook, ConsensusBar, parseBook } from "@/components/tables";
+import { HorizonChips, OverallFactorCard, PageIntro, ScoreBar } from "@/components/ui";
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { ratingLabel } from "@/lib/labels";
 import { parseHorizon } from "@/lib/scoring";
-import { analystRowsForCalls, getTicker, latestConsensus, rankedPeerScores, scoreAggregate } from "@/lib/queries";
+import { analystRowsForCalls, factorForCalls, getTicker, latestConsensus, rankedPeerScores } from "@/lib/queries";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { symbol: string };
@@ -37,15 +37,19 @@ export default async function TickerPage({
   const { symbol } = await params;
   const raw = await searchParams;
   const horizon = parseHorizon(Array.isArray(raw.horizon) ? raw.horizon[0] : raw.horizon);
+  const book = parseBook(Array.isArray(raw.book) ? raw.book[0] : raw.book);
   const data = await getTicker(symbol);
   if (!data) notFound();
   const { ticker, calls } = data;
   const consensus = latestConsensus(calls);
-  const aggregate = scoreAggregate(calls, horizon);
-  const nullified = calls.filter((call) => call.supersession.status === "nullified").length;
+  const factor = factorForCalls(calls, horizon);
   const peers = await rankedPeerScores("ticker", horizon);
   const byAnalyst = analystRowsForCalls(calls, horizon);
-  const hitPct = aggregate.hitRate == null ? null : Math.round(aggregate.hitRate * 100);
+  const hitPct = factor.hitRate == null ? null : Math.round(factor.hitRate * 100);
+  const current = {
+    horizon: horizon === "90" ? undefined : horizon,
+    book: book === "all" ? undefined : book,
+  };
 
   return (
     <div>
@@ -89,16 +93,13 @@ export default async function TickerPage({
         <section className="panel p-5">
           <div className="mb-4 flex items-center justify-between gap-3">
             <h2 className="font-serif text-2xl">Who was right</h2>
-            <HorizonChips path={`/tickers/${ticker.symbol}`} current={{}} horizon={horizon} />
+            <HorizonChips path={`/tickers/${ticker.symbol}`} current={current} horizon={horizon} />
           </div>
-          <AggregateStats aggregate={aggregate} horizon={horizon} peers={peers} />
+          <OverallFactorCard factor={factor} horizon={horizon} peers={peers} />
           <p className="mt-4 text-sm leading-6 text-muted">
             {hitPct == null
-              ? "No graded calls in this window yet."
-              : `Under that grade, calls on ${ticker.symbol} were a full hit ${hitPct}% of the time. Hit rate is not the rank.`}
-            {nullified > 0
-              ? ` ${nullified} earlier ${nullified === 1 ? "call is" : "calls are"} nullified because the same analyst published again within 90 days.`
-              : ""}
+              ? "No active graded calls in this window yet."
+              : `Active calls on ${ticker.symbol} were a full hit ${hitPct}% of the time. Hit rate is not the rank.`}
           </p>
         </section>
       </div>
@@ -117,8 +118,8 @@ export default async function TickerPage({
                   <th>N</th>
                   <th>Hit</th>
                   <th>
-                    Chad
-                    <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">1–10 · /100</span>
+                    Overall factor
+                    <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · Chad 1–10</span>
                   </th>
                 </tr>
               </thead>
@@ -146,7 +147,15 @@ export default async function TickerPage({
 
       <section>
         <h2 className="mb-3 font-serif text-2xl">Call history</h2>
-        <CallTable calls={calls.slice(0, 40)} horizon={horizon} showAnalyst showTicker={false} />
+        <CallBook
+          calls={calls}
+          horizon={horizon}
+          book={book}
+          path={`/tickers/${ticker.symbol}`}
+          current={current}
+          showAnalyst
+          showTicker={false}
+        />
       </section>
     </div>
   );

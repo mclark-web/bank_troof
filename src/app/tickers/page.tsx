@@ -16,7 +16,7 @@ export default async function TickersPage() {
       <PageIntro
         kicker="Directory"
         title="Tickers"
-        lede="The Chad score grades every 90-day call on the name, from 1 (Chud) to 10 (Chad). Consensus is the latest sample rating from each analyst. Hit rate sits beside the grade."
+        lede="The overall factor is the average 0–100 grade of active 90-day calls on the name, with the Chad bucket beside it. 1 is Chud. 10 is Chad. Consensus is the latest active rating from each analyst. Hit rate is on the active book only."
       />
       <ScaleLegend className="mb-6" />
       <div className="space-y-8">
@@ -34,8 +34,8 @@ export default async function TickersPage() {
                     <th>Hold</th>
                     <th>Sell</th>
                     <th>
-                      Chad
-                      <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">1–10 · /100</span>
+                      Overall factor
+                      <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · Chad 1–10</span>
                     </th>
                     <th>90D hit</th>
                   </tr>

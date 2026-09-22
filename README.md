@@ -39,7 +39,7 @@ Other commands:
 | --- | --- |
 | `/` | Hero, sample leaderboards, a best and worst followed call, controversial moves |
 | `/leaderboards` | Top analysts, top banks, worst offenders. Filter by 2W / 30D / 60D / 90D / 1Y and sector |
-| `/analysts` and `/analysts/[slug]` | Directory and a scorecard: firm, coverage, hit rate, return if followed, calls |
+| `/analysts` and `/analysts/[slug]` | Directory and a scorecard: overall factor, active book, superseded history |
 | `/banks` and `/banks/[slug]` | Firm rollup, sector mix, roster |
 | `/tickers` and `/tickers/[symbol]` | Sample consensus versus who was right on that name |
 | `/calls/[id]` | Rating change, target, prices, and the grade at each horizon |
@@ -61,10 +61,10 @@ The full write-up is the Methodology page at `/methodology`. In short:
 - A near-miss earns half of the 70 direction points and does **not** count as a hit.
 - Target error is `|price at horizon − target| / price at call`. Inside a tight band it adds 30 points; past a wide band it adds none; in between it fades linearly. No target means the direction score is scaled to 100.
 - Every card shows both grades. The full grade is the **0–100** score. The personality grade is an integer **1–10**: 1 is Chud, 10 is Chad. It gets chuddy under 70 (Chad 1–4), whatever the field looks like. Top 30% of the ranked peers earns chaddiness (Chad 8–10), and only if the score is also at least 70. At or above 70 but outside that top 30% is mid (Chad 5–7). Leaderboards show both columns and sort by the 100-point score by default. A Chad 1–10 sort breaks ties with the 100-point score. Hit rate stays as a supporting stat.
-- Analyst and bank grades use the average raw score, then that same map. Banks are weighted by calls, not by headcount.
+- The **overall factor** is that 0–100 average of active graded calls at the selected horizon (`src/lib/overall-factor.ts`). The Chad 1–10 number is the same factor placed on the bucket scale. Superseded calls do not enter it. Leaderboards sort on this factor.
 - “If followed” averages the stock return on buys and the inverse return on sells. Holds are excluded.
 - Leaderboards hide thin samples (8 graded calls for an analyst, 20 for a bank; lower inside a sector filter).
-- A later call by the same analyst on the same ticker within 90 calendar days nullifies the earlier call for scoring. Only the latest call in an unbroken 90-day streak counts. The earlier call stays visible, with a note on both sides. A longer gap leaves both calls active. BRK.B and BRK-B are the same ticker.
+- A later call by the same analyst on the same ticker within 90 calendar days nullifies the earlier call for scoring. Only the latest call in an unbroken 90-day streak counts toward the overall factor. The earlier call stays visible in a superseded section, with a note on both sides of the chain. A longer gap leaves both calls active. BRK.B and BRK-B are the same ticker.
 
 The score is not market-adjusted. A buy in a rising tape can hit without insight. That limit is stated on the methodology page.
 

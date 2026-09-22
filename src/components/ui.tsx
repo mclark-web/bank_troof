@@ -1,8 +1,8 @@
 import Link from "next/link";
+import { OVERALL_FACTOR_FORMULA, type OverallFactor } from "@/lib/overall-factor";
 import { HORIZONS, HORIZON_KEYS, formatPoints, placeChad, type ChadPlacement, type HorizonKey } from "@/lib/scoring";
 import { avatarColor, cx, initials, pct } from "@/lib/format";
 import { actionLabel, ratingLabel, ratingTone } from "@/lib/labels";
-import type { Aggregate } from "@/lib/scoring";
 import type { SupersessionMark } from "@/lib/supersession";
 
 export function hrefWith(
@@ -146,67 +146,6 @@ export function ScaleLegend({ className = "" }: { className?: string }) {
   );
 }
 
-export function ChadScore({
-  raw,
-  peers,
-  caption,
-}: {
-  raw: number | null | undefined;
-  peers: number[];
-  caption?: string;
-}) {
-  const placement = placeChad(raw, peers);
-  const value = placement.chad;
-  const points = raw == null || Number.isNaN(raw) ? 0 : Math.min(100, Math.max(0, raw));
-  return (
-    <div>
-      <p className="kicker">{caption ?? "Chad score"}</p>
-      <p className="mt-2 flex flex-wrap items-end gap-x-6 gap-y-3">
-        <span className="flex items-end gap-3">
-          <span
-            className="num text-7xl leading-none tracking-tight"
-            aria-label={value == null ? "No Chad score" : `Chad ${value} out of 10. 1 is Chud, 10 is Chad.`}
-          >
-            {value == null ? "—" : value}
-          </span>
-          <span className="mb-2 text-sm leading-5 text-muted">
-            <span className="block text-ink">Chad · out of 10</span>
-            <span className="text-miss">1 = Chud</span>
-            <span className="mx-1 text-faint">→</span>
-            <span className="text-hit">10 = Chad</span>
-          </span>
-        </span>
-        <span className="mb-2">
-          <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Score</span>
-          <span className="num text-3xl leading-none text-ink">{formatPoints(raw)}</span>
-          <span className="num text-lg text-faint">/100</span>
-        </span>
-      </p>
-      <div className="mt-4 h-2 max-w-sm overflow-hidden rounded-full bg-white/10" aria-hidden>
-        <div className="h-full bg-brass" style={{ width: `${points}%` }} />
-      </div>
-      <SideNote placement={placement} />
-      <ol className="mt-3 flex max-w-sm gap-1" aria-hidden>
-        {Array.from({ length: 10 }, (_, index) => index + 1).map((step) => (
-          <li
-            key={step}
-            title={step === 1 ? "1 Chud" : step === 10 ? "10 Chad" : String(step)}
-            className={cx(
-              "h-1.5 flex-1 rounded-sm",
-              value != null && step <= value ? "bg-brass" : "bg-white/10",
-              value === step && "ring-1 ring-brass",
-            )}
-          />
-        ))}
-      </ol>
-      <p className="mt-1 flex max-w-sm justify-between text-[11px] uppercase tracking-wider">
-        <span className="text-miss">1 Chud</span>
-        <span className="text-hit">10 Chad</span>
-      </p>
-    </div>
-  );
-}
-
 export function SideNote({ placement, className = "" }: { placement: ChadPlacement; className?: string }) {
   if (!placement.side || !placement.label) return null;
   const tone = placement.side === "chud" ? "text-miss" : placement.side === "chad" ? "text-hit" : "text-brass";
@@ -216,14 +155,18 @@ export function SideNote({ placement, className = "" }: { placement: ChadPlaceme
 export function ScoreBar({ score, placement }: { score: number | null; placement: ChadPlacement }) {
   const chad = placement.chad;
   const width = score == null ? 0 : Math.min(100, Math.max(0, score));
+  const title =
+    score == null
+      ? "No overall factor"
+      : `Overall factor ${formatPoints(score)} of 100. Chad ${chad ?? "—"} of 10. ${placement.label ?? ""}`;
   return (
-    <div title={chad == null ? "No score" : `Chad ${chad} of 10. Score ${formatPoints(score)} of 100. ${placement.label ?? ""}`}>
+    <div title={title}>
       <div className="flex items-baseline gap-2">
-        <span className="num text-2xl leading-none text-ink">{chad == null ? "—" : chad}</span>
-        <span className="num text-[11px] text-faint">/10</span>
+        <span className="num text-2xl leading-none text-ink">{formatPoints(score)}</span>
+        <span className="num text-[11px] text-faint">/100</span>
         <span className="num text-sm text-muted">
-          {formatPoints(score)}
-          <span className="text-faint">/100</span>
+          {chad == null ? "—" : chad}
+          <span className="text-faint">/10</span>
         </span>
       </div>
       <div className="mt-1 hidden h-1.5 w-24 overflow-hidden rounded-full bg-white/10 sm:block" aria-hidden>
@@ -325,28 +268,74 @@ export function Avatar({ name, seed }: { name: string; seed?: string }) {
   );
 }
 
-export function AggregateStats({
-  aggregate,
-  horizon,
+export function OverallFactorCard({
+  factor,
   peers,
+  horizon,
 }: {
-  aggregate: Aggregate;
-  horizon: HorizonKey;
+  factor: OverallFactor;
   peers: number[];
+  horizon: HorizonKey;
 }) {
-  const followed = aggregate.avgFollowedReturn;
+  const placement = placeChad(factor.score, peers);
+  const chad = placement.chad;
+  const points = factor.score == null ? 0 : Math.min(100, Math.max(0, factor.score));
+  const followed = factor.aggregate.avgFollowedReturn;
+  const hit = factor.hitRate == null ? "—" : `${Math.round(factor.hitRate * 100)}%`;
   return (
-    <div>
-      <ChadScore raw={aggregate.avgScore} peers={peers} caption={`${HORIZONS[horizon].short} Chad score`} />
-      <div className="mt-6 grid grid-cols-3 gap-5 border-t border-line pt-5">
-        <Stat label="Hit rate" value={aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`} />
+    <div id="overall-factor">
+      <p className="kicker">Overall factor · {HORIZONS[horizon].short}</p>
+      <div className="mt-2 flex flex-wrap items-end gap-x-10 gap-y-4">
+        <p>
+          <span
+            className="num text-7xl leading-none tracking-tight"
+            aria-label={
+              factor.score == null
+                ? "No overall factor"
+                : `Overall factor ${formatPoints(factor.score)} out of 100`
+            }
+          >
+            {formatPoints(factor.score)}
+          </span>
+          <span className="num ml-1 text-2xl text-faint">/100</span>
+          <span className="mt-2 block text-sm text-muted">Average of active call grades</span>
+        </p>
+        <p className="mb-1">
+          <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Chad</span>
+          <span
+            className="num text-4xl leading-none"
+            aria-label={chad == null ? "No Chad score" : `Chad ${chad} out of 10. 1 is Chud, 10 is Chad.`}
+          >
+            {chad == null ? "—" : chad}
+          </span>
+          <span className="num text-lg text-faint">/10</span>
+          <span className="mt-1 block text-xs text-muted">
+            <span className="text-miss">1 = Chud</span>
+            <span className="mx-1 text-faint">→</span>
+            <span className="text-hit">10 = Chad</span>
+          </span>
+        </p>
+      </div>
+      <div className="mt-4 h-2 max-w-sm overflow-hidden rounded-full bg-white/10" aria-hidden>
+        <div className="h-full bg-brass" style={{ width: `${points}%` }} />
+      </div>
+      <SideNote placement={placement} className="mt-2" />
+      <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
+        {OVERALL_FACTOR_FORMULA}{" "}
+        <Link href="/methodology#overall-factor" className="text-brass hover:text-ink">
+          How this is computed
+        </Link>
+      </p>
+      <div className="mt-6 grid grid-cols-2 gap-5 border-t border-line pt-5 sm:grid-cols-4">
+        <Stat label="Active graded" value={String(factor.activeGraded)} hint="In this factor" />
+        <Stat label="Superseded" value={String(factor.superseded)} hint="Visible, not scored" />
+        <Stat label="Hit rate" value={hit} hint="Active calls only" />
         <Stat
           label="If followed"
           value={pct(followed)}
           tone={followed == null ? "plain" : followed >= 0 ? "hit" : "miss"}
-          hint="Directional calls only"
+          hint="Active directional calls"
         />
-        <Stat label="Graded" value={String(aggregate.graded)} hint="Calls in the window" />
       </div>
     </div>
   );

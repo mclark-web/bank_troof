@@ -49,12 +49,12 @@ export default async function LeaderboardsPage({
     view === "offenders" ? "Worst offenders" : view === "banks" ? "Top banks" : "Top analysts";
   const rankLine =
     rank === "chad"
-      ? "Sorted by the Chad integer. Names in the same bucket keep the higher score out of 100 ahead."
-      : "Sorted by the score out of 100. Under 70 is Chud territory. Top 30% of this board earns chaddiness.";
+      ? "Sorted by the Chad integer of that factor. Names in the same bucket keep the higher overall factor ahead."
+      : "Sorted by the overall factor, the average 0–100 grade of active calls. Superseded calls do not score. Under 70 is Chud territory. Top 30% of this board earns chaddiness.";
   const lede =
     view === "offenders"
-      ? `Lowest first over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad. Both grades are on the row.`
-      : `Ranked over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad. Firms are weighted by calls, not by headcount.`;
+      ? `Lowest overall factor first over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad.`
+      : `Ranked by overall factor over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad. Firms are weighted by active calls, not by headcount.`;
 
   return (
     <div>
@@ -81,7 +81,7 @@ export default async function LeaderboardsPage({
           <HorizonChips path="/leaderboards" current={current} horizon={horizon} />
           <div className="flex gap-2" role="group" aria-label="Sort">
             <a href={hrefWith("/leaderboards", current, { rank: null })} className={rank === "points" ? "chip-on" : "chip"}>
-              Score /100
+              Overall factor
             </a>
             <a href={hrefWith("/leaderboards", current, { rank: "chad" })} className={rank === "chad" ? "chip-on" : "chip"}>
               Chad 1–10
@@ -124,8 +124,8 @@ export default async function LeaderboardsPage({
       )}
       <p className="mt-4 max-w-3xl text-xs leading-5 text-faint">
         Showing {board.rows.length} of {board.considered} {entity === "bank" ? "banks" : "analysts"} with at least{" "}
-        {minimumSample(entity, sector)} graded {HORIZONS[horizon].short} calls
-        {sector ? ` in ${sector}` : ""}. Score out of 100 is the full grade. Under 70 is Chud territory. The top 30% of this board, if they also cleared 70, are on the Chad side. Everyone else at or above 70 is mid. Default sort is the 100-point score. “If followed” averages the stock return on buys and the inverse return on sells. Holds are left out of that column.
+        {minimumSample(entity, sector)} active graded {HORIZONS[horizon].short} calls
+        {sector ? ` in ${sector}` : ""}. The overall factor is the average 0–100 grade of those active calls. Superseded calls stay off the average, the Chad bucket, and the hit rate. Under 70 is Chud territory. The top 30% of this board, if they also cleared 70, are on the Chad side. Everyone else at or above 70 is mid. Default sort is the overall factor. “If followed” averages the stock return on active buys and the inverse return on active sells. Holds are left out of that column.
       </p>
     </div>
   );

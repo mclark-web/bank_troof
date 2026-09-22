@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CallTable } from "@/components/tables";
-import { AggregateStats, Avatar, HorizonChips, PageIntro } from "@/components/ui";
+import { CallBook, parseBook } from "@/components/tables";
+import { Avatar, HorizonChips, hrefWith, OverallFactorCard, PageIntro } from "@/components/ui";
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { parseHorizon } from "@/lib/scoring";
-import { getAnalyst, rankedPeerScores, scoreAggregate } from "@/lib/queries";
+import { factorForCalls, getAnalyst, rankedPeerScores } from "@/lib/queries";
 
 type Params = { slug: string };
 
@@ -36,15 +36,20 @@ export default async function AnalystPage({
   const raw = await searchParams;
   const horizonValue = Array.isArray(raw.horizon) ? raw.horizon[0] : raw.horizon;
   const focus = Array.isArray(raw.focus) ? raw.focus[0] : raw.focus;
+  const bookValue = Array.isArray(raw.book) ? raw.book[0] : raw.book;
   const horizon = parseHorizon(horizonValue);
+  const book = parseBook(bookValue);
   const data = await getAnalyst(slug);
   if (!data) notFound();
   const { analyst, calls } = data;
   const visible = focus === "controversial" ? calls.filter((call) => call.controversial) : calls;
-  const aggregate = scoreAggregate(calls, horizon);
-  const nullified = calls.filter((call) => call.supersession.status === "nullified").length;
+  const factor = factorForCalls(calls, horizon);
   const peers = await rankedPeerScores("analyst", horizon);
-  const shown = visible.slice(0, 40);
+  const current = {
+    horizon: horizon === "90" ? undefined : horizon,
+    focus: focus === "controversial" ? "controversial" : undefined,
+    book: book === "all" ? undefined : book,
+  };
 
   return (
     <div>
@@ -68,15 +73,10 @@ export default async function AnalystPage({
       </div>
       <div className="panel mb-6 p-5">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-serif text-2xl">Record</h2>
-          <HorizonChips path={`/analysts/${analyst.slug}`} current={{ focus }} horizon={horizon} />
+          <h2 className="font-serif text-2xl">Overall factor</h2>
+          <HorizonChips path={`/analysts/${analyst.slug}`} current={current} horizon={horizon} />
         </div>
-        <AggregateStats aggregate={aggregate} horizon={horizon} peers={peers} />
-        {nullified > 0 ? (
-          <p className="mt-4 text-xs leading-5 text-faint">
-            {nullified} earlier {nullified === 1 ? "call stays" : "calls stay"} in the list and {nullified === 1 ? "is" : "are"} left out of this record. A later call on the same ticker within 90 days replaces the prior one for scoring.
-          </p>
-        ) : null}
+        <OverallFactorCard factor={factor} horizon={horizon} peers={peers} />
       </div>
       <section className="mb-8">
         <h2 className="mb-3 font-serif text-2xl">Coverage</h2>
@@ -94,26 +94,33 @@ export default async function AnalystPage({
       <section>
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <h2 className="font-serif text-2xl">Calls</h2>
-          <div className="flex gap-2">
-            <Link href={`/analysts/${analyst.slug}?horizon=${horizon}`} className={focus === "controversial" ? "chip" : "chip-on"}>
-              All
+          <div className="flex gap-2" role="group" aria-label="Call theme">
+            <Link
+              href={hrefWith(`/analysts/${analyst.slug}`, current, { focus: null })}
+              className={focus === "controversial" ? "chip" : "chip-on"}
+            >
+              All themes
             </Link>
             <Link
-              href={`/analysts/${analyst.slug}?horizon=${horizon}&focus=controversial`}
+              href={hrefWith(`/analysts/${analyst.slug}`, current, { focus: "controversial" })}
               className={focus === "controversial" ? "chip-on" : "chip"}
             >
               Controversial
             </Link>
           </div>
         </div>
-        {shown.length === 0 ? (
-          <p className="panel px-4 py-8 text-center text-sm text-muted">No calls in this cut.</p>
-        ) : (
-          <CallTable calls={shown} horizon={horizon} />
-        )}
-        {visible.length > shown.length ? (
-          <p className="mt-3 text-xs text-faint">Showing the {shown.length} most recent of {visible.length} calls.</p>
+        {focus === "controversial" ? (
+          <p className="mb-3 text-sm text-muted">
+            This cut is controversial calls only. The overall factor above still uses every active call.
+          </p>
         ) : null}
+        <CallBook
+          calls={visible}
+          horizon={horizon}
+          book={book}
+          path={`/analysts/${analyst.slug}`}
+          current={current}
+        />
       </section>
     </div>
   );
