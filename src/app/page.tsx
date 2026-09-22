@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GradePill } from "@/components/ui";
+import { GradePill, SupersessionNotes } from "@/components/ui";
 import { MiniLeaderboard } from "@/components/ui";
 import { callHeadline, formatDate, pct } from "@/lib/format";
 import { ratingLabel } from "@/lib/labels";
@@ -70,6 +70,7 @@ export default async function HomePage() {
                     <p className="mt-1 text-xs text-faint">
                       {call.bank.shortName} · {formatDate(call.callDate)}
                     </p>
+                    <SupersessionNotes mark={call.supersession} verbose={false} />
                   </div>
                   <div className="text-right">
                     <GradePill result={closed?.grade.directionResult ?? null} />
@@ -168,6 +169,7 @@ export default async function HomePage() {
                       <p className="text-xs text-faint">
                         {call.bank.shortName} · {formatDate(call.callDate)} · {ratingLabel(call.ratingTo)}
                       </p>
+                      <SupersessionNotes mark={call.supersession} />
                     </td>
                     <td className="max-w-xs text-sm text-muted">{call.controversialReason}</td>
                     <td>

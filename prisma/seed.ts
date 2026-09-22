@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import path from "path";
 import { RATING_NOTCH } from "../src/lib/labels";
 import { aggregateGrades, gradeCall, HORIZONS, type HorizonKey } from "../src/lib/scoring";
+import { inspectSupersession } from "../src/lib/supersession";
 import { adjustedClose, clampTargetToSpot, isoDate, pricesForCall } from "../src/lib/quotes";
 import { ANALYSTS, BANKS, TICKERS, type TickerSeed } from "./universe";
 
@@ -516,8 +517,30 @@ async function main() {
 
   await prisma.call.createMany({ data: calls });
 
+  const supersession = inspectSupersession(
+    calls.map((call) => ({
+      id: call.id,
+      analystId: call.analystId,
+      ticker: call.tickerId,
+      callDate: call.callDate,
+    })),
+  );
+  console.log(
+    `90-day supersession: in-window pairs ${supersession.scan.inWindowPairs}, analyst+ticker groups ${supersession.scan.analystTickerGroupsWithInWindowPair}, nullified ${supersession.scan.callsNullified}, still active ${supersession.scan.callsActive}, outside-window pairs ${supersession.scan.outsideWindowPairs}, same-day groups ${supersession.scan.sameDay.length}, missing dates ${supersession.scan.missingDates.length}, ticker aliases ${supersession.scan.tickerAliases.length}.`,
+  );
+  if (supersession.scan.sameDay.length > 0) {
+    console.log(`Same-day groups: ${JSON.stringify(supersession.scan.sameDay)}`);
+  }
+  if (supersession.scan.missingDates.length > 0) {
+    console.log(`Missing dates: ${JSON.stringify(supersession.scan.missingDates)}`);
+  }
+  if (supersession.scan.tickerAliases.length > 0) {
+    console.log(`Ticker aliases: ${JSON.stringify(supersession.scan.tickerAliases)}`);
+  }
+
   const byBank = new Map<string, ReturnType<typeof gradeCall>[]>();
   for (const call of calls) {
+    if (!supersession.marks.get(call.id)?.countsForScoring) continue;
     const list = byBank.get(call.bankId) ?? [];
     list.push(
       gradeCall(
@@ -552,7 +575,7 @@ async function main() {
       .map(([month, count]) => `${month}=${count}`)
       .join("  "),
   );
-  console.log("90D bank scores (demo):");
+  console.log("90D bank scores (demo, nullified calls excluded):");
   for (const row of board) {
     const hit = row.hitRate == null ? "—" : `${Math.round(row.hitRate * 100)}%`;
     console.log(`  ${row.slug.padEnd(16)} score ${String(Math.round(row.avgScore ?? 0)).padStart(3)}  hit ${hit.padStart(4)}  n=${row.graded}`);

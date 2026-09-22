@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GradeLedger } from "@/components/grade-ledger";
-import { RatingPill } from "@/components/ui";
+import { RatingPill, SupersessionNotes } from "@/components/ui";
 import { callHeadline, formatDate, usd } from "@/lib/format";
 import { actionLabel, ratingLabel } from "@/lib/labels";
 import { callPeerScores, getCall } from "@/lib/queries";
@@ -71,6 +71,28 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
         <p className="mt-4 rounded-md border border-brass/40 bg-brass/10 px-4 py-3 text-sm text-brass">
           Flagged controversial. {call.controversialReason}
         </p>
+      ) : null}
+
+      {call.supersession.nullifiedNote || call.supersession.supersedesNote ? (
+        <div
+          className={
+            call.supersession.status === "nullified"
+              ? "mt-4 rounded-md border border-miss/40 bg-miss/10 px-4 py-3 text-sm text-muted"
+              : "mt-4 rounded-md border border-brass/40 bg-brass/10 px-4 py-3 text-sm text-muted"
+          }
+        >
+          <SupersessionNotes mark={call.supersession} />
+          <p className="mt-2 leading-6">
+            {call.supersession.status === "nullified"
+              ? "The date, rating, target, entry price, and horizon outcomes stay on this page. This call is left out of Chad, Chud, and report-card averages."
+              : "This is the call that counts for scoring on this ticker. The prior call stays visible and is left out of the averages."}
+          </p>
+          <p className="mt-2">
+            <Link href="/methodology#supersession" className="text-brass hover:text-ink">
+              How the 90-day rule works
+            </Link>
+          </p>
+        </div>
       ) : null}
 
       <blockquote className="mt-6 max-w-3xl border-l-2 border-brass/70 pl-4 text-lg leading-8 text-ink/90">

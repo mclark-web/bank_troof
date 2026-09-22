@@ -3,6 +3,7 @@ import { HORIZONS, HORIZON_KEYS, formatPoints, placeChad, type ChadPlacement, ty
 import { avatarColor, cx, initials, pct } from "@/lib/format";
 import { actionLabel, ratingLabel, ratingTone } from "@/lib/labels";
 import type { Aggregate } from "@/lib/scoring";
+import type { SupersessionMark } from "@/lib/supersession";
 
 export function hrefWith(
   path: string,
@@ -243,6 +244,52 @@ export function PointsCell({ score }: { score: number | null }) {
       <div className="hidden h-1.5 w-16 overflow-hidden rounded-full bg-white/10 md:block" aria-hidden>
         <div className="h-full bg-brass" style={{ width: `${width}%` }} />
       </div>
+    </div>
+  );
+}
+
+export function SupersessionNotes({ mark, verbose = true }: { mark: SupersessionMark; verbose?: boolean }) {
+  if (!mark.nullifiedNote && !mark.supersedesNote) return null;
+  return (
+    <div className="mt-1 max-w-xs space-y-1">
+      <div className="flex flex-wrap gap-1">
+        {mark.status === "nullified" ? (
+          <span className="inline-flex rounded-full border border-miss/50 bg-miss/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-miss">
+            Nullified
+          </span>
+        ) : null}
+        {mark.supersedesId ? (
+          <span className="inline-flex rounded-full border border-brass/50 bg-brass/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-brass">
+            Supersedes
+          </span>
+        ) : null}
+      </div>
+      {verbose && mark.nullifiedNote ? (
+        <p className="text-[11px] leading-4 text-muted">
+          {mark.nullifiedNote}
+          {mark.supersededById ? (
+            <>
+              {" "}
+              <Link href={`/calls/${mark.supersededById}`} className="text-brass hover:text-ink">
+                Later call
+              </Link>
+            </>
+          ) : null}
+        </p>
+      ) : null}
+      {verbose && mark.supersedesNote ? (
+        <p className="text-[11px] leading-4 text-muted">
+          {mark.supersedesNote}
+          {mark.supersedesId ? (
+            <>
+              {" "}
+              <Link href={`/calls/${mark.supersedesId}`} className="text-brass hover:text-ink">
+                Prior call
+              </Link>
+            </>
+          ) : null}
+        </p>
+      ) : null}
     </div>
   );
 }

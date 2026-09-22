@@ -16,6 +16,7 @@ import {
   NEAR_MISS_FACTOR,
   TARGET_WEIGHT,
 } from "@/lib/scoring";
+import { SUPERSESSION_WINDOW_DAYS } from "@/lib/supersession";
 
 export const metadata: Metadata = {
   title: "Methodology",
@@ -139,6 +140,22 @@ export default function MethodologyPage() {
         </p>
         <p>
           Sector filters keep calls whose ticker is in that sector. An analyst who only covers technology is unchanged. A generalist would be scored only on the names in the filter.
+        </p>
+      </section>
+
+      <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="supersession">
+        <h2 className="font-serif text-3xl text-ink">Same ticker within {SUPERSESSION_WINDOW_DAYS} days</h2>
+        <p>
+          When the same analyst publishes another call on the same ticker, and the new call’s date is within {SUPERSESSION_WINDOW_DAYS} calendar days of the previous call on that pair, the older call is nullified for scoring. It does not enter Chad, Chud, hit rate, sample size, or any other report-card average. The newer call is the one that counts.
+        </p>
+        <p>
+          A run of calls stays one streak while each step is {SUPERSESSION_WINDOW_DAYS} days or closer. Only the latest call in that streak is active. Every earlier call is nullified, and each one points at the call that replaced it. A gap longer than {SUPERSESSION_WINDOW_DAYS} days starts a new streak. Both sides of that gap stay active, and neither gets a nullify note.
+        </p>
+        <p>
+          The older row reads “Nullified — superseded by later call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” The newer row reads “Supersedes prior call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” A call in the middle of a streak carries both sentences. The date, action, rating, target, entry price, and 2W / 30D / 60D / 90D / 1Y outcomes stay on the page. The horizon math does not change. Prices stay split-adjusted.
+        </p>
+        <p>
+          Tickers match after dots and slashes are folded to hyphens, so BRK.B and BRK-B are one name. Two calls on the same calendar day are inside the window. The later timestamp wins, and if the timestamps match, the higher call id is treated as later. That same-day order is reported as ambiguous because the calendar date alone does not say which note came first. A call with no date is left active and is not chained.
         </p>
       </section>
 

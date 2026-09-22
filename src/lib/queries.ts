@@ -15,12 +15,14 @@ import {
   type ChadPlacement,
   type HorizonKey,
 } from "./scoring";
+import { annotateSupersession, compareCallChronology, type SupersessionMark } from "./supersession";
 
 export type ScoredCall = Call & {
   analyst: Analyst & { bank: Bank };
   bank: Bank;
   ticker: Ticker;
   grades: Record<HorizonKey, CallGrade>;
+  supersession: SupersessionMark;
 };
 
 export type BoardRow = {
@@ -65,12 +67,29 @@ export const loadCalls = cache(async (): Promise<ScoredCall[]> => {
     },
     orderBy: { callDate: "desc" },
   });
+  const marks = annotateSupersession(
+    calls.map((call) => ({
+      id: call.id,
+      analystId: call.analystId,
+      ticker: call.ticker.symbol,
+      callDate: call.callDate,
+    })),
+  );
   return calls.map((call) => {
     const prices = pricesForCall(call.ticker.symbol, call.callDate);
     const priced = { ...call, ...prices };
-    return { ...priced, grades: gradeStored(priced) };
+    const supersession = marks.get(call.id);
+    if (!supersession) throw new Error(`No supersession mark for ${call.id}.`);
+    return { ...priced, grades: gradeStored(priced), supersession };
   });
 });
+
+/** Report-card math uses the calls that are still live under the 90-day rule. */
+export function scoreAggregate(calls: ScoredCall[], horizon: HorizonKey): Aggregate {
+  return aggregateGrades(
+    calls.filter((call) => call.supersession.countsForScoring).map((call) => call.grades[horizon]),
+  );
+}
 
 export const loadSectors = cache(async (): Promise<string[]> => {
   const rows = await prisma.ticker.findMany({
@@ -83,6 +102,7 @@ export const loadSectors = cache(async (): Promise<string[]> => {
 
 function filterCalls(calls: ScoredCall[], horizon: HorizonKey, sector?: string | null) {
   return calls.filter((call) => {
+    if (!call.supersession.countsForScoring) return false;
     if (sector && call.ticker.sector !== sector) return false;
     return call.grades[horizon].gradeable;
   });
@@ -159,7 +179,8 @@ export async function getHome() {
   const analysts = await leaderboard({ horizon: "90", entity: "analyst", order: "score" });
   const banks = await leaderboard({ horizon: "90", entity: "bank", order: "score" });
   const offenders = await leaderboard({ horizon: "90", entity: "bank", order: "low" });
-  const directional = calls.filter((call) => call.grades["90"].followedReturn != null && call.grades["90"].gradeable);
+  const scoring = calls.filter((call) => call.supersession.countsForScoring);
+  const directional = scoring.filter((call) => call.grades["90"].followedReturn != null && call.grades["90"].gradeable);
   const featuredHit = [...directional].sort(
     (a, b) => (b.grades["90"].followedReturn ?? 0) - (a.grades["90"].followedReturn ?? 0),
   )[0];
@@ -170,7 +191,7 @@ export async function getHome() {
   const tape = calls.slice(0, 8);
   const analystCount = new Set(calls.map((call) => call.analystId)).size;
   const bankCount = new Set(calls.map((call) => call.bankId)).size;
-  const graded90 = calls.filter((call) => call.grades["90"].gradeable).length;
+  const graded90 = scoring.filter((call) => call.grades["90"].gradeable).length;
   return {
     calls,
     sectors,
@@ -236,12 +257,12 @@ export async function listAnalysts() {
   const peers = await rankedPeerScores("analyst", "90");
   return analysts.map((analyst) => {
     const mine = calls.filter((call) => call.analystId === analyst.id);
-    const aggregate = aggregateGrades(mine.map((call) => call.grades["90"]));
+    const aggregate = scoreAggregate(mine, "90");
     return {
       analyst,
       aggregate,
       placement: placeChad(aggregate.avgScore, peers),
-      calls: mine.length,
+      calls: mine.filter((call) => call.supersession.countsForScoring).length,
     };
   });
 }
@@ -254,8 +275,9 @@ export async function listBanks() {
   const calls = await loadCalls();
   const peers = await rankedPeerScores("bank", "90");
   return banks.map((bank) => {
-    const aggregate = aggregateGrades(
-      calls.filter((call) => call.bankId === bank.id).map((call) => call.grades["90"]),
+    const aggregate = scoreAggregate(
+      calls.filter((call) => call.bankId === bank.id),
+      "90",
     );
     return { bank, aggregate, placement: placeChad(aggregate.avgScore, peers) };
   });
@@ -267,23 +289,14 @@ export async function listTickers() {
   const peers = await rankedPeerScores("ticker", "90");
   return tickers.map((ticker) => {
     const mine = calls.filter((call) => call.tickerId === ticker.id);
-    const latest = new Map<string, ScoredCall>();
-    for (const call of [...mine].reverse()) {
-      latest.set(call.analystId, call);
-    }
-    const current = [...latest.values()];
-    const buckets = { buy: 0, hold: 0, sell: 0 };
-    for (const call of current) {
-      const bucket = consensusBucket(call.ratingTo);
-      if (bucket) buckets[bucket] += 1;
-    }
-    const aggregate = aggregateGrades(mine.map((call) => call.grades["90"]));
+    const consensus = latestConsensus(mine);
+    const aggregate = scoreAggregate(mine, "90");
     return {
       ticker,
       aggregate,
       placement: placeChad(aggregate.avgScore, peers),
-      buckets,
-      voices: current.length,
+      buckets: consensus.buckets,
+      voices: consensus.total,
     };
   });
 }
@@ -336,6 +349,7 @@ export async function searchAll(query: string) {
 export function sectorBreakdown(calls: ScoredCall[], horizon: HorizonKey) {
   const groups = new Map<string, ScoredCall[]>();
   for (const call of calls) {
+    if (!call.supersession.countsForScoring) continue;
     if (!call.grades[horizon].gradeable) continue;
     const list = groups.get(call.ticker.sector) ?? [];
     list.push(call);
@@ -351,7 +365,9 @@ export function sectorBreakdown(calls: ScoredCall[], horizon: HorizonKey) {
 
 export function latestConsensus(calls: ScoredCall[]) {
   const latest = new Map<string, ScoredCall>();
-  const ordered = [...calls].sort((a, b) => a.callDate.getTime() - b.callDate.getTime());
+  const ordered = calls
+    .filter((call) => call.supersession.countsForScoring)
+    .sort(compareCallChronology);
   for (const call of ordered) latest.set(call.analystId, call);
   const current = [...latest.values()];
   const buckets = { buy: 0, hold: 0, sell: 0 };
@@ -365,6 +381,7 @@ export function latestConsensus(calls: ScoredCall[]) {
 export function analystRowsForCalls(calls: ScoredCall[], horizon: HorizonKey): BoardRow[] {
   const groups = new Map<string, ScoredCall[]>();
   for (const call of calls) {
+    if (!call.supersession.countsForScoring) continue;
     if (!call.grades[horizon].gradeable) continue;
     const list = groups.get(call.analystId) ?? [];
     list.push(call);
@@ -391,6 +408,7 @@ export async function rankedPeerScores(entity: "analyst" | "bank" | "ticker", ho
   const calls = await loadCalls();
   const groups = new Map<string, ScoredCall[]>();
   for (const call of calls) {
+    if (!call.supersession.countsForScoring) continue;
     if (!call.grades[horizon].gradeable) continue;
     const key = entity === "analyst" ? call.analystId : entity === "bank" ? call.bankId : call.tickerId;
     const list = groups.get(key) ?? [];
@@ -410,6 +428,7 @@ export async function callPeerScores(): Promise<Record<HorizonKey, number[]>> {
   const calls = await loadCalls();
   const scores = Object.fromEntries(HORIZON_KEYS.map((horizon) => [horizon, [] as number[]])) as Record<HorizonKey, number[]>;
   for (const call of calls) {
+    if (!call.supersession.countsForScoring) continue;
     for (const horizon of HORIZON_KEYS) {
       const grade = call.grades[horizon];
       if (grade.gradeable && grade.score != null) scores[horizon].push(grade.score);
@@ -433,7 +452,7 @@ export async function entityScores(input: { analysts: string[]; banks: string[];
   const analysts = input.analysts.slice(0, 40).map((slug) => {
     const mine = calls.filter((call) => call.analyst.slug === slug);
     const sample = mine[0];
-    const aggregate = aggregateGrades(mine.map((call) => call.grades["90"]));
+    const aggregate = scoreAggregate(mine, "90");
     return {
       slug,
       name: sample?.analyst.name ?? slug,
@@ -447,7 +466,7 @@ export async function entityScores(input: { analysts: string[]; banks: string[];
   const banks = input.banks.slice(0, 40).map((slug) => {
     const mine = calls.filter((call) => call.bank.slug === slug);
     const sample = mine[0];
-    const aggregate = aggregateGrades(mine.map((call) => call.grades["90"]));
+    const aggregate = scoreAggregate(mine, "90");
     return {
       slug,
       name: sample?.bank.name ?? slug,
@@ -461,7 +480,7 @@ export async function entityScores(input: { analysts: string[]; banks: string[];
   const tickers = input.tickers.slice(0, 40).map((symbol) => {
     const mine = calls.filter((call) => call.ticker.symbol === symbol.toUpperCase());
     const sample = mine[0];
-    const aggregate = aggregateGrades(mine.map((call) => call.grades["90"]));
+    const aggregate = scoreAggregate(mine, "90");
     return {
       slug: symbol.toUpperCase(),
       name: sample ? `${sample.ticker.symbol} · ${sample.ticker.name}` : symbol.toUpperCase(),
