@@ -53,8 +53,8 @@ export default async function LeaderboardsPage({
       : "Sorted by the overall factor, the average 0–100 grade of active calls. Superseded calls do not score. Under 70 is Chud territory. Top 30% of this board earns chaddiness.";
   const lede =
     view === "offenders"
-      ? `Lowest overall factor first over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad.`
-      : `Ranked by overall factor over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad. Firms are weighted by active calls, not by headcount.`;
+      ? `Lowest overall factor first over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad. Open a name to see each call labeled by its recommendation. Buy, Hold, and Sell stay inside the grade.`
+      : `Ranked by overall factor over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad. Firms are weighted by active calls, not by headcount. Open a name to see each call labeled by its recommendation. Buy, Hold, and Sell stay inside the grade.`;
 
   return (
     <div>

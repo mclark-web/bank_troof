@@ -1,5 +1,6 @@
 import path from "path";
 import { PrismaClient } from "@prisma/client";
+import { recommendationLabel } from "../src/lib/labels";
 import { inspectSupersession } from "../src/lib/supersession";
 
 const prisma = new PrismaClient({
@@ -73,7 +74,7 @@ async function main() {
       [
         call.id,
         call.callDate.toISOString().slice(0, 10),
-        call.action,
+        recommendationLabel(call),
         call.ratingTo,
         mark?.status,
         mark?.nullifiedNote ?? "",

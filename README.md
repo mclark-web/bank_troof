@@ -42,7 +42,7 @@ Other commands:
 | `/analysts` and `/analysts/[slug]` | Directory and a scorecard: overall factor, active book, superseded history |
 | `/banks` and `/banks/[slug]` | Firm rollup, sector mix, roster |
 | `/tickers` and `/tickers/[symbol]` | Sample consensus versus who was right on that name |
-| `/calls/[id]` | Rating change, target, prices, and the grade at each horizon |
+| `/calls/[id]` | Recommendation, desk rating, direction for grading, target, prices, and the grade at each horizon |
 | `/methodology` | The formula, read from the same constants the scorer uses |
 | `/search` | Analyst, bank, or ticker |
 | `/watchlist` | Saved in this browser only (`localStorage`). No account |
@@ -54,6 +54,8 @@ Other commands:
 
 The full write-up is the Methodology page at `/methodology`. In short:
 
+- The visible label is the **recommendation** (Initiate Buy, Upgrade to Overweight, Target raise, Target cut, Reiterate Outperform, Maintain Neutral). A target raise is not shown as Sell.
+- **Direction for grading** collapses the desk rating to Buy, Hold, or Sell and is what the score uses. It is labeled as such and is not the headline.
 - **Up** ratings (Buy, Strong Buy, Overweight, Outperform) hit when the forward return is at least T.
 - **Down** ratings (Sell, Underperform, Underweight) hit when the forward return is at most −T.
 - **Flat** ratings (Hold, Neutral, Equal-Weight) hit when the absolute return is at most T.
@@ -93,7 +95,7 @@ Do not scrape a rankings site. Use a licensed price history and a call archive y
 
    `bank_short,headquarters,analyst_title,industry,exchange,rating_from,price_target_from,price_target_to,price_14d,price_30d,price_60d,price_90d,price_1y,note`
 
-   Dates are `YYYY-MM-DD`. Ratings: `strong_buy`, `buy`, `overweight`, `outperform`, `hold`, `neutral`, `equal_weight`, `underperform`, `underweight`, `sell`. Actions: `initiate`, `upgrade`, `downgrade`, `reiterate`, `target_raise`, `target_cut`. Outcome prices are the print 14, 30, 60, 90, and 365 **calendar** days after the call. Leave an outcome blank when that window has not elapsed.
+   Dates are `YYYY-MM-DD`. `rating_to` is the desk rating, not the headline: `strong_buy`, `buy`, `overweight`, `outperform`, `hold`, `neutral`, `equal_weight`, `underperform`, `underweight`, `sell`. `action` is `initiate`, `upgrade`, `downgrade`, `reiterate`, `target_raise`, or `target_cut`. The screen builds the recommendation from those two fields: Initiate Buy, Upgrade to Overweight, Downgrade to Neutral, Reiterate Outperform, Maintain Hold (a reiteration of Hold, Neutral, or Equal-Weight), Target raise, Target cut. A `target_raise` with `rating_to=sell` is labeled Target raise. Sell appears only as the direction for grading. Outcome prices are the print 14, 30, 60, 90, and 365 **calendar** days after the call. Leave an outcome blank when that window has not elapsed.
 
 2. A two-row example lives at `data/sample-import.csv`. It is not loaded by the seed.
 
