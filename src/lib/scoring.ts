@@ -64,7 +64,7 @@ export function topThirtyCutoff(peers: number[]): number {
 }
 
 /**
- * 1–10 Grade Calibration for one score against a peer set.
+ * 1–10 GC Scale placement for one score against a peer set.
  * Under 70 is always GC 1–4. At or above 70 and in the top 30% is GC 8–10.
  * At or above 70 but outside that top 30% is GC 5–7.
  */
@@ -72,7 +72,7 @@ export function placeChad(score: number | null | undefined, peers: number[]): Ch
   const clamped = clampScore(score);
   if (clamped == null) return { chad: null, side: null, label: null };
   if (clamped < CHUD_LINE) {
-    return { chad: chudBucket(clamped), side: "chud", label: "GC 1–4. A score under 70 stays at the low end of Grade Calibration." };
+    return { chad: chudBucket(clamped), side: "chud", label: "GC 1–4. A score under 70 stays at the low end of the GC Scale." };
   }
   const line = Math.max(topThirtyCutoff(peers), CHUD_LINE);
   if (clamped + 1e-9 >= line) {

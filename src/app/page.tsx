@@ -93,7 +93,7 @@ export default async function HomePage() {
 
       <section className="mt-10">
         <p className="mb-3 text-sm text-muted">
-          Every card leads with the overall factor, the average 0–100 grade of active calls. The GC score sits beside it, Grade Calibration from{" "}
+          Every card leads with the overall factor, the average 0–100 grade of active calls. The GC score sits beside it on the GC Scale, from{" "}
           <span className="text-ink">1</span> to <span className="text-ink">10</span>. Superseded calls do not enter the factor. Under 70 the GC score stays in 1–4. The top 30% who also cleared 70 land on GC 8–10. Hit rate is underneath, on the active book only.
         </p>
         <div className="grid gap-4 lg:grid-cols-3">

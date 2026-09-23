@@ -1,4 +1,4 @@
-/* GradedCalls — GC horizontal laboratory tube · Grade Calibration */
+/* GradedCalls — GC horizontal laboratory tube · GC Scale */
 
 :root {
   /* Sampled from Michael reference vial liquid (hero upper-right) */
@@ -574,7 +574,7 @@
 .gc-label {
   font-size: 11px;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--gc-orange-soft);
   font-weight: 600;
 }
@@ -602,7 +602,7 @@
 .gc-grade-tag.exit {
   color: #2a220e;
   background: #c9a35a;
-  /* same typeface / weight / letter-spacing / uppercase as Strong·Weak·Provisional */
+  /* same typeface / weight / letter-spacing / uppercase as STRONG·WEAK·PROVISIONAL */
 }
 
 /* Sidebar: tube + meta stacked */

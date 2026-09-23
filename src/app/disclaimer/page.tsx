@@ -57,7 +57,7 @@ export default function DisclaimerPage() {
 
       <LegalSection id="opinions" title="GC scores are opinions">
         <p>
-          The GC score is Grade Calibration in the published methodology, not a regulated rating and not a statement about a person. Under 70 out of 100 the GC score stays in 1–4. The top 30% of a ranked peer set lands on GC 8–10 only when the score is also at least 70. The full grade out of 100 is always the score. The 1–10 number is a bucket of that score. Both are opinions produced by a formula applied to a sample. They are not for sale.
+          The GC score is the GC Scale in the published methodology, not a regulated rating and not a statement about a person. Under 70 out of 100 the GC score stays in 1–4. The top 30% of a ranked peer set lands on GC 8–10 only when the score is also at least 70. The full grade out of 100 is always the score. The 1–10 number is a bucket of that score. Both are opinions produced by a formula applied to a sample. They are not for sale.
         </p>
       </LegalSection>
 

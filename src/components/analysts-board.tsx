@@ -205,7 +205,7 @@ export function AnalystsBoard({
               {shown.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-sm text-muted">
-                    No graded print in this cut yet. Open windows stay on the exit-liquidity card.
+                    No graded print in this cut yet. Open windows stay on the EXIT LIQUIDITY card.
                   </td>
                 </tr>
               ) : (
@@ -277,9 +277,9 @@ export function AnalystsBoard({
               <span className="h-full bg-miss" style={{ width: `${health.weak}%` }} />
             </div>
             <div className="mt-1.5 flex justify-between font-mono text-[11px] text-faint">
-              <span>Strong {health.strong}%</span>
-              <span>Prov {health.provisional}%</span>
-              <span>Weak {health.weak}%</span>
+              <span>STRONG {health.strong}%</span>
+              <span>PROVISIONAL {health.provisional}%</span>
+              <span>WEAK {health.weak}%</span>
             </div>
             <p className="mt-3 text-xs leading-5 text-muted">
               {healthGraded === 0
@@ -305,13 +305,13 @@ export function AnalystsBoard({
           </section>
 
           <section className="panel p-4">
-            <h2 className="text-sm font-semibold">Factor scale · GC</h2>
+            <h2 className="text-sm font-semibold">GC Scale</h2>
             <GcTube percent={factor.percent} tube={factor.tube} grade={factor.id} className="my-3" />
             <p className="text-xs leading-5 text-muted">
               The tube is the mean 0–100 grade of active calls over {windowLabel}.{" "}
-              <strong className="font-medium text-ink">Strong</strong> — at or above 70, direction held often enough to clear the line.{" "}
-              <strong className="font-medium text-ink">Weak</strong> — graded under 40.{" "}
-              <strong className="font-medium text-ink">Provisional</strong> — graded from 40 up to 70, mixed against the print.
+              <strong className="font-medium text-ink">STRONG</strong> — at or above 70, direction held often enough to clear the line.{" "}
+              <strong className="font-medium text-ink">WEAK</strong> — graded under 40.{" "}
+              <strong className="font-medium text-ink">PROVISIONAL</strong> — graded from 40 up to 70, mixed against the print.
             </p>
             <p className="mt-2.5 text-xs">
               <Link href="/methodology#gc-scale" className="text-brass hover:text-ink">
@@ -321,10 +321,10 @@ export function AnalystsBoard({
           </section>
 
           <section className="panel p-4">
-            <h2 className="text-sm font-semibold">GC · exit liquidity</h2>
+            <h2 className="text-sm font-semibold">EXIT LIQUIDITY</h2>
             <GcTube percent={0} tube={0} grade="exit" meta="row" className="my-3" />
             <p className="text-xs leading-5 text-muted">
-              0% fill means no calibrated horizon yet — labeled <strong className="font-medium text-ink">exit liquidity</strong>, not a scored zero.{" "}
+              0% fill means no calibrated horizon yet — labeled <strong className="font-medium text-ink">EXIT LIQUIDITY</strong>, not a scored zero.{" "}
               {openOnBoard === 0
                 ? `Every active call in this cut has a print for ${windowLabel}.`
                 : `${openOnBoard} active ${openOnBoard === 1 ? "call has" : "calls have"} no print for ${windowLabel}.`}

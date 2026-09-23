@@ -39,7 +39,7 @@ export function BoardTable({
             <th>
               GC score
               <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
-                Grade Calibration
+                GC Scale
               </span>
             </th>
             <th>

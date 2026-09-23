@@ -311,7 +311,7 @@ export function OverallFactorCard({
             aria-label={
               chad == null
                 ? "No GC score"
-                : `GC score ${chad} out of 10. Grade Calibration. 1 is a poor track record, 10 is an excellent one.`
+                : `GC score ${chad} out of 10 on the GC Scale. 1 is a poor track record, 10 is an excellent one.`
             }
           >
             {chad == null ? "—" : chad}

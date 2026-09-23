@@ -1,4 +1,4 @@
-import { GC_GRADE_LABEL, type GcGradeId } from "@/lib/gc-grade";
+import { GC_GRADE_LABEL, GC_SCALE_LABEL, type GcGradeId } from "@/lib/gc-grade";
 import { cx } from "@/lib/format";
 
 function Liquid({ rich }: { rich: boolean }) {
@@ -39,7 +39,7 @@ export function GcTube({
   grade,
   variant = "sidebar",
   meta = "stack",
-  label = "GC · Grade calibration",
+  label = GC_SCALE_LABEL,
   className,
 }: {
   /** Printed percent. Exit liquidity prints 0. */
