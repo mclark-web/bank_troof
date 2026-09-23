@@ -33,7 +33,7 @@ export default async function LeaderboardsPage({
   const entity = view === "analysts" ? "analyst" : view === "banks" ? "bank" : who === "analysts" ? "analyst" : "bank";
   const order = view === "offenders" ? "low" : "score";
   const rawRank = one("rank");
-  const rank: RankKey = rawRank === "gc" || rawRank === "chad" ? "gc" : "points";
+  const rank: RankKey = rawRank === "gc" ? "gc" : "points";
   const [board, sectors] = await Promise.all([
     leaderboard({ horizon, sector, entity, order, rank }),
     loadSectors(),

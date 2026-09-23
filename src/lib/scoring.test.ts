@@ -172,11 +172,12 @@ describe("placeChad", () => {
     assert.equal(placeChad(agg.avgScore, peers).chad, 3);
   });
 
-  it("states Grade Calibration and does not use the old placement names", () => {
+  it("states the GC Scale and does not use the old placement names", () => {
     const labels = [0, 50, 69.9, 80, 88, 100].map((score) => placeChad(score, peers).label ?? "");
+    assert.match(labels[0] ?? "", /GC Scale/);
     for (const label of labels) {
       assert.match(label, /GC/);
-      assert.doesNotMatch(label, /chad|chud/i);
+      assert.doesNotMatch(label, /chad|chud|charoof|grade calibration|ch-factor/i);
     }
   });
 });

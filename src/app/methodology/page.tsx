@@ -102,9 +102,9 @@ export default function MethodologyPage() {
       </section>
 
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="score">
-        <h2 className="font-serif text-3xl text-ink">Grade Calibration</h2>
+        <h2 className="font-serif text-3xl text-ink">GC score</h2>
         <p>
-          A report card shows two grades. The integer is the GC score, Grade Calibration from {CHAD_MIN} to {CHAD_MAX}. <strong className="font-medium text-ink">GC {CHAD_MIN} is a poor track record</strong>. <strong className="font-medium text-ink">GC {CHAD_MAX} is an excellent one</strong>. Beside it, every card shows the full score out of 100. Hit rate, return if followed, and sample size stay underneath. They do not set the rank.
+          A report card shows two grades. The integer is the GC (Grade Calibration) score, from {CHAD_MIN} to {CHAD_MAX}. <strong className="font-medium text-ink">GC {CHAD_MIN} is a poor track record</strong>. <strong className="font-medium text-ink">GC {CHAD_MAX} is an excellent one</strong>. Beside it, every card shows the full score out of 100. Hit rate, return if followed, and sample size stay underneath. They do not set the rank.
         </p>
         <p>
           The engine scores a call from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. That 0–100 score is always visible. The GC score is a bucket of the same score, not a replacement for it.
@@ -149,7 +149,7 @@ export default function MethodologyPage() {
         <h2 className="font-serif text-3xl text-ink">Overall factor</h2>
         <p>{OVERALL_FACTOR_FORMULA}</p>
         <p>
-          That average is the same report-card rollup the leaderboards use. It is not a second formula and it is not a blend of horizons. Pick 2W, 30D, 60D, 90D, or 1Y, and the factor is the mean grade of the active calls at that window. An open window is not graded yet, so it waits. The GC score on the same card is this factor placed on the 1–10 Grade Calibration scale against the ranked peers. It is not a separate average.
+          That average is the same report-card rollup the leaderboards use. It is not a second formula and it is not a blend of horizons. Pick 2W, 30D, 60D, 90D, or 1Y, and the factor is the mean grade of the active calls at that window. An open window is not graded yet, so it waits. The GC score on the same card is this factor placed on the 1–10 GC Scale against the ranked peers. It is not a separate average.
         </p>
         <p>
           The card also shows how many active calls are graded, how many calls are superseded, and the hit rate on the active book only. Superseded calls stay in their own list, with the nullified and supersedes notes still attached.
@@ -157,12 +157,12 @@ export default function MethodologyPage() {
       </section>
 
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="gc-scale">
-        <h2 className="font-serif text-3xl text-ink">GC tube</h2>
+        <h2 className="font-serif text-3xl text-ink">GC Scale</h2>
         <p>
-          The horizontal tube is the same 0–100 grade, drawn as a fill. It does not rescore the call. Strong is a grade at or above {GC_STRONG_LINE}. Provisional is a grade from {GC_PROVISIONAL_LINE} up to that line. Weak is a graded score under {GC_PROVISIONAL_LINE}. Those words sit on the tube. The GC score is still the 1–10 Grade Calibration of the same number, and it stays on the directory and the leaderboards.
+          The horizontal tube is the same 0–100 grade, drawn as a fill. It does not rescore the call. STRONG is a grade at or above {GC_STRONG_LINE}. PROVISIONAL is a grade from {GC_PROVISIONAL_LINE} up to that line. WEAK is a graded score under {GC_PROVISIONAL_LINE}. Those words sit on the tube. The GC score is still the 1–10 GC Scale placement of the same number, and it stays on the directory and the leaderboards.
         </p>
         <p>
-          Exit liquidity is an empty glass at 0%. It means no calibrated horizon yet: the window has not closed, or that print is missing. It is not a scored zero. A call that was graded and earned nothing stays Weak, with a hair of liquid, so an open window and a finished miss do not look like the same thing.
+          EXIT LIQUIDITY is an empty glass at 0%. It means no calibrated horizon yet: the window has not closed, or that print is missing. It is not a scored zero. A call that was graded and earned nothing stays WEAK, with a hair of liquid, so an open window and a finished miss do not look like the same thing.
         </p>
         <p>
           On the analysts board, “all horizons” fills the tube with the mean of the windows that already have a print. Picking 2W, 30D, 60D, 90D, or 1Y uses that window only. The board tube averages active calls. A superseded call can still show its own tube. It does not move the board average, the hit rate, or the GC score.

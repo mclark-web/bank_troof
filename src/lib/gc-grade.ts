@@ -13,11 +13,14 @@ export const GC_STRONG_LINE = 70;
 /** Graded scores from this line up to (but not including) strong are Provisional. */
 export const GC_PROVISIONAL_LINE = 40;
 
+/** Tube title. Spelled out once on the methodology page. */
+export const GC_SCALE_LABEL = "GC Scale";
+
 export const GC_GRADE_LABEL: Record<GcGradeId, string> = {
-  strong: "Strong",
-  weak: "Weak",
-  provisional: "Provisional",
-  exit: "Exit liquidity",
+  strong: "STRONG",
+  weak: "WEAK",
+  provisional: "PROVISIONAL",
+  exit: "EXIT LIQUIDITY",
 };
 
 export type GcReading = {

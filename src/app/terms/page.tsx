@@ -48,7 +48,7 @@ export default function TermsPage() {
           The GradedCalls Analysts name, the design, the methodology text, and the compilation of sample calls are owned by the operator of GradedCalls Analysts. Market prices remain the property of their sources. Firm names and ticker symbols belong to their owners and are used here as labels, not as a claim of affiliation. Sample notes are not quotations of published research.
         </p>
         <p>
-          The GC score, as used on this site, is Grade Calibration in the methodology. It is an opinion produced by the formula. It is not a certification of any person.
+          The GC score, as used on this site, is the GC Scale described in the methodology. It is an opinion produced by the formula. It is not a certification of any person.
         </p>
       </LegalSection>
 

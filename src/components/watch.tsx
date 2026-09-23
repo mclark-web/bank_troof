@@ -173,7 +173,7 @@ export function WatchlistBoard() {
                   <p className="num mt-1 text-sm text-muted sm:text-right">
                     GC {score.placement.chad ?? "—"}
                     <span className="text-faint">/10</span>
-                    <span className="text-faint"> · Grade Calibration</span>
+                    <span className="text-faint"> · GC Scale</span>
                   </p>
                   <p className="mt-1 text-xs text-muted sm:text-right">{score.placement.label}</p>
                   <p className="num mt-1 text-sm text-muted sm:text-right">

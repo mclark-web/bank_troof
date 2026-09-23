@@ -109,7 +109,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
 
       <h2 className="mb-3 mt-10 font-serif text-3xl">The grade</h2>
       <p className="mb-4 max-w-2xl text-sm leading-6 text-muted">
-        The large number is the GC score for that window, Grade Calibration from 1 to 10. GC 1 is a poor track record. GC 10 is an excellent one. The same card shows the full score out of 100. Under 70 the GC score stays in 1–4. The top 30% of calls at that horizon land on GC 8–10, if the score also cleared 70. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
+        The large number is the GC score for that window, on the GC Scale from 1 to 10. GC 1 is a poor track record. GC 10 is an excellent one. The same card shows the full score out of 100. Under 70 the GC score stays in 1–4. The top 30% of calls at that horizon land on GC 8–10, if the score also cleared 70. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
       </p>
       <GradeLedger call={call} peers={peers} />
 

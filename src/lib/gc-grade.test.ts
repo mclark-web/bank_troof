@@ -1,7 +1,22 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { gradeCall } from "./scoring";
-import { percentShares, readCalibration, readCallCalibration, readMean } from "./gc-grade";
+import { GC_GRADE_LABEL, GC_SCALE_LABEL, percentShares, readCalibration, readCallCalibration, readMean } from "./gc-grade";
+
+describe("brand labels", () => {
+  it("names the tube GC Scale and prints the four grades in uppercase", () => {
+    assert.equal(GC_SCALE_LABEL, "GC Scale");
+    assert.deepEqual(GC_GRADE_LABEL, {
+      strong: "STRONG",
+      weak: "WEAK",
+      provisional: "PROVISIONAL",
+      exit: "EXIT LIQUIDITY",
+    });
+    for (const label of [GC_SCALE_LABEL, ...Object.values(GC_GRADE_LABEL)]) {
+      assert.doesNotMatch(label, /chad|chud|charoof|grade calibration|ch-factor/i);
+    }
+  });
+});
 
 describe("readCalibration", () => {
   it("draws an open window as empty glass and exit liquidity", () => {
