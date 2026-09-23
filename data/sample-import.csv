@@ -1,0 +1,2 @@
+call_id,date,bank_slug,bank_name,bank_short,headquarters,analyst_slug,analyst_name,analyst_title,ticker,company,sector,industry,exchange,action,rating_from,rating_to,price_target_from,price_target_to,price_at_call,price_30d,price_90d,price_1y,note
+import_demo_1,2025-04-02,sample-desk,Sample Desk,Sample,New York,jordan-lee,Jordan Lee,Analyst,DEMO,Demo Corp,Technology,Software,NASDAQ,initiate,,buy,,120,100,104,112,118,"Starter row for the CSV adapter. Not part of the seeded leaderboard until imported."
