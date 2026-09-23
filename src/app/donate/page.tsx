@@ -28,7 +28,7 @@ export default function DonatePage() {
       <LegalSection id="does-not" title="What a donation does not buy">
         <p>A gift does not buy any of the following:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>A grade, a Chad or Chud label, or a place on a leaderboard.</li>
+          <li>A grade, a GC score, or a place on a leaderboard.</li>
           <li>A change to a score, a rank, or a sample note.</li>
           <li>Access that other readers do not have. The pages stay public.</li>
           <li>A correction. Errors are fixed from the source, or they are not fixed. They are not for sale.</li>

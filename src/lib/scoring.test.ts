@@ -122,7 +122,7 @@ describe("gradeCall", () => {
 describe("placeChad", () => {
   const peers = [40, 55, 60, 68, 72, 75, 80, 88, 92, 96];
 
-  it("keeps everything under 70 on the Chud side", () => {
+  it("keeps everything under 70 on GC 1–4", () => {
     assert.equal(placeChad(0, peers).chad, 1);
     assert.equal(placeChad(50, peers).chad, 3);
     assert.equal(placeChad(69.9, peers).side, "chud");
@@ -132,7 +132,7 @@ describe("placeChad", () => {
     assert.equal(formatPoints(null), "—");
   });
 
-  it("gives chaddiness only to the top 30% who also cleared 70", () => {
+  it("gives GC 8–10 only to the top 30% who also cleared 70", () => {
     assert.equal(topThirtyCutoff(peers), 88);
     const high = placeChad(92, peers);
     const edge = placeChad(88, peers);
@@ -147,7 +147,7 @@ describe("placeChad", () => {
     assert.equal(placeChad(100, peers).chad, 10);
   });
 
-  it("treats a weak field as Chad once a score clears 70", () => {
+  it("treats a weak field as GC 8–10 once a score clears 70", () => {
     const weak = [20, 30, 40, 45, 50, 55, 58, 60, 62, 65];
     assert.ok(topThirtyCutoff(weak) < 70);
     assert.equal(placeChad(65, weak).side, "chud");
@@ -157,7 +157,7 @@ describe("placeChad", () => {
     assert.equal(placeChad(140, weak).side, "chad");
   });
 
-  it("buckets an average under 70 as Chud", () => {
+  it("buckets an average under 70 as GC 1–4", () => {
     const hit = gradeCall(
       { ratingTo: "buy", priceAtCall: 100, priceTargetTo: null, outcomePrice: 110 },
       "90",
@@ -170,6 +170,14 @@ describe("placeChad", () => {
     assert.equal(agg.avgScore, 50);
     assert.equal(placeChad(agg.avgScore, peers).side, "chud");
     assert.equal(placeChad(agg.avgScore, peers).chad, 3);
+  });
+
+  it("states Grade Calibration and does not use the old placement names", () => {
+    const labels = [0, 50, 69.9, 80, 88, 100].map((score) => placeChad(score, peers).label ?? "");
+    for (const label of labels) {
+      assert.match(label, /GC/);
+      assert.doesNotMatch(label, /chad|chud/i);
+    }
   });
 });
 

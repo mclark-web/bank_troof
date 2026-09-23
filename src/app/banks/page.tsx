@@ -16,7 +16,7 @@ export default async function BanksPage() {
       <PageIntro
         kicker="Directory"
         title="Banks"
-        lede="Firm names are labels on the sample so you can search the way a reader would. The overall factor is the average 0–100 grade of that desk's active calls, with the Chad bucket beside it. 1 is Chud. 10 is Chad. It is not the firm's actual research record."
+        lede="Firm names are labels on the sample so you can search the way a reader would. The overall factor is the average 0–100 grade of that desk's active calls, with the GC score beside it. GC 1 is a poor track record. GC 10 is an excellent one. It is not the firm's actual research record."
       />
       <ScaleLegend className="mb-3" />
       <div className="panel overflow-x-auto">
@@ -30,7 +30,7 @@ export default async function BanksPage() {
               <th>Hit</th>
               <th>
                 Overall factor
-                <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · Chad 1–10</span>
+                <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
               </th>
             </tr>
           </thead>

@@ -18,7 +18,7 @@ export default function DisclaimerPage() {
     >
       <LegalSection id="not-advice" title="Not investment advice">
         <p>
-          Nothing on GradedCalls Analysts is investment, financial, legal, or tax advice. A grade, a rank, a Chad or Chud label, a hit rate, a return-if-followed figure, or a note is not a recommendation to buy, sell, or hold any security, and it is not a solicitation. You are responsible for your own decisions. If you need advice, talk to a qualified adviser who knows your situation.
+          Nothing on GradedCalls Analysts is investment, financial, legal, or tax advice. A grade, a rank, a GC score, a hit rate, a return-if-followed figure, or a note is not a recommendation to buy, sell, or hold any security, and it is not a solicitation. You are responsible for your own decisions. If you need advice, talk to a qualified adviser who knows your situation.
         </p>
         <p>
           GradedCalls Analysts is not an investment adviser, not a registered investment adviser, and not a broker-dealer. It does not manage money, take orders, hold customer funds, or execute trades. Reading a page, saving a name to the watchlist, or sending a donation does not make you a client.
@@ -55,9 +55,9 @@ export default function DisclaimerPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="opinions" title="Chad, Chud, and other labels are opinions">
+      <LegalSection id="opinions" title="GC scores are opinions">
         <p>
-          “Chad” and “Chud” are names in the published methodology, not a regulated rating and not a statement about a person. Under 70 out of 100 is Chud territory. The top 30% of a ranked peer set earns the Chad side only when the score is also at least 70. The full grade out of 100 is always the score. The 1–10 number is a bucket of that score. Both are opinions produced by a formula applied to a sample. They are not for sale.
+          The GC score is Grade Calibration in the published methodology, not a regulated rating and not a statement about a person. Under 70 out of 100 the GC score stays in 1–4. The top 30% of a ranked peer set lands on GC 8–10 only when the score is also at least 70. The full grade out of 100 is always the score. The 1–10 number is a bucket of that score. Both are opinions produced by a formula applied to a sample. They are not for sale.
         </p>
       </LegalSection>
 

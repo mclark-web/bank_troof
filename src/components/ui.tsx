@@ -139,10 +139,10 @@ export function Stat({
 export function ScaleLegend({ className = "" }: { className?: string }) {
   return (
     <p className={cx("text-xs text-muted", className)}>
-      <span className="num text-miss">1</span> Chud
-      <span className="text-faint">, terrible track record</span>
+      <span className="num text-miss">GC 1</span>
+      <span className="text-faint">, poor track record</span>
       <span className="mx-1.5 text-faint">·</span>
-      <span className="num text-hit">10</span> Chad
+      <span className="num text-hit">GC 10</span>
       <span className="text-faint">, excellent track record</span>
     </p>
   );
@@ -159,7 +159,7 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
   const title =
     score == null
       ? "No overall factor"
-      : `Overall factor ${formatPoints(score)} of 100. Chad ${chad ?? "—"} of 10. ${placement.label ?? ""}`;
+      : `Overall factor ${formatPoints(score)} of 100. GC score ${chad ?? "—"} of 10. ${placement.label ?? ""}`;
   const reading = readCalibration(score, score != null);
   return (
     <div title={title}>
@@ -305,18 +305,22 @@ export function OverallFactorCard({
           <span className="mt-2 block text-sm text-muted">Average of active call grades</span>
         </p>
         <p className="mb-1">
-          <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-faint">Chad</span>
+          <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-faint">GC score</span>
           <span
             className="num text-4xl leading-none"
-            aria-label={chad == null ? "No Chad score" : `Chad ${chad} out of 10. 1 is Chud, 10 is Chad.`}
+            aria-label={
+              chad == null
+                ? "No GC score"
+                : `GC score ${chad} out of 10. Grade Calibration. 1 is a poor track record, 10 is an excellent one.`
+            }
           >
             {chad == null ? "—" : chad}
           </span>
           <span className="num text-lg text-faint">/10</span>
           <span className="mt-1 block text-xs text-muted">
-            <span className="text-miss">1 = Chud</span>
+            <span className="text-miss">GC 1</span>
             <span className="mx-1 text-faint">→</span>
-            <span className="text-hit">10 = Chad</span>
+            <span className="text-hit">GC 10</span>
           </span>
         </p>
       </div>

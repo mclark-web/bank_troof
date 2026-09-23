@@ -48,9 +48,9 @@ export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<H
                   <span className="mb-1 text-sm text-muted">
                     / 10
                     <span className="mt-0.5 block text-[11px]">
-                      <span className="text-miss">1 = Chud</span>
+                      <span className="text-miss">GC 1</span>
                       <span className="text-faint"> → </span>
-                      <span className="text-hit">10 = Chad</span>
+                      <span className="text-hit">GC 10</span>
                     </span>
                   </span>
                 </p>

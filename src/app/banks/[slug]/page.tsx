@@ -98,7 +98,7 @@ export default async function BankPage({
                 <th>Hit</th>
                 <th>
                   Overall factor
-                  <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · Chad 1–10</span>
+                  <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
                 </th>
               </tr>
             </thead>

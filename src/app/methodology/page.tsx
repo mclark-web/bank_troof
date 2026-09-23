@@ -102,23 +102,23 @@ export default function MethodologyPage() {
       </section>
 
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="score">
-        <h2 className="font-serif text-3xl text-ink">The Chad score</h2>
+        <h2 className="font-serif text-3xl text-ink">Grade Calibration</h2>
         <p>
-          A report card shows two grades. The big number is a {CHAD_MIN}–{CHAD_MAX} Chad score. <strong className="font-medium text-ink">{CHAD_MIN} is Chud</strong>, a terrible track record. <strong className="font-medium text-ink">{CHAD_MAX} is Chad</strong>, an excellent one. Beside it, every card shows the full score out of 100. Hit rate, return if followed, and sample size stay underneath. They do not set the rank.
+          A report card shows two grades. The integer is the GC score, Grade Calibration from {CHAD_MIN} to {CHAD_MAX}. <strong className="font-medium text-ink">GC {CHAD_MIN} is a poor track record</strong>. <strong className="font-medium text-ink">GC {CHAD_MAX} is an excellent one</strong>. Beside it, every card shows the full score out of 100. Hit rate, return if followed, and sample size stay underneath. They do not set the rank.
         </p>
         <p>
-          The engine scores a call from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. That 0–100 score is always visible. The Chad number is a bucket of the same score, not a replacement for it.
+          The engine scores a call from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. That 0–100 score is always visible. The GC score is a bucket of the same score, not a replacement for it.
         </p>
         <p>
-          <strong className="font-medium text-ink">It gets chuddy under {CHUD_LINE}%.</strong> That line is absolute. A 69 is Chud territory no matter how the rest of the field looks. The 1–10 number under 70 is only a finer cut of a bad score:
+          <strong className="font-medium text-ink">Under {CHUD_LINE}, the GC score stays in 1–4.</strong> That line is absolute. A 69 is GC 1–4 no matter how the rest of the field looks. The 1–10 number under 70 is only a finer cut of a low score:
         </p>
         <div className="panel overflow-x-auto">
           <table className="data-table">
             <thead>
               <tr>
                 <th>Score /100</th>
-                <th>Chad</th>
-                <th>Side</th>
+                <th>GC</th>
+                <th>Band</th>
               </tr>
             </thead>
             <tbody>
@@ -128,14 +128,14 @@ export default function MethodologyPage() {
                     {band.min}–{band.max}
                   </td>
                   <td className="num">{band.chad}</td>
-                  <td>Chud</td>
+                  <td>GC 1–4</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <p>
-          <strong className="font-medium text-ink">Top 30% earns chaddiness.</strong> Among the ranked peers at that horizon — analysts among analysts, banks among banks, tickers among tickers, a single call among calls — a score at or above 70 that also sits in the top 30% is Chad side, Chad 8–{CHAD_MAX}. A score at or above 70 that misses that cut is mid, Chad 5–7: neither full Chud nor full Chad. If the whole field is under 70, nobody gets a free pass on the absolute line, and anyone who does clear 70 is on the Chad side.
+          <strong className="font-medium text-ink">The top 30% who also cleared 70 land on GC 8–{CHAD_MAX}.</strong> Among the ranked peers at that horizon — analysts among analysts, banks among banks, tickers among tickers, a single call among calls — a score at or above 70 that also sits in the top 30% is GC 8–{CHAD_MAX}. A score at or above 70 that misses that cut is GC 5–7. If the whole field is under 70, nobody gets a free pass on the absolute line, and anyone who does clear 70 is on GC 8–{CHAD_MAX}.
         </p>
         <p>
           Values outside 0–100 are clamped first. The card always shows the full score beside the bucket. A profile uses every qualified name at that horizon. A sector board uses the names on that board, so its top 30% can differ.
@@ -149,7 +149,7 @@ export default function MethodologyPage() {
         <h2 className="font-serif text-3xl text-ink">Overall factor</h2>
         <p>{OVERALL_FACTOR_FORMULA}</p>
         <p>
-          That average is the same report-card rollup the leaderboards use. It is not a second formula and it is not a blend of horizons. Pick 2W, 30D, 60D, 90D, or 1Y, and the factor is the mean grade of the active calls at that window. An open window is not graded yet, so it waits. The Chad integer on the same card is this factor placed on the 1–10 scale against the ranked peers. It is not a separate average.
+          That average is the same report-card rollup the leaderboards use. It is not a second formula and it is not a blend of horizons. Pick 2W, 30D, 60D, 90D, or 1Y, and the factor is the mean grade of the active calls at that window. An open window is not graded yet, so it waits. The GC score on the same card is this factor placed on the 1–10 Grade Calibration scale against the ranked peers. It is not a separate average.
         </p>
         <p>
           The card also shows how many active calls are graded, how many calls are superseded, and the hit rate on the active book only. Superseded calls stay in their own list, with the nullified and supersedes notes still attached.
@@ -159,23 +159,23 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="gc-scale">
         <h2 className="font-serif text-3xl text-ink">GC tube</h2>
         <p>
-          The horizontal tube is the same 0–100 grade, drawn as a fill. It does not rescore the call. Strong is a grade at or above {GC_STRONG_LINE}. Provisional is a grade from {GC_PROVISIONAL_LINE} up to that line. Weak is a graded score under {GC_PROVISIONAL_LINE}. Those words sit on the tube. The Chad 1–10 bucket is still the peer placement of the same number, and it stays on the directory and the leaderboards.
+          The horizontal tube is the same 0–100 grade, drawn as a fill. It does not rescore the call. Strong is a grade at or above {GC_STRONG_LINE}. Provisional is a grade from {GC_PROVISIONAL_LINE} up to that line. Weak is a graded score under {GC_PROVISIONAL_LINE}. Those words sit on the tube. The GC score is still the 1–10 Grade Calibration of the same number, and it stays on the directory and the leaderboards.
         </p>
         <p>
           Exit liquidity is an empty glass at 0%. It means no calibrated horizon yet: the window has not closed, or that print is missing. It is not a scored zero. A call that was graded and earned nothing stays Weak, with a hair of liquid, so an open window and a finished miss do not look like the same thing.
         </p>
         <p>
-          On the analysts board, “all horizons” fills the tube with the mean of the windows that already have a print. Picking 2W, 30D, 60D, 90D, or 1Y uses that window only. The board tube averages active calls. A superseded call can still show its own tube. It does not move the board average, the hit rate, or the Chad placement.
+          On the analysts board, “all horizons” fills the tube with the mean of the windows that already have a print. Picking 2W, 30D, 60D, 90D, or 1Y uses that window only. The board tube averages active calls. A superseded call can still show its own tube. It does not move the board average, the hit rate, or the GC score.
         </p>
       </section>
 
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="aggregation">
         <h2 className="font-serif text-3xl text-ink">Leaderboards</h2>
         <p>
-          An analyst’s overall factor is the average of that person’s active graded calls at the selected horizon, on the 0–100 scale. The Chad integer is that same factor, placed with the rules above against other analysts who clear the sample floor. A bank uses the average of the bank’s active calls, not the average of its analysts, and is ranked among banks. One analyst with forty active calls outweighs one analyst with eight. That is deliberate: the firm published the calls.
+          An analyst’s overall factor is the average of that person’s active graded calls at the selected horizon, on the 0–100 scale. The GC score is that same factor, placed with the rules above against other analysts who clear the sample floor. A bank uses the average of the bank’s active calls, not the average of its analysts, and is ranked among banks. One analyst with forty active calls outweighs one analyst with eight. That is deliberate: the firm published the calls.
         </p>
         <p>
-          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} active graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the Chad integer and the overall factor are columns. The default order is the overall factor. Sorting by the Chad integer is on the page; names that share a bucket keep the higher overall factor ahead. Worst offenders reverse whichever key is selected. It gets chuddy under {CHUD_LINE}. Top 30% earns chaddiness.
+          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} active graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the GC score and the overall factor are columns. The default order is the overall factor. Sorting by the GC score is on the page; names that share a bucket keep the higher overall factor ahead. Worst offenders reverse whichever key is selected. Under {CHUD_LINE} the GC score stays in 1–4. The top 30% who also cleared 70 land on GC 8–10.
         </p>
         <p>
           Sector filters keep calls whose ticker is in that sector. An analyst who only covers technology is unchanged. A generalist would be scored only on the names in the filter.
@@ -185,7 +185,7 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="supersession">
         <h2 className="font-serif text-3xl text-ink">Same ticker within {SUPERSESSION_WINDOW_DAYS} days</h2>
         <p>
-          When the same analyst publishes another call on the same ticker, and the new call’s date is within {SUPERSESSION_WINDOW_DAYS} calendar days of the previous call on that pair, the older call is nullified for scoring. It does not enter the overall factor, the Chad bucket, the hit rate, or the sample size. The newer call is the one that counts. Profiles and call lists keep the active book and the superseded history in separate sections.
+          When the same analyst publishes another call on the same ticker, and the new call’s date is within {SUPERSESSION_WINDOW_DAYS} calendar days of the previous call on that pair, the older call is nullified for scoring. It does not enter the overall factor, the GC score, the hit rate, or the sample size. The newer call is the one that counts. Profiles and call lists keep the active book and the superseded history in separate sections.
         </p>
         <p>
           A run of calls stays one streak while each step is {SUPERSESSION_WINDOW_DAYS} days or closer. Only the latest call in that streak is active. Every earlier call is nullified, and each one points at the call that replaced it. A gap longer than {SUPERSESSION_WINDOW_DAYS} days starts a new streak. Both sides of that gap stay active, and neither gets a nullify note.

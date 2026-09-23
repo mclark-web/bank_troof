@@ -37,9 +37,9 @@ export function BoardTable({
             <th>Miss</th>
             <th className="hidden md:table-cell">If followed</th>
             <th>
-              Chad
+              GC score
               <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
-                1 = Chud · 10 = Chad
+                Grade Calibration
               </span>
             </th>
             <th>

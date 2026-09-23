@@ -93,8 +93,8 @@ export default async function HomePage() {
 
       <section className="mt-10">
         <p className="mb-3 text-sm text-muted">
-          Every card leads with the overall factor, the average 0–100 grade of active calls. The Chad score sits beside it, from{" "}
-          <span className="text-ink">1 (Chud)</span> to <span className="text-ink">10 (Chad)</span>. Superseded calls do not enter the factor. It gets chuddy under 70. Top 30% earns chaddiness. Hit rate is underneath, on the active book only.
+          Every card leads with the overall factor, the average 0–100 grade of active calls. The GC score sits beside it, Grade Calibration from{" "}
+          <span className="text-ink">1</span> to <span className="text-ink">10</span>. Superseded calls do not enter the factor. Under 70 the GC score stays in 1–4. The top 30% who also cleared 70 land on GC 8–10. Hit rate is underneath, on the active book only.
         </p>
         <div className="grid gap-4 lg:grid-cols-3">
         <MiniLeaderboard title="Top analysts" href="/leaderboards?view=analysts" rows={home.analysts.map(toRow)} />
@@ -121,7 +121,7 @@ export default async function HomePage() {
           <p className="kicker">No black box</p>
           <h2 className="mt-2 font-serif text-3xl tracking-tight">The grade is the product.</h2>
           <p className="mt-3 text-sm leading-6 text-muted">
-            A call leads with the recommendation: an upgrade, a target raise, a reiteration. The grade uses a separate direction bucket, plus an optional target. Those pieces add up to a score from 0 to 100, shown in full. Under 70 that score is Chud territory. The top 30% of peers who also cleared 70 are on the Chad side. Near-misses get half credit and do not count as hits.
+            A call leads with the recommendation: an upgrade, a target raise, a reiteration. The grade uses a separate direction bucket, plus an optional target. Those pieces add up to a score from 0 to 100, shown in full. Under 70 the GC score stays in 1–4. The top 30% of peers who also cleared 70 land on GC 8–10. Near-misses get half credit and do not count as hits.
           </p>
         </div>
         <ol className="grid gap-3 sm:grid-cols-3">
