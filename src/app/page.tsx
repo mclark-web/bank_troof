@@ -20,10 +20,12 @@ export default async function HomePage() {
     <div>
       <section className="grid items-end gap-8 lg:grid-cols-[1.3fr_0.7fr]">
         <div>
-          <p className="kicker">Charoof Analysts</p>
-          <h1 className="mt-3 max-w-3xl font-serif text-5xl leading-[1.05] tracking-tight md:text-6xl">
+          <p className="kicker">GradedCalls Analysts</p>
+          <h1 className="mt-3 max-w-3xl font-sans text-5xl leading-[1.05] tracking-tight md:text-6xl">
             Banks make the calls.
-            <span className="mt-1 block italic text-brass">We grade them.</span>
+            <span className="mt-1 block text-brass" style={{ textShadow: "0 0 40px rgba(235, 101, 5, 0.48)" }}>
+              We grade them.
+            </span>
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-muted">
             Every upgrade, downgrade, and price target in the sample is checked against the price that followed. Hit rates are public. The formula fits on one page.

@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!data) return { title: "Analyst" };
   return {
     title: data.analyst.name,
-    description: `${data.analyst.name}, fictional ${data.analyst.title} at ${data.analyst.bank.name} in the Charoof Analysts demo.`,
+    description: `${data.analyst.name}, fictional ${data.analyst.title} at ${data.analyst.bank.name} in the GradedCalls Analysts demo.`,
   };
 }
 

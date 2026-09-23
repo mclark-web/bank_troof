@@ -6,7 +6,7 @@ import { searchAll } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Search",
-  description: "Search the Charoof Analysts sample for an analyst, a bank, or a ticker.",
+  description: "Search the GradedCalls Analysts sample for an analyst, a bank, or a ticker.",
 };
 
 export default async function SearchPage({

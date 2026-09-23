@@ -1,7 +1,9 @@
 import { pct, pctUnsigned, usd } from "@/lib/format";
+import { readCalibration } from "@/lib/gc-grade";
 import { directionForGradingLabel } from "@/lib/labels";
 import { formatPoints, HORIZONS, HORIZON_KEYS, outcomeField, placeChad, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
+import { GcTube } from "./gc-tube";
 import { GradePill, SideNote } from "./ui";
 
 function expectation(grade: CallGrade, rating: string, horizon: HorizonKey) {
@@ -27,6 +29,7 @@ export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<H
       {HORIZON_KEYS.map((horizon) => {
         const grade = call.grades[horizon];
         const placement = placeChad(grade.score, peers[horizon]);
+        const reading = readCalibration(grade.score, grade.gradeable);
         const spec = HORIZONS[horizon];
         const after = priceFor(call, horizon);
         return (
@@ -55,12 +58,14 @@ export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<H
                   Score {formatPoints(grade.score)}
                   <span className="text-faint">/100</span>
                 </p>
-                <div className="mt-2 h-1.5 max-w-[12rem] overflow-hidden rounded-full bg-white/10" aria-hidden>
-                  <div
-                    className="h-full bg-brass"
-                    style={{ width: `${grade.score == null ? 0 : Math.min(100, Math.max(0, grade.score))}%` }}
-                  />
-                </div>
+                <GcTube
+                  className="mt-3 max-w-[12rem]"
+                  percent={reading.percent}
+                  tube={reading.tube}
+                  grade={reading.id}
+                  variant="sidebar"
+                  meta="none"
+                />
                 <SideNote placement={placement} className="mt-2" />
               </div>
             ) : null}

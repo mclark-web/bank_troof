@@ -6,7 +6,7 @@ import { HORIZONS, minimumSample, parseHorizon } from "@/lib/scoring";
 
 export const metadata: Metadata = {
   title: "Leaderboards",
-  description: "Analysts and banks ranked by historical call accuracy in the Charoof Analysts sample.",
+  description: "Analysts and banks ranked by historical call accuracy in the GradedCalls Analysts sample.",
 };
 
 type View = "analysts" | "banks" | "offenders";

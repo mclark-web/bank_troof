@@ -16,12 +16,13 @@ import {
   NEAR_MISS_FACTOR,
   TARGET_WEIGHT,
 } from "@/lib/scoring";
+import { GC_PROVISIONAL_LINE, GC_STRONG_LINE } from "@/lib/gc-grade";
 import { OVERALL_FACTOR_FORMULA } from "@/lib/overall-factor";
 import { SUPERSESSION_WINDOW_DAYS } from "@/lib/supersession";
 
 export const metadata: Metadata = {
   title: "Methodology",
-  description: "How Charoof Analysts scores sell-side calls. Direction, price targets, and leaderboard rules in the open.",
+  description: "How GradedCalls Analysts scores sell-side calls. Direction, price targets, and leaderboard rules in the open.",
 };
 
 export default function MethodologyPage() {
@@ -155,6 +156,19 @@ export default function MethodologyPage() {
         </p>
       </section>
 
+      <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="gc-scale">
+        <h2 className="font-serif text-3xl text-ink">GC tube</h2>
+        <p>
+          The horizontal tube is the same 0–100 grade, drawn as a fill. It does not rescore the call. Strong is a grade at or above {GC_STRONG_LINE}. Provisional is a grade from {GC_PROVISIONAL_LINE} up to that line. Weak is a graded score under {GC_PROVISIONAL_LINE}. Those words sit on the tube. The Chad 1–10 bucket is still the peer placement of the same number, and it stays on the directory and the leaderboards.
+        </p>
+        <p>
+          Exit liquidity is an empty glass at 0%. It means no calibrated horizon yet: the window has not closed, or that print is missing. It is not a scored zero. A call that was graded and earned nothing stays Weak, with a hair of liquid, so an open window and a finished miss do not look like the same thing.
+        </p>
+        <p>
+          On the analysts board, “all horizons” fills the tube with the mean of the windows that already have a print. Picking 2W, 30D, 60D, 90D, or 1Y uses that window only. The board tube averages active calls. A superseded call can still show its own tube. It does not move the board average, the hit rate, or the Chad placement.
+        </p>
+      </section>
+
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="aggregation">
         <h2 className="font-serif text-3xl text-ink">Leaderboards</h2>
         <p>
@@ -207,7 +221,7 @@ export default function MethodologyPage() {
           {" "}— use that post-split adjusted close for every date, including sessions before the split, so a window that crosses the split does not print a fake crash.
         </p>
         <p>
-          Charoof Analysts is not affiliated with any bank, broker-dealer, or third-party ratings site. It does not scrape rankings sites. Prices are adjusted closes, not a firm’s published targets.
+          GradedCalls Analysts is not affiliated with any bank, broker-dealer, or third-party ratings site. It does not scrape rankings sites. Prices are adjusted closes, not a firm’s published targets.
         </p>
         <p>
           The grader reads a rating, a price at the call, an optional target, and prices 14, 30, 60, 90, and 365 calendar days later. This vintage already fills those prices from adjusted closes. Replacing the sample analysts is a call archive in the CSV shape documented in the README. Every screen still carries a demo banner, because the people and the notes are not a live track record.

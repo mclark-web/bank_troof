@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!data) return { title: "Bank" };
   return {
     title: data.bank.name,
-    description: `Sample scorecard for the ${data.bank.name} desk in the Charoof Analysts demo.`,
+    description: `Sample scorecard for the ${data.bank.name} desk in the GradedCalls Analysts demo.`,
   };
 }
 

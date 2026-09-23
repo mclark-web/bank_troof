@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { OVERALL_FACTOR_FORMULA, type OverallFactor } from "@/lib/overall-factor";
 import { HORIZONS, HORIZON_KEYS, formatPoints, placeChad, type ChadPlacement, type HorizonKey } from "@/lib/scoring";
+import { readCalibration } from "@/lib/gc-grade";
 import { avatarColor, cx, initials, pct } from "@/lib/format";
 import { actionLabel, recommendationLabel, recommendationTone, type RecommendationCall } from "@/lib/labels";
 import type { SupersessionMark } from "@/lib/supersession";
+import { GcTube } from "@/components/gc-tube";
 
 export function hrefWith(
   path: string,
@@ -38,7 +40,7 @@ export function PageIntro({
     <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div className="max-w-2xl">
         {kicker ? <p className="kicker">{kicker}</p> : null}
-        <h1 className="mt-2 font-serif text-4xl tracking-tight md:text-5xl">{title}</h1>
+        <h1 className="mt-2 font-sans text-4xl tracking-tight md:text-5xl">{title}</h1>
         {lede ? <p className="mt-3 text-base leading-7 text-muted">{lede}</p> : null}
       </div>
       {children}
@@ -154,11 +156,11 @@ export function SideNote({ placement, className = "" }: { placement: ChadPlaceme
 
 export function ScoreBar({ score, placement }: { score: number | null; placement: ChadPlacement }) {
   const chad = placement.chad;
-  const width = score == null ? 0 : Math.min(100, Math.max(0, score));
   const title =
     score == null
       ? "No overall factor"
       : `Overall factor ${formatPoints(score)} of 100. Chad ${chad ?? "—"} of 10. ${placement.label ?? ""}`;
+  const reading = readCalibration(score, score != null);
   return (
     <div title={title}>
       <div className="flex items-baseline gap-2">
@@ -169,24 +171,27 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
           <span className="text-faint">/10</span>
         </span>
       </div>
-      <div className="mt-1 hidden h-1.5 w-24 overflow-hidden rounded-full bg-white/10 sm:block" aria-hidden>
-        <div className="h-full bg-brass" style={{ width: `${width}%` }} />
-      </div>
+      <GcTube
+        className="mt-1.5 hidden sm:flex"
+        percent={reading.percent}
+        tube={reading.tube}
+        grade={reading.id}
+        variant="inline"
+        meta="none"
+      />
     </div>
   );
 }
 
 export function PointsCell({ score }: { score: number | null }) {
-  const width = score == null ? 0 : Math.min(100, Math.max(0, score));
+  const reading = readCalibration(score, score != null);
   return (
     <div className="flex items-center gap-2">
       <span className="num min-w-14 text-ink">
         {formatPoints(score)}
         <span className="text-faint">/100</span>
       </span>
-      <div className="hidden h-1.5 w-16 overflow-hidden rounded-full bg-white/10 md:block" aria-hidden>
-        <div className="h-full bg-brass" style={{ width: `${width}%` }} />
-      </div>
+      <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} variant="inline" meta="none" className="hidden md:flex" />
     </div>
   );
 }
@@ -278,7 +283,7 @@ export function OverallFactorCard({
 }) {
   const placement = placeChad(factor.score, peers);
   const chad = placement.chad;
-  const points = factor.score == null ? 0 : Math.min(100, Math.max(0, factor.score));
+  const reading = readCalibration(factor.score, factor.activeGraded > 0 && factor.score != null);
   const followed = factor.aggregate.avgFollowedReturn;
   const hit = factor.hitRate == null ? "—" : `${Math.round(factor.hitRate * 100)}%`;
   return (
@@ -315,9 +320,7 @@ export function OverallFactorCard({
           </span>
         </p>
       </div>
-      <div className="mt-4 h-2 max-w-sm overflow-hidden rounded-full bg-white/10" aria-hidden>
-        <div className="h-full bg-brass" style={{ width: `${points}%` }} />
-      </div>
+      <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} meta="row" className="mt-4 max-w-sm" />
       <SideNote placement={placement} className="mt-2" />
       <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
         {OVERALL_FACTOR_FORMULA}{" "}

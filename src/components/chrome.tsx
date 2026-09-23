@@ -1,18 +1,22 @@
 import Link from "next/link";
 import { DATASET } from "@/lib/labels";
+import { PrimaryNav } from "@/components/primary-nav";
 
-const NAV = [
-  { href: "/leaderboards", label: "Leaderboards" },
-  { href: "/analysts", label: "Analysts" },
-  { href: "/banks", label: "Banks" },
-  { href: "/tickers", label: "Tickers" },
-  { href: "/methodology", label: "Methodology" },
-  { href: "/watchlist", label: "Watchlist" },
-];
+function Mark() {
+  return (
+    <span className="gc-mark" aria-hidden>
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3v3M12 18v3M5 12H2M22 12h-3" stroke="#ff6a00" strokeWidth="1.6" strokeLinecap="round" />
+        <path d="M7.5 8.5c1.8-2.2 7.2-2.2 9 0M7.5 15.5c1.8 2.2 7.2 2.2 9 0" stroke="#f2f1ee" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="12" cy="12" r="2.2" fill="#ff6a00" />
+      </svg>
+    </span>
+  );
+}
 
 export function DemoBanner() {
   return (
-    <div className="border-b border-brass/20 bg-brass/10 px-4 py-2 text-center text-xs text-brass sm:text-[13px]">
+    <div className="border-b border-warn/40 bg-warn/10 px-4 py-2 text-center text-xs text-warn sm:text-[13px]">
       Demo vintage {DATASET.vintageLabel}. Analysts and notes are sample. Grades use historical adjusted closes. Not a live track record, and not investment advice.
     </div>
   );
@@ -39,25 +43,13 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
       <div className="mx-auto flex max-w-page items-center gap-4 px-4 py-3 md:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="Charoof Analysts">
-          <span
-            aria-hidden
-            className="grid h-8 w-8 place-items-center rounded-sm bg-brass font-serif text-lg leading-none text-[#1a1408]"
-          >
-            C
-          </span>
-          <span className="leading-none">
-            <span className="block font-serif text-[1.2rem] tracking-tight">Charoof</span>
-            <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.18em] text-brass">Analysts</span>
+        <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="GradedCalls Analysts">
+          <Mark />
+          <span className="text-[17px] font-semibold tracking-tight">
+            Graded<span className="text-brass">Calls</span>
           </span>
         </Link>
-        <nav className="ml-4 hidden items-center gap-5 lg:flex" aria-label="Primary">
-          {NAV.map((item) => (
-            <Link key={item.href} href={item.href} className="text-sm text-muted transition hover:text-ink">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <PrimaryNav variant="bar" />
         <div className="ml-auto hidden md:block">
           <SearchForm />
         </div>
@@ -66,13 +58,7 @@ export function SiteHeader() {
             Menu
           </summary>
           <div className="absolute right-0 z-40 mt-2 w-56 rounded-lg border border-line bg-raised p-3 shadow-card">
-            <nav className="flex flex-col gap-1" aria-label="Mobile">
-              {NAV.map((item) => (
-                <Link key={item.href} href={item.href} className="rounded-md px-2 py-2 text-sm hover:bg-white/5">
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            <PrimaryNav variant="menu" />
           </div>
         </details>
       </div>
@@ -88,10 +74,11 @@ export function SiteFooter() {
     <footer className="mt-16 border-t border-line">
       <div className="mx-auto grid max-w-page gap-8 px-4 py-10 md:grid-cols-[1.4fr_1fr] md:px-6">
         <div>
-          <p className="font-serif text-xl leading-none">Charoof Analysts</p>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-brass">Charoof</p>
+          <p className="text-xl font-semibold leading-none tracking-tight">
+            Graded<span className="text-brass">Calls</span> <span className="text-muted">Analysts</span>
+          </p>
           <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
-            Charoof Analysts grades calls against historical prices. Analysts and notes in this build are a demo. It is not investment advice, not a tip service, and not for sale. Donations, if any, do not change a score.
+            GradedCalls Analysts grades calls against historical prices. Analysts and notes in this build are a demo. It is not investment advice, not a tip service, and not for sale. Donations, if any, do not change a score.
           </p>
           <p className="mt-3 max-w-xl text-sm leading-6 text-faint">
             Past accuracy does not predict future results. Not a broker. Not affiliated with any bank or ratings publisher.

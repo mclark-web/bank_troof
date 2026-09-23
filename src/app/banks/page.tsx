@@ -5,7 +5,7 @@ import { listBanks } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Banks",
-  description: "Sample research desks ranked inside the Charoof Analysts demo.",
+  description: "Sample research desks ranked inside the GradedCalls Analysts demo.",
 };
 
 export default async function BanksPage() {
