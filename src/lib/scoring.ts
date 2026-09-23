@@ -15,7 +15,7 @@ export const FLAT_NEAR_MULTIPLIER = 1.35;
 export const CHAD_MIN = 1;
 export const CHAD_MAX = 10;
 
-/** Anything under this 0–100 score is Chud territory, even if the field is weak. */
+/** Anything under this 0–100 score is GC 1–4, even if the field is weak. */
 export const CHUD_LINE = 70;
 
 export type ChadSide = "chud" | "mid" | "chad";
@@ -64,32 +64,32 @@ export function topThirtyCutoff(peers: number[]): number {
 }
 
 /**
- * 1–10 bucket for one score against a peer set.
- * Under 70 is always Chud (1–4). At or above 70 and in the top 30% is Chad (8–10).
- * At or above 70 but outside that top 30% is mid (5–7).
+ * 1–10 Grade Calibration for one score against a peer set.
+ * Under 70 is always GC 1–4. At or above 70 and in the top 30% is GC 8–10.
+ * At or above 70 but outside that top 30% is GC 5–7.
  */
 export function placeChad(score: number | null | undefined, peers: number[]): ChadPlacement {
   const clamped = clampScore(score);
   if (clamped == null) return { chad: null, side: null, label: null };
   if (clamped < CHUD_LINE) {
-    return { chad: chudBucket(clamped), side: "chud", label: "Chud territory. It gets chuddy under 70." };
+    return { chad: chudBucket(clamped), side: "chud", label: "GC 1–4. A score under 70 stays at the low end of Grade Calibration." };
   }
   const line = Math.max(topThirtyCutoff(peers), CHUD_LINE);
   if (clamped + 1e-9 >= line) {
     return {
       chad: splitThirds(clamped, line, 100, 8),
       side: "chad",
-      label: "Chad side. Top 30% earns chaddiness.",
+      label: "GC 8–10. Top 30% of peers who also cleared 70.",
     };
   }
   return {
     chad: splitThirds(clamped, CHUD_LINE, line, 5),
     side: "mid",
-    label: "Above 70, outside the top 30%.",
+    label: "GC 5–7. Above 70, outside the top 30%.",
   };
 }
 
-/** Full engine score, shown beside the Chad bucket. One decimal when it is not a whole number. */
+/** Full engine score, shown beside the GC score. One decimal when it is not a whole number. */
 export function formatPoints(raw: number | null | undefined): string {
   if (raw == null || Number.isNaN(raw)) return "—";
   const clamped = Math.min(100, Math.max(0, raw));

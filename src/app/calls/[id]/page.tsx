@@ -91,7 +91,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
           <SupersessionNotes mark={call.supersession} />
           <p className="mt-2 leading-6">
             {call.supersession.status === "nullified"
-              ? "The date, recommendation, desk rating, target, entry price, and horizon outcomes stay on this page. This call is left out of the overall factor, the Chad bucket, and the hit rate."
+              ? "The date, recommendation, desk rating, target, entry price, and horizon outcomes stay on this page. This call is left out of the overall factor, the GC score, and the hit rate."
               : "This call is in the active book and counts toward the overall factor. The prior call stays visible and does not score."}
           </p>
           <p className="mt-2">
@@ -109,7 +109,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
 
       <h2 className="mb-3 mt-10 font-serif text-3xl">The grade</h2>
       <p className="mb-4 max-w-2xl text-sm leading-6 text-muted">
-        The large number is the Chad score for that window, an integer from 1 to 10. 1 is Chud. 10 is Chad. The same card shows the full score out of 100. It gets chuddy under 70. Top 30% of calls at that horizon earns chaddiness, if the score also cleared 70. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
+        The large number is the GC score for that window, Grade Calibration from 1 to 10. GC 1 is a poor track record. GC 10 is an excellent one. The same card shows the full score out of 100. Under 70 the GC score stays in 1–4. The top 30% of calls at that horizon land on GC 8–10, if the score also cleared 70. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
       </p>
       <GradeLedger call={call} peers={peers} />
 

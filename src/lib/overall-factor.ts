@@ -2,11 +2,11 @@ import { aggregateGrades, type Aggregate, type CallGrade } from "./scoring";
 
 /**
  * Overall factor is the report-card rollup: the average 0–100 grade of active
- * calls at one horizon. Chad 1–10 is `placeChad` of this same number.
+ * calls at one horizon. The GC score is `placeChad` of this same number.
  * `src/lib/queries.ts` is the only caller that turns stored calls into this input.
  */
 export const OVERALL_FACTOR_FORMULA =
-  "The overall factor is the average of the 0–100 grades on active calls at this horizon. A call superseded by a later note on the same ticker within 90 days stays visible and does not enter this average, the Chad 1–10 bucket, or the hit rate.";
+  "The overall factor is the average of the 0–100 grades on active calls at this horizon. A call superseded by a later note on the same ticker within 90 days stays visible and does not enter this average, the GC score, or the hit rate.";
 
 export type OverallFactor = {
   /** 0–100 average of active graded calls. Null when none are graded. */

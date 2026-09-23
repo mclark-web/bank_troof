@@ -32,7 +32,8 @@ export default async function LeaderboardsPage({
   const who = one("who") === "analysts" ? "analysts" : "banks";
   const entity = view === "analysts" ? "analyst" : view === "banks" ? "bank" : who === "analysts" ? "analyst" : "bank";
   const order = view === "offenders" ? "low" : "score";
-  const rank: RankKey = one("rank") === "chad" ? "chad" : "points";
+  const rawRank = one("rank");
+  const rank: RankKey = rawRank === "gc" || rawRank === "chad" ? "gc" : "points";
   const [board, sectors] = await Promise.all([
     leaderboard({ horizon, sector, entity, order, rank }),
     loadSectors(),
@@ -48,13 +49,13 @@ export default async function LeaderboardsPage({
   const title =
     view === "offenders" ? "Worst offenders" : view === "banks" ? "Top banks" : "Top analysts";
   const rankLine =
-    rank === "chad"
-      ? "Sorted by the Chad integer of that factor. Names in the same bucket keep the higher overall factor ahead."
-      : "Sorted by the overall factor, the average 0–100 grade of active calls. Superseded calls do not score. Under 70 is Chud territory. Top 30% of this board earns chaddiness.";
+    rank === "gc"
+      ? "Sorted by the GC score of that factor. Names in the same bucket keep the higher overall factor ahead."
+      : "Sorted by the overall factor, the average 0–100 grade of active calls. Superseded calls do not score. Under 70 the GC score stays in 1–4. The top 30% of this board who also cleared 70 land on GC 8–10.";
   const lede =
     view === "offenders"
-      ? `Lowest overall factor first over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad. Open a name to see each call labeled by its recommendation. Buy, Hold, and Sell stay inside the grade.`
-      : `Ranked by overall factor over ${HORIZONS[horizon].label}. ${rankLine} 1 is Chud. 10 is Chad. Firms are weighted by active calls, not by headcount. Open a name to see each call labeled by its recommendation. Buy, Hold, and Sell stay inside the grade.`;
+      ? `Lowest overall factor first over ${HORIZONS[horizon].label}. ${rankLine} GC 1 is a poor track record. GC 10 is an excellent one. Open a name to see each call labeled by its recommendation. Buy, Hold, and Sell stay inside the grade.`
+      : `Ranked by overall factor over ${HORIZONS[horizon].label}. ${rankLine} GC 1 is a poor track record. GC 10 is an excellent one. Firms are weighted by active calls, not by headcount. Open a name to see each call labeled by its recommendation. Buy, Hold, and Sell stay inside the grade.`;
 
   return (
     <div>
@@ -83,8 +84,8 @@ export default async function LeaderboardsPage({
             <a href={hrefWith("/leaderboards", current, { rank: null })} className={rank === "points" ? "chip-on" : "chip"}>
               Overall factor
             </a>
-            <a href={hrefWith("/leaderboards", current, { rank: "chad" })} className={rank === "chad" ? "chip-on" : "chip"}>
-              Chad 1–10
+            <a href={hrefWith("/leaderboards", current, { rank: "gc" })} className={rank === "gc" ? "chip-on" : "chip"}>
+              GC score
             </a>
           </div>
         </div>
@@ -125,7 +126,7 @@ export default async function LeaderboardsPage({
       <p className="mt-4 max-w-3xl text-xs leading-5 text-faint">
         Showing {board.rows.length} of {board.considered} {entity === "bank" ? "banks" : "analysts"} with at least{" "}
         {minimumSample(entity, sector)} active graded {HORIZONS[horizon].short} calls
-        {sector ? ` in ${sector}` : ""}. The overall factor is the average 0–100 grade of those active calls. Superseded calls stay off the average, the Chad bucket, and the hit rate. Under 70 is Chud territory. The top 30% of this board, if they also cleared 70, are on the Chad side. Everyone else at or above 70 is mid. Default sort is the overall factor. “If followed” averages the stock return on active buys and the inverse return on active sells. Holds are left out of that column.
+        {sector ? ` in ${sector}` : ""}. The overall factor is the average 0–100 grade of those active calls. Superseded calls stay off the average, the GC score, and the hit rate. Under 70 the GC score stays in 1–4. The top 30% of this board, if they also cleared 70, are GC 8–10. Everyone else at or above 70 is GC 5–7. Default sort is the overall factor. “If followed” averages the stock return on active buys and the inverse return on active sells. Holds are left out of that column.
       </p>
     </div>
   );

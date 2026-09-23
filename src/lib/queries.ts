@@ -111,11 +111,11 @@ export const loadSectors = cache(async (): Promise<string[]> => {
   return rows.map((row) => row.sector);
 });
 
-export type RankKey = "points" | "chad";
+export type RankKey = "points" | "gc";
 
 function compareBoard(a: BoardRow, b: BoardRow, order: "score" | "low", rank: RankKey) {
   const direction = order === "low" ? 1 : -1;
-  if (rank === "chad") {
+  if (rank === "gc") {
     const shown = ((a.placement.chad ?? (order === "low" ? 99 : -1)) - (b.placement.chad ?? (order === "low" ? 99 : -1))) * direction;
     if (shown !== 0) return shown;
   }

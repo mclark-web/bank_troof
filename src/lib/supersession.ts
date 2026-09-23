@@ -24,7 +24,7 @@ export type SupersessionStatus = "active" | "nullified";
 
 export type SupersessionMark = {
   status: SupersessionStatus;
-  /** False when this call is nullified and must not enter Chad/Chud or report-card averages. */
+  /** False when this call is nullified and must not enter the GC score or report-card averages. */
   countsForScoring: boolean;
   nullifiedNote: string | null;
   supersedesNote: string | null;
