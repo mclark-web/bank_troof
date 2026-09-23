@@ -5,16 +5,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#0c0e12",
-        raised: "#151920",
+        bg: "#0b0c0e",
+        raised: "#161820",
         inset: "#101318",
-        line: "#2c333c",
-        ink: "#f3efe6",
-        muted: "#c4bbb0",
-        faint: "#948d82",
-        brass: "#e4c27a",
-        hit: "#8fd0ae",
-        miss: "#f0a097",
+        line: "#2a2d36",
+        ink: "#f2f1ee",
+        muted: "#9a9aa3",
+        faint: "#7a7a84",
+        brass: "#ee9a44",
+        orange: "#eb6505",
+        hit: "#7dcea0",
+        miss: "#e08a7a",
+        provisional: "#8aa0c8",
+        warn: "#e8c070",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
