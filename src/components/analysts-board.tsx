@@ -110,6 +110,9 @@ export function AnalystsBoard({
   const superseded = scoped.filter((call) => call.supersession.status === "nullified");
   const visible =
     book === "superseded" ? superseded : book === "all" ? scoped : active;
+  const gradedVisible = visible.filter((call) => readingFor(call, horizon).id !== "exit");
+  const shown = gradedVisible.slice(0, 40);
+  const stillOpen = visible.length - gradedVisible.length;
 
   const factorScores = active
     .map((call) => {
@@ -179,7 +182,11 @@ export function AnalystsBoard({
           <div className="flex items-end justify-between gap-3 border-b border-line px-4 py-3.5">
             <div>
               <h2 className="text-sm font-semibold">Latest graded calls</h2>
-              <p className="mt-0.5 text-xs text-faint">Sorted by grade date · newest first · {visible.length} in this cut</p>
+              <p className="mt-0.5 text-xs text-faint">
+                Newest with a print · {gradedVisible.length} graded
+                {shown.length < gradedVisible.length ? ` · showing ${shown.length}` : ""}
+                {stillOpen > 0 ? ` · ${stillOpen} still open` : ""}
+              </p>
             </div>
             <p className="hidden text-right font-mono text-[11px] text-faint sm:block">Prices · Yahoo Finance · split-adj</p>
           </div>
@@ -195,14 +202,14 @@ export function AnalystsBoard({
               </tr>
             </thead>
             <tbody>
-              {visible.length === 0 ? (
+              {shown.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-sm text-muted">
-                    No calls in this cut.
+                    No graded print in this cut yet. Open windows stay on the exit-liquidity card.
                   </td>
                 </tr>
               ) : (
-                visible.map((call) => {
+                shown.map((call) => {
                   const reading = readingFor(call, horizon);
                   const target = call.priceTargetTo == null ? "" : ` · PT ${usd(call.priceTargetTo)}`;
                   return (
