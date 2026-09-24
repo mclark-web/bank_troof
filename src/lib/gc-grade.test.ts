@@ -19,7 +19,7 @@ describe("brand labels", () => {
 });
 
 describe("readCalibration", () => {
-  it("draws an open window as empty glass and exit liquidity", () => {
+  it("returns an empty reading when the window is not gradeable", () => {
     assert.deepEqual(readCalibration(null, false), { id: "exit", percent: 0, tube: 0 });
     assert.deepEqual(readCalibration(80, false), { id: "exit", percent: 0, tube: 0 });
     assert.deepEqual(readCalibration(undefined, true), { id: "exit", percent: 0, tube: 0 });

@@ -205,7 +205,7 @@ export function AnalystsBoard({
               {shown.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-sm text-muted">
-                    No graded print in this cut yet. Open windows stay on the EXIT LIQUIDITY card.
+                    No graded print in this cut yet. Open windows stay ungraded.
                   </td>
                 </tr>
               ) : (
@@ -324,10 +324,10 @@ export function AnalystsBoard({
             <h2 className="text-sm font-semibold">EXIT LIQUIDITY</h2>
             <GcTube percent={0} tube={0} grade="exit" meta="row" className="my-3" />
             <p className="text-xs leading-5 text-muted">
-              0% fill is an empty glass labeled <strong className="font-medium text-ink">EXIT LIQUIDITY</strong>. That is a missing print, or a graded score of exactly 0. The badge is a dash, not GC 1.{" "}
+              0% fill is an empty glass labeled <strong className="font-medium text-ink">EXIT LIQUIDITY</strong>. That is a graded score of exactly 0. The badge is a dash, not GC 1. An open horizon stays ungraded and is not this glass.{" "}
               {openOnBoard === 0
                 ? `Every active call in this cut has a print for ${windowLabel}.`
-                : `${openOnBoard} active ${openOnBoard === 1 ? "call has" : "calls have"} no print for ${windowLabel}.`}
+                : `${openOnBoard} active ${openOnBoard === 1 ? "call has" : "calls have"} no print for ${windowLabel} and stay ungraded.`}
             </p>
           </section>
         </div>

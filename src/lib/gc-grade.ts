@@ -2,7 +2,7 @@
  * Visual grade for the GC tube. This does not grade a call.
  * `gradeCall` in scoring.ts remains the price grade. The percent on a tube
  * is that 0–100 score (or the mean of those scores). Exit liquidity is an
- * empty glass: an open window, or a graded score of exactly 0.
+ * empty glass for a graded score of exactly 0. An open window is ungraded.
  */
 
 export type GcGradeId = "strong" | "weak" | "provisional" | "exit";

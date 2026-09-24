@@ -93,6 +93,29 @@ export function pricesForCall(symbol: string, callDate: Date) {
   };
 }
 
+/**
+ * Labor Day filings that keep a real close instead of the adjusted series.
+ * NVDA is the unadjusted 4 Sep 2026 close. UNH is the actual close, not 394.71.
+ */
+export const FILED_ENTRY_PRINTS: { analystId: string; symbol: string; date: string; priceAtCall: number }[] = [
+  { analystId: "alice-chen", symbol: "NVDA", date: "2026-09-04", priceAtCall: 230.36 },
+  { analystId: "anika-desai", symbol: "UNH", date: "2026-09-04", priceAtCall: 397.14 },
+];
+
+export function filedEntryPrint(analystId: string, symbol: string, callDate: Date): number | null {
+  const iso = isoDate(callDate);
+  const row = FILED_ENTRY_PRINTS.find((item) => item.analystId === analystId && item.symbol === symbol && item.date === iso);
+  return row ? row.priceAtCall : null;
+}
+
+/** Horizon prices from the series. Entry price uses a filed print when one is set. */
+export function pricesForStoredCall(analystId: string, symbol: string, callDate: Date) {
+  const prices = pricesForCall(symbol, callDate);
+  const entry = filedEntryPrint(analystId, symbol, callDate);
+  if (entry == null) return prices;
+  return { ...prices, priceAtCall: entry };
+}
+
 export function clampTargetToSpot(target: number, spot: number): number {
   if (!(spot > 0) || !Number.isFinite(target)) {
     throw new Error(`Cannot place a target against spot ${spot}.`);

@@ -1,7 +1,7 @@
 import { cache } from "react";
 import type { Analyst, Bank, Call, Ticker } from "@prisma/client";
 import { prisma } from "./db";
-import { pricesForCall } from "./quotes";
+import { pricesForStoredCall } from "./quotes";
 import { consensusBucket } from "./labels";
 import {
   gradeCall,
@@ -78,7 +78,7 @@ export const loadCalls = cache(async (): Promise<ScoredCall[]> => {
     })),
   );
   return calls.map((call) => {
-    const prices = pricesForCall(call.ticker.symbol, call.callDate);
+    const prices = pricesForStoredCall(call.analystId, call.ticker.symbol, call.callDate);
     const priced = { ...call, ...prices };
     const supersession = marks.get(call.id);
     if (!supersession) throw new Error(`No supersession mark for ${call.id}.`);

@@ -167,7 +167,7 @@ export default function MethodologyPage() {
           The horizontal tube is the same 0–100 grade, drawn as a fill. It does not rescore the call. STRONG is a grade at or above {GC_STRONG_LINE}, and that is GC 8–10. PROVISIONAL is a grade from {GC_PROVISIONAL_LINE} up to that line, and that is GC 5–7. WEAK is a graded score above 0 and under {GC_PROVISIONAL_LINE}, and that is GC 1–4. Those words sit on the tube. The GC score is the 1–10 GC Scale placement of the same number, and it stays on the directory and the leaderboards.
         </p>
         <p>
-          EXIT LIQUIDITY is an empty glass at 0%. It means no calibrated horizon yet, or a graded score of exactly 0. The badge on that glass is a dash, not GC 1. A score above 0 that still earned almost nothing stays WEAK, with a hair of liquid, so a finished miss and an empty glass do not look like the same thing.
+          EXIT LIQUIDITY is an empty glass at 0%, and only for a graded score of exactly 0. The badge on that glass is a dash, not GC 1. An open horizon has no print yet, so it stays ungraded and is not drawn as that glass. A score above 0 that still earned almost nothing stays WEAK, with a hair of liquid, so a finished miss and an empty glass do not look like the same thing.
         </p>
         <p>
           On the analysts board, “all horizons” fills the tube with the mean of the windows that already have a print. Picking 2W, 30D, 60D, 90D, or 1Y uses that window only. The board tube averages active calls. A superseded call can still show its own tube. It does not move the board average, the hit rate, or the GC score.

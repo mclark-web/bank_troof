@@ -3,7 +3,7 @@ import path from "path";
 import { RATING_NOTCH } from "../src/lib/labels";
 import { aggregateGrades, gradeCall, HORIZONS, type HorizonKey } from "../src/lib/scoring";
 import { inspectSupersession } from "../src/lib/supersession";
-import { adjustedClose, clampTargetToSpot, isoDate, pricesForCall, tradingSession } from "../src/lib/quotes";
+import { adjustedClose, clampTargetToSpot, filedEntryPrint, isoDate, pricesForCall, tradingSession } from "../src/lib/quotes";
 import { ANALYSTS, BANKS, TICKERS, type TickerSeed } from "./universe";
 
 process.env.DATABASE_URL = `file:${path.join(process.cwd(), "prisma", "banktruth.db")}`;
@@ -111,17 +111,17 @@ function nextWeekday(date: Date) {
 }
 
 /**
- * The schedule cursor can land on a closed day. The rating is drawn from that
- * cursor's prices so later calls stay on the same dates. The stored row uses
- * the real session and that session's closes.
+ * Ratings stay on the schedule cursor so every call but Labor Day matches main.
+ * Only 2026-09-07 is stored on the prior session, with that session's closes.
  */
+const LABOR_DAY = "2026-09-07";
+
 function filedQuote(symbol: string, cursor: Date) {
-  const filed = tradingSession(symbol, cursor);
-  return {
-    filed,
-    planned: pricesForCall(symbol, cursor),
-    recorded: pricesForCall(symbol, filed),
-  };
+  const planned = pricesForCall(symbol, cursor);
+  const snap = isoDate(cursor) === LABOR_DAY;
+  const filed = snap ? tradingSession(symbol, cursor) : cursor;
+  const recorded = snap ? { ...pricesForCall(symbol, filed) } : planned;
+  return { filed, planned, recorded };
 }
 
 function shiftRating(rating: string, delta: number) {
@@ -477,6 +477,11 @@ async function main() {
     })),
   );
   await prisma.coverage.createMany({ data: coverageRows });
+  for (const call of calls) {
+    const entry = filedEntryPrint(call.analystId, call.tickerId, call.callDate);
+    if (entry != null) call.priceAtCall = entry;
+  }
+
   const canary = calls.find((call) => call.id === "call_0024");
   const canarySpot = adjustedClose("NFLX", new Date("2026-04-21T00:00:00.000Z"));
   if (!canary || canary.tickerId !== "NFLX" || canary.callDate.toISOString().slice(0, 10) !== "2026-04-21") {
@@ -485,16 +490,15 @@ async function main() {
   if (canary.priceAtCall !== canarySpot || canary.price90d == null) {
     throw new Error(`call_0024 price_at_call ${canary.priceAtCall} does not match the adjusted close ${canarySpot}.`);
   }
+  const laborDay = calls.filter((call) => isoDate(call.callDate) === LABOR_DAY);
+  if (laborDay.length > 0) {
+    throw new Error(`Labor Day still has ${laborDay.length} calls: ${laborDay.map((call) => call.id).join(", ")}.`);
+  }
   for (const call of calls) {
-    const session = tradingSession(call.tickerId, call.callDate);
-    if (isoDate(session) !== isoDate(call.callDate)) {
-      throw new Error(
-        `${call.id} ${call.tickerId} is dated ${isoDate(call.callDate)}, which is not a session. The print is ${isoDate(session)}.`,
-      );
-    }
-    const spot = adjustedClose(call.tickerId, call.callDate);
+    const entry = filedEntryPrint(call.analystId, call.tickerId, call.callDate);
+    const spot = entry ?? adjustedClose(call.tickerId, call.callDate);
     if (call.priceAtCall !== spot) {
-      throw new Error(`${call.id} ${call.tickerId} price_at_call ${call.priceAtCall} does not match adjusted close ${spot}.`);
+      throw new Error(`${call.id} ${call.tickerId} price_at_call ${call.priceAtCall} does not match ${entry == null ? "adjusted close" : "filed print"} ${spot}.`);
     }
     const expected = pricesForCall(call.tickerId, call.callDate);
     if (

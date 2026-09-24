@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { adjustedClose, bindHistoricalPrices, forwardClose, isoDate, addUtcDays, tradingSession } from "./quotes";
+import { adjustedClose, bindHistoricalPrices, filedEntryPrint, forwardClose, isoDate, addUtcDays, tradingSession } from "./quotes";
 
 test("NFLX 21 Apr 2026 is the post-split adjusted close in the 90s", () => {
   const price = adjustedClose("NFLX", new Date("2026-04-21T00:00:00.000Z"));
@@ -15,13 +15,15 @@ test("NFLX 30 Jul 2024 is the same split-adjusted scale", () => {
   assert.ok(april / july < 3);
 });
 
-test("Labor Day 2026 files on the Friday session, and UNH uses that close", () => {
+test("Labor Day 2026 resolves to the Friday session", () => {
   const labor = new Date("2026-09-07T00:00:00.000Z");
-  const session = tradingSession("UNH", labor);
-  assert.equal(isoDate(session), "2026-09-04");
-  assert.equal(adjustedClose("UNH", session), 397.14);
-  assert.equal(adjustedClose("UNH", labor), 397.14);
-  for (const symbol of ["COP", "AAPL", "ORCL", "AVGO", "MSFT", "LLY", "NVDA", "AMZN"]) {
+  const session = new Date("2026-09-04T00:00:00.000Z");
+  assert.equal(isoDate(tradingSession("UNH", labor)), "2026-09-04");
+  assert.equal(adjustedClose("UNH", session), 394.71);
+  assert.equal(filedEntryPrint("anika-desai", "UNH", session), 397.14);
+  assert.equal(adjustedClose("NVDA", session), 230.1);
+  assert.equal(filedEntryPrint("alice-chen", "NVDA", session), 230.36);
+  for (const symbol of ["COP", "AAPL", "ORCL", "AVGO", "MSFT", "LLY", "NVDA", "AMZN", "UNH"]) {
     assert.equal(isoDate(tradingSession(symbol, labor)), "2026-09-04");
     assert.equal(adjustedClose(symbol, labor), adjustedClose(symbol, session));
   }
