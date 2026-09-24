@@ -23,12 +23,12 @@ function priceFor(call: ScoredCall, horizon: HorizonKey) {
   return call[outcomeField(horizon)];
 }
 
-export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<HorizonKey, number[]> }) {
+export function GradeLedger({ call }: { call: ScoredCall }) {
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {HORIZON_KEYS.map((horizon) => {
         const grade = call.grades[horizon];
-        const placement = placeChad(grade.score, peers[horizon]);
+        const placement = placeChad(grade.gradeable ? grade.score : null);
         const reading = readCalibration(grade.score, grade.gradeable);
         const spec = HORIZONS[horizon];
         const after = priceFor(call, horizon);
@@ -47,7 +47,7 @@ export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<H
                   <span className="num text-6xl leading-none">{placement.chad ?? "—"}</span>
                   <span className="mb-1 text-sm text-muted">
                     / 10
-                    <span className="mt-0.5 block text-[11px]">
+                    <span className="mt-0.5 block text-xs">
                       <span className="text-miss">GC 1</span>
                       <span className="text-faint"> → </span>
                       <span className="text-hit">GC 10</span>

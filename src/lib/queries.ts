@@ -174,8 +174,7 @@ export async function leaderboard(options: {
       });
     }
   }
-  const peers = rows.map((row) => row.aggregate.avgScore).filter((score): score is number => score != null);
-  const placed = rows.map((row) => ({ ...row, placement: placeChad(row.aggregate.avgScore, peers) }));
+  const placed = rows.map((row) => ({ ...row, placement: placeChad(row.aggregate.avgScore) }));
   const rank = options.rank ?? "points";
   placed.sort((a, b) => compareBoard(a, b, options.order, rank));
   return { rows: placed, minimum, considered };
@@ -261,14 +260,13 @@ export async function listAnalysts() {
     orderBy: { name: "asc" },
   });
   const calls = await loadCalls();
-  const peers = await rankedPeerScores("analyst", "90");
   return analysts.map((analyst) => {
     const mine = calls.filter((call) => call.analystId === analyst.id);
     const aggregate = scoreAggregate(mine, "90");
     return {
       analyst,
       aggregate,
-      placement: placeChad(aggregate.avgScore, peers),
+      placement: placeChad(aggregate.avgScore),
       calls: mine.filter((call) => call.supersession.countsForScoring).length,
     };
   });
@@ -280,20 +278,18 @@ export async function listBanks() {
     orderBy: { name: "asc" },
   });
   const calls = await loadCalls();
-  const peers = await rankedPeerScores("bank", "90");
   return banks.map((bank) => {
     const aggregate = scoreAggregate(
       calls.filter((call) => call.bankId === bank.id),
       "90",
     );
-    return { bank, aggregate, placement: placeChad(aggregate.avgScore, peers) };
+    return { bank, aggregate, placement: placeChad(aggregate.avgScore) };
   });
 }
 
 export async function listTickers() {
   const tickers = await prisma.ticker.findMany({ orderBy: { symbol: "asc" } });
   const calls = await loadCalls();
-  const peers = await rankedPeerScores("ticker", "90");
   return tickers.map((ticker) => {
     const mine = calls.filter((call) => call.tickerId === ticker.id);
     const consensus = latestConsensus(mine);
@@ -301,7 +297,7 @@ export async function listTickers() {
     return {
       ticker,
       aggregate,
-      placement: placeChad(aggregate.avgScore, peers),
+      placement: placeChad(aggregate.avgScore),
       buckets: consensus.buckets,
       voices: consensus.total,
     };
@@ -406,41 +402,9 @@ export function analystRowsForCalls(calls: ScoredCall[], horizon: HorizonKey): B
       };
     })
     .filter((row) => row.aggregate.graded > 0);
-  const peers = drafts.map((row) => row.aggregate.avgScore).filter((score): score is number => score != null);
   return drafts
-    .map((row) => ({ ...row, placement: placeChad(row.aggregate.avgScore, peers) }))
+    .map((row) => ({ ...row, placement: placeChad(row.aggregate.avgScore) }))
     .sort((a, b) => compareBoard(a, b, "score", "points"));
-}
-
-export async function rankedPeerScores(entity: "analyst" | "bank" | "ticker", horizon: HorizonKey): Promise<number[]> {
-  const calls = await loadCalls();
-  const groups = new Map<string, ScoredCall[]>();
-  for (const call of calls) {
-    const key = entity === "analyst" ? call.analystId : entity === "bank" ? call.bankId : call.tickerId;
-    const list = groups.get(key) ?? [];
-    list.push(call);
-    groups.set(key, list);
-  }
-  const minimum = entity === "ticker" ? 1 : minimumSample(entity, null);
-  const scores: number[] = [];
-  for (const group of groups.values()) {
-    const factor = factorForCalls(group, horizon);
-    if (factor.activeGraded >= minimum && factor.score != null) scores.push(factor.score);
-  }
-  return scores;
-}
-
-export async function callPeerScores(): Promise<Record<HorizonKey, number[]>> {
-  const calls = await loadCalls();
-  const scores = Object.fromEntries(HORIZON_KEYS.map((horizon) => [horizon, [] as number[]])) as Record<HorizonKey, number[]>;
-  for (const call of calls) {
-    if (!call.supersession.countsForScoring) continue;
-    for (const horizon of HORIZON_KEYS) {
-      const grade = call.grades[horizon];
-      if (grade.gradeable && grade.score != null) scores[horizon].push(grade.score);
-    }
-  }
-  return scores;
 }
 
 function publishedFactor(calls: ScoredCall[]) {
@@ -458,11 +422,6 @@ function publishedFactor(calls: ScoredCall[]) {
 
 export async function entityScores(input: { analysts: string[]; banks: string[]; tickers: string[] }) {
   const calls = await loadCalls();
-  const [analystPeers, bankPeers, tickerPeers] = await Promise.all([
-    rankedPeerScores("analyst", "90"),
-    rankedPeerScores("bank", "90"),
-    rankedPeerScores("ticker", "90"),
-  ]);
   const analysts = input.analysts.slice(0, 40).map((slug) => {
     const mine = calls.filter((call) => call.analyst.slug === slug);
     const sample = mine[0];
@@ -473,7 +432,7 @@ export async function entityScores(input: { analysts: string[]; banks: string[];
       meta: sample ? `${sample.bank.shortName} · ${sample.analyst.sector}` : "",
       href: `/analysts/${slug}`,
       ...factor,
-      placement: placeChad(factor.overallFactor.score, analystPeers),
+      placement: placeChad(factor.overallFactor.score),
       found: Boolean(sample),
     };
   });
@@ -487,7 +446,7 @@ export async function entityScores(input: { analysts: string[]; banks: string[];
       meta: sample?.bank.headquarters ?? "",
       href: `/banks/${slug}`,
       ...factor,
-      placement: placeChad(factor.overallFactor.score, bankPeers),
+      placement: placeChad(factor.overallFactor.score),
       found: Boolean(sample),
     };
   });
@@ -501,7 +460,7 @@ export async function entityScores(input: { analysts: string[]; banks: string[];
       meta: sample?.ticker.sector ?? "",
       href: `/tickers/${symbol.toUpperCase()}`,
       ...factor,
-      placement: placeChad(factor.overallFactor.score, tickerPeers),
+      placement: placeChad(factor.overallFactor.score),
       found: Boolean(sample),
     };
   });

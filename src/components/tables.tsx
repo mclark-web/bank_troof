@@ -29,7 +29,7 @@ export function BoardTable({
             <th className="hidden sm:table-cell">Desk</th>
             <th>
               Active
-              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+              <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                 graded
               </span>
             </th>
@@ -38,13 +38,13 @@ export function BoardTable({
             <th className="hidden md:table-cell">If followed</th>
             <th>
               GC score
-              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+              <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                 GC Scale
               </span>
             </th>
             <th>
               Overall factor
-              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+              <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                 active avg /100
               </span>
             </th>
@@ -64,7 +64,7 @@ export function BoardTable({
               <td className="num">
                 {row.aggregate.graded}
                 {row.superseded > 0 ? (
-                  <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                  <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                     {row.superseded} superseded
                   </span>
                 ) : null}
@@ -78,7 +78,7 @@ export function BoardTable({
               </td>
               <td>
                 <span className="num text-2xl leading-none">{row.placement.chad ?? "—"}</span>
-                <span className="num text-[11px] text-faint">/10</span>
+                <span className="num text-xs text-faint">/10</span>
               </td>
               <td>
                 <PointsCell score={row.aggregate.avgScore} />
@@ -113,7 +113,7 @@ export function CallTable({
             <th>Recommendation</th>
             <th className="hidden lg:table-cell">
               Direction
-              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+              <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                 for grading
               </span>
             </th>
@@ -135,7 +135,7 @@ export function CallTable({
                     {formatDate(call.callDate)}
                   </Link>
                   {call.controversial ? (
-                    <span className="mt-1 block text-[10px] uppercase tracking-wider text-brass">Controversial</span>
+                    <span className="mt-1 block text-xs uppercase tracking-wider text-brass">Controversial</span>
                   ) : null}
                   <SupersessionNotes mark={call.supersession} />
                 </td>
@@ -157,7 +157,7 @@ export function CallTable({
                 ) : null}
                 <td>
                   <RecommendationPill call={call} />
-                  <p className="mt-1 max-w-[14rem] text-[11px] normal-case tracking-normal text-faint">{deskRatingNote(call)}</p>
+                  <p className="mt-1 max-w-[14rem] text-xs normal-case tracking-normal text-faint">{deskRatingNote(call)}</p>
                 </td>
                 <td className="hidden text-sm text-muted lg:table-cell">{directionForGradingLabel(call.ratingTo)}</td>
                 <td className="num hidden lg:table-cell">{usd(call.priceTargetTo)}</td>
@@ -167,7 +167,7 @@ export function CallTable({
                 <td>
                   <GradePill result={grade.directionResult} />
                   {call.supersession.status === "nullified" ? (
-                    <p className="mt-1 text-[10px] uppercase tracking-wider text-faint">Not scored</p>
+                    <p className="mt-1 text-xs uppercase tracking-wider text-faint">Not scored</p>
                   ) : null}
                 </td>
               </tr>

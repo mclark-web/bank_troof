@@ -5,7 +5,7 @@ import { GradeLedger } from "@/components/grade-ledger";
 import { RecommendationPill, SupersessionNotes } from "@/components/ui";
 import { callHeadline, formatDate, usd } from "@/lib/format";
 import { callPageTitle, deskRatingNote, directionForGradingLabel, recommendationLabel } from "@/lib/labels";
-import { callPeerScores, getCall } from "@/lib/queries";
+import { getCall } from "@/lib/queries";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { id: string };
@@ -24,7 +24,6 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
   const { id } = await params;
   const call = await getCall(id);
   if (!call) notFound();
-  const peers = await callPeerScores();
   const headline = callHeadline({
     action: call.action,
     symbol: call.ticker.symbol,
@@ -109,9 +108,9 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
 
       <h2 className="mb-3 mt-10 font-serif text-3xl">The grade</h2>
       <p className="mb-4 max-w-2xl text-sm leading-6 text-muted">
-        The large number is the GC score for that window, on the GC Scale from 1 to 10. GC 1 is a poor track record. GC 10 is an excellent one. The same card shows the full score out of 100. Under 70 the GC score stays in 1–4. The top 30% of calls at that horizon land on GC 8–10, if the score also cleared 70. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
+        The large number is the GC score for that window, on the GC Scale from 1 to 10. GC 1 is a poor track record. GC 10 is an excellent one. The same card shows the full score out of 100. Under 40 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. A missing print is an empty glass at 0% and reads EXIT LIQUIDITY. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
       </p>
-      <GradeLedger call={call} peers={peers} />
+      <GradeLedger call={call} />
 
       <p className="mt-6 text-sm text-muted">
         <Link href="/methodology" className="text-brass hover:text-ink">
@@ -125,7 +124,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
 function Fact({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
     <div className="panel px-4 py-3">
-      <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">{label}</dt>
+      <dt className="font-mono text-xs uppercase tracking-[0.16em] text-faint">{label}</dt>
       <dd className="mt-1 text-lg">{value}</dd>
       {hint ? <p className="mt-1 text-xs text-faint">{hint}</p> : null}
     </div>

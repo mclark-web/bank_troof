@@ -188,7 +188,7 @@ export function AnalystsBoard({
                 {stillOpen > 0 ? ` · ${stillOpen} still open` : ""}
               </p>
             </div>
-            <p className="hidden text-right font-mono text-[11px] text-faint sm:block">Prices · Yahoo Finance · split-adj</p>
+            <p className="hidden text-right font-mono text-xs text-faint sm:block">Prices · Yahoo Finance · split-adj</p>
           </div>
           <table className="data-table">
             <thead>
@@ -240,12 +240,12 @@ export function AnalystsBoard({
                           {target}
                         </span>
                         {call.controversial ? (
-                          <span className="mt-1 block text-[10px] uppercase tracking-wider text-brass">Controversial</span>
+                          <span className="mt-1 block text-xs uppercase tracking-wider text-brass">Controversial</span>
                         ) : null}
                       </td>
                       <td className="num whitespace-nowrap">
                         {usd(call.priceAtCall)}
-                        <span className="mt-0.5 block text-[11px] text-faint">{shortDate(call.callDate)}</span>
+                        <span className="mt-0.5 block text-xs text-faint">{shortDate(call.callDate)}</span>
                       </td>
                       <td>
                         <HorizonMarks call={call} />
@@ -256,7 +256,7 @@ export function AnalystsBoard({
                       <td>
                         <GcGradePill grade={reading.id} />
                         {call.supersession.status === "nullified" ? (
-                          <p className="mt-1 text-[10px] uppercase tracking-wider text-faint">Not scored</p>
+                          <p className="mt-1 text-xs uppercase tracking-wider text-faint">Not scored</p>
                         ) : null}
                       </td>
                     </tr>
@@ -270,13 +270,13 @@ export function AnalystsBoard({
         <div className="grid gap-3">
           <section className="panel p-4">
             <h2 className="text-sm font-semibold">Board health</h2>
-            <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.08em] text-faint">30D outcomes</p>
+            <p className="mt-2 font-mono text-xs uppercase tracking-[0.08em] text-faint">30D outcomes</p>
             <div className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-white/[0.06]" aria-hidden>
               <span className="h-full bg-hit" style={{ width: `${health.strong}%` }} />
               <span className="h-full bg-provisional" style={{ width: `${health.provisional}%` }} />
               <span className="h-full bg-miss" style={{ width: `${health.weak}%` }} />
             </div>
-            <div className="mt-1.5 flex justify-between font-mono text-[11px] text-faint">
+            <div className="mt-1.5 flex justify-between font-mono text-xs text-faint">
               <span>STRONG {health.strong}%</span>
               <span>PROVISIONAL {health.provisional}%</span>
               <span>WEAK {health.weak}%</span>
@@ -309,9 +309,9 @@ export function AnalystsBoard({
             <GcTube percent={factor.percent} tube={factor.tube} grade={factor.id} className="my-3" />
             <p className="text-xs leading-5 text-muted">
               The tube is the mean 0–100 grade of active calls over {windowLabel}.{" "}
-              <strong className="font-medium text-ink">STRONG</strong> — at or above 70, direction held often enough to clear the line.{" "}
-              <strong className="font-medium text-ink">WEAK</strong> — graded under 40.{" "}
-              <strong className="font-medium text-ink">PROVISIONAL</strong> — graded from 40 up to 70, mixed against the print.
+              <strong className="font-medium text-ink">STRONG</strong> — at or above 70, GC 8–10.{" "}
+              <strong className="font-medium text-ink">PROVISIONAL</strong> — from 40 up to 70, GC 5–7.{" "}
+              <strong className="font-medium text-ink">WEAK</strong> — graded under 40, GC 1–4. The badge uses those same lines. Rank only orders the directory.
             </p>
             <p className="mt-2.5 text-xs">
               <Link href="/methodology#gc-scale" className="text-brass hover:text-ink">

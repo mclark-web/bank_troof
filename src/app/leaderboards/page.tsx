@@ -51,7 +51,7 @@ export default async function LeaderboardsPage({
   const rankLine =
     rank === "gc"
       ? "Sorted by the GC score of that factor. Names in the same bucket keep the higher overall factor ahead."
-      : "Sorted by the overall factor, the average 0–100 grade of active calls. Superseded calls do not score. Under 70 the GC score stays in 1–4. The top 30% of this board who also cleared 70 land on GC 8–10.";
+      : "Sorted by the overall factor, the average 0–100 grade of active calls. Superseded calls do not score. Under 40 the GC score is 1–4. From 40 up to 70 it is 5–7. At or above 70 it is 8–10.";
   const lede =
     view === "offenders"
       ? `Lowest overall factor first over ${HORIZONS[horizon].label}. ${rankLine} GC 1 is a poor track record. GC 10 is an excellent one. Open a name to see each call labeled by its recommendation. Buy, Hold, and Sell stay inside the grade.`
@@ -126,7 +126,7 @@ export default async function LeaderboardsPage({
       <p className="mt-4 max-w-3xl text-xs leading-5 text-faint">
         Showing {board.rows.length} of {board.considered} {entity === "bank" ? "banks" : "analysts"} with at least{" "}
         {minimumSample(entity, sector)} active graded {HORIZONS[horizon].short} calls
-        {sector ? ` in ${sector}` : ""}. The overall factor is the average 0–100 grade of those active calls. Superseded calls stay off the average, the GC score, and the hit rate. Under 70 the GC score stays in 1–4. The top 30% of this board, if they also cleared 70, are GC 8–10. Everyone else at or above 70 is GC 5–7. Default sort is the overall factor. “If followed” averages the stock return on active buys and the inverse return on active sells. Holds are left out of that column.
+        {sector ? ` in ${sector}` : ""}. The overall factor is the average 0–100 grade of those active calls. Superseded calls stay off the average, the GC score, and the hit rate. Under 40 the GC score is 1–4 (WEAK). From 40 up to 70 it is 5–7 (PROVISIONAL). At or above 70 it is 8–10 (STRONG). A missing print is an empty glass at 0% and reads EXIT LIQUIDITY. Rank only sets the order. Default sort is the overall factor. “If followed” averages the stock return on active buys and the inverse return on active sells. Holds are left out of that column.
       </p>
     </div>
   );

@@ -121,7 +121,7 @@ export function Stat({
 }) {
   return (
     <div>
-      <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">{label}</p>
+      <p className="font-mono text-xs uppercase tracking-[0.16em] text-faint">{label}</p>
       <p
         className={cx(
           "mt-1 font-mono text-2xl tabular-nums md:text-3xl",
@@ -165,7 +165,7 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
     <div title={title}>
       <div className="flex items-baseline gap-2">
         <span className="num text-2xl leading-none text-ink">{formatPoints(score)}</span>
-        <span className="num text-[11px] text-faint">/100</span>
+        <span className="num text-xs text-faint">/100</span>
         <span className="num text-sm text-muted">
           {chad == null ? "—" : chad}
           <span className="text-faint">/10</span>
@@ -202,18 +202,18 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
     <div className="mt-1 max-w-xs space-y-1">
       <div className="flex flex-wrap gap-1">
         {mark.status === "nullified" ? (
-          <span className="inline-flex rounded-full border border-miss/50 bg-miss/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-miss">
+          <span className="inline-flex rounded-full border border-miss/50 bg-miss/10 px-1.5 py-0.5 text-xs uppercase tracking-wider text-miss">
             Nullified
           </span>
         ) : null}
         {mark.supersedesId ? (
-          <span className="inline-flex rounded-full border border-brass/50 bg-brass/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-brass">
+          <span className="inline-flex rounded-full border border-brass/50 bg-brass/10 px-1.5 py-0.5 text-xs uppercase tracking-wider text-brass">
             Supersedes
           </span>
         ) : null}
       </div>
       {verbose && mark.nullifiedNote ? (
-        <p className="text-[11px] leading-4 text-muted">
+        <p className="text-xs leading-4 text-muted">
           {mark.nullifiedNote}
           {mark.supersededById ? (
             <>
@@ -226,7 +226,7 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
         </p>
       ) : null}
       {verbose && mark.supersedesNote ? (
-        <p className="text-[11px] leading-4 text-muted">
+        <p className="text-xs leading-4 text-muted">
           {mark.supersedesNote}
           {mark.supersedesId ? (
             <>
@@ -251,7 +251,7 @@ export function GradePill({ result }: { result: "hit" | "near" | "miss" | null }
       : result === "miss"
         ? "border-miss/40 bg-miss/10 text-miss"
         : "border-brass/40 bg-brass/10 text-brass";
-  return <span className={cx("inline-flex rounded-full border px-2 py-0.5 text-[11px] uppercase tracking-wider", cls)}>{label}</span>;
+  return <span className={cx("inline-flex rounded-full border px-2 py-0.5 text-xs uppercase tracking-wider", cls)}>{label}</span>;
 }
 
 export function RecommendationPill({ call }: { call: RecommendationCall }) {
@@ -274,14 +274,12 @@ export function Avatar({ name, seed }: { name: string; seed?: string }) {
 
 export function OverallFactorCard({
   factor,
-  peers,
   horizon,
 }: {
   factor: OverallFactor;
-  peers: number[];
   horizon: HorizonKey;
 }) {
-  const placement = placeChad(factor.score, peers);
+  const placement = placeChad(factor.score);
   const chad = placement.chad;
   const reading = readCalibration(factor.score, factor.activeGraded > 0 && factor.score != null);
   const followed = factor.aggregate.avgFollowedReturn;
@@ -305,7 +303,7 @@ export function OverallFactorCard({
           <span className="mt-2 block text-sm text-muted">Average of active call grades</span>
         </p>
         <p className="mb-1">
-          <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-faint">GC score</span>
+          <span className="block font-mono text-xs uppercase tracking-[0.16em] text-faint">GC score</span>
           <span
             className="num text-4xl leading-none"
             aria-label={
@@ -384,7 +382,7 @@ export function MiniLeaderboard({
             </div>
             <div className="text-right">
               <ScoreBar score={row.score} placement={row.placement} />
-              <p className="mt-1 text-[11px] text-faint">
+              <p className="mt-1 text-xs text-faint">
                 {row.hitRate == null ? "—" : `${Math.round(row.hitRate * 100)}% hit`}
               </p>
             </div>

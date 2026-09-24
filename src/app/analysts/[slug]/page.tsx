@@ -6,7 +6,7 @@ import { Avatar, HorizonChips, hrefWith, OverallFactorCard, PageIntro } from "@/
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { parseHorizon } from "@/lib/scoring";
-import { factorForCalls, getAnalyst, rankedPeerScores } from "@/lib/queries";
+import { factorForCalls, getAnalyst } from "@/lib/queries";
 
 type Params = { slug: string };
 
@@ -44,7 +44,6 @@ export default async function AnalystPage({
   const { analyst, calls } = data;
   const visible = focus === "controversial" ? calls.filter((call) => call.controversial) : calls;
   const factor = factorForCalls(calls, horizon);
-  const peers = await rankedPeerScores("analyst", horizon);
   const current = {
     horizon: horizon === "90" ? undefined : horizon,
     focus: focus === "controversial" ? "controversial" : undefined,
@@ -76,7 +75,7 @@ export default async function AnalystPage({
           <h2 className="font-serif text-2xl">Overall factor</h2>
           <HorizonChips path={`/analysts/${analyst.slug}`} current={current} horizon={horizon} />
         </div>
-        <OverallFactorCard factor={factor} horizon={horizon} peers={peers} />
+        <OverallFactorCard factor={factor} horizon={horizon} />
       </div>
       <section className="mb-8">
         <h2 className="mb-3 font-serif text-2xl">Coverage</h2>

@@ -33,7 +33,7 @@ body {
 
 @layer components {
   .kicker {
-    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-brass;
+    @apply font-mono text-xs uppercase tracking-[0.18em] text-brass;
   }
 
   .panel {
@@ -75,7 +75,7 @@ body {
   }
 
   .data-table th {
-    @apply whitespace-nowrap border-b border-line bg-[#12161c] px-3 py-3 text-left font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-faint;
+    @apply whitespace-nowrap border-b border-line bg-[#12161c] px-3 py-3 text-left font-mono text-xs font-medium uppercase tracking-[0.16em] text-faint;
   }
 
   .data-table td {
@@ -146,7 +146,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #ee9a44;
@@ -181,7 +181,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: 12px;
   color: #ee9a44;
   font-weight: 700;
   flex-shrink: 0;
@@ -192,7 +192,7 @@ body {
 .hz-near,
 .hz-open {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 12px;
   padding: 3px 7px;
   border-radius: 6px;
 }

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { aggregateGrades, formatPoints, gradeCall, HORIZONS, HORIZON_KEYS, placeChad, topThirtyCutoff } from "./scoring";
+import { GC_PROVISIONAL_LINE, GC_STRONG_LINE, readCalibration } from "./gc-grade";
+import { aggregateGrades, CHUD_LINE, formatPoints, GC_BANDS, GC_WEAK_LINE, gradeCall, HORIZONS, HORIZON_KEYS, placeChad } from "./scoring";
 
 describe("gradeCall", () => {
   it("credits a buy that clears the 90-day hurdle", () => {
@@ -120,44 +121,69 @@ describe("gradeCall", () => {
 });
 
 describe("placeChad", () => {
-  const peers = [40, 55, 60, 68, 72, 75, 80, 88, 92, 96];
-
-  it("keeps everything under 70 on GC 1–4", () => {
-    assert.equal(placeChad(0, peers).chad, 1);
-    assert.equal(placeChad(50, peers).chad, 3);
-    assert.equal(placeChad(69.9, peers).side, "chud");
-    assert.equal(placeChad(69.9, peers).chad, 4);
-    assert.equal(placeChad(69.9, [90, 95, 99]).side, "chud");
+  it("uses the same 70 and 40 lines as the tube", () => {
+    assert.equal(CHUD_LINE, 70);
+    assert.equal(GC_STRONG_LINE, 70);
+    assert.equal(CHUD_LINE, GC_STRONG_LINE);
+    assert.equal(GC_WEAK_LINE, 40);
+    assert.equal(GC_PROVISIONAL_LINE, 40);
+    assert.equal(GC_WEAK_LINE, GC_PROVISIONAL_LINE);
     assert.equal(formatPoints(92), "92");
     assert.equal(formatPoints(null), "—");
   });
 
-  it("gives GC 8–10 only to the top 30% who also cleared 70", () => {
-    assert.equal(topThirtyCutoff(peers), 88);
-    const high = placeChad(92, peers);
-    const edge = placeChad(88, peers);
-    const mid = placeChad(80, peers);
-    const line = placeChad(70, peers);
-    assert.equal(high.side, "chad");
-    assert.ok((high.chad ?? 0) >= 8);
-    assert.equal(edge.side, "chad");
-    assert.equal(mid.side, "mid");
-    assert.ok((mid.chad ?? 0) >= 5 && (mid.chad ?? 0) <= 7);
-    assert.equal(line.side, "mid");
-    assert.equal(placeChad(100, peers).chad, 10);
+  it("maps each ten points to one GC step, with 90–100 as GC 10", () => {
+    assert.equal(placeChad(0).chad, 1);
+    assert.equal(placeChad(9.9).chad, 1);
+    assert.equal(placeChad(10).chad, 2);
+    assert.equal(placeChad(39.9).chad, 4);
+    assert.equal(placeChad(40).chad, 5);
+    assert.equal(placeChad(50).chad, 6);
+    assert.equal(placeChad(69.9).chad, 7);
+    assert.equal(placeChad(70).chad, 8);
+    assert.equal(placeChad(80).chad, 9);
+    assert.equal(placeChad(88).chad, 9);
+    assert.equal(placeChad(90).chad, 10);
+    assert.equal(placeChad(92).chad, 10);
+    assert.equal(placeChad(100).chad, 10);
+    assert.equal(placeChad(null).chad, null);
+    assert.equal(placeChad(-5).chad, 1);
+    assert.equal(placeChad(140).chad, 10);
   });
 
-  it("treats a weak field as GC 8–10 once a score clears 70", () => {
-    const weak = [20, 30, 40, 45, 50, 55, 58, 60, 62, 65];
-    assert.ok(topThirtyCutoff(weak) < 70);
-    assert.equal(placeChad(65, weak).side, "chud");
-    assert.equal(placeChad(70, weak).side, "chad");
-    assert.equal(placeChad(null, weak).chad, null);
-    assert.equal(placeChad(-5, weak).side, "chud");
-    assert.equal(placeChad(140, weak).side, "chad");
+  it("puts WEAK, PROVISIONAL, and STRONG on the same badge bands as the tube", () => {
+    assert.equal(placeChad(39.9).side, "chud");
+    assert.equal(readCalibration(39.9, true).id, "weak");
+    assert.equal(placeChad(40).side, "mid");
+    assert.equal(readCalibration(40, true).id, "provisional");
+    assert.equal(placeChad(69.9).side, "mid");
+    assert.equal(readCalibration(69.9, true).id, "provisional");
+    assert.equal(placeChad(70).side, "chad");
+    assert.equal(readCalibration(70, true).id, "strong");
+    assert.equal(placeChad(65).side, "mid");
+    assert.equal(placeChad(65).chad, 7);
+    for (const band of GC_BANDS) {
+      const sample = band.gc === 10 ? 100 : band.min;
+      const placement = placeChad(sample);
+      const reading = readCalibration(sample, true);
+      assert.equal(placement.chad, band.gc);
+      if (band.grade === "STRONG") {
+        assert.equal(placement.side, "chad");
+        assert.equal(reading.id, "strong");
+        assert.ok(band.gc >= 8 && band.gc <= 10);
+      } else if (band.grade === "PROVISIONAL") {
+        assert.equal(placement.side, "mid");
+        assert.equal(reading.id, "provisional");
+        assert.ok(band.gc >= 5 && band.gc <= 7);
+      } else {
+        assert.equal(placement.side, "chud");
+        assert.equal(reading.id, "weak");
+        assert.ok(band.gc >= 1 && band.gc <= 4);
+      }
+    }
   });
 
-  it("buckets an average under 70 as GC 1–4", () => {
+  it("places an average from the absolute score, not from who else scored", () => {
     const hit = gradeCall(
       { ratingTo: "buy", priceAtCall: 100, priceTargetTo: null, outcomePrice: 110 },
       "90",
@@ -168,17 +194,23 @@ describe("placeChad", () => {
     );
     const agg = aggregateGrades([hit, miss]);
     assert.equal(agg.avgScore, 50);
-    assert.equal(placeChad(agg.avgScore, peers).side, "chud");
-    assert.equal(placeChad(agg.avgScore, peers).chad, 3);
+    assert.equal(placeChad(agg.avgScore).side, "mid");
+    assert.equal(placeChad(agg.avgScore).chad, 6);
+    assert.equal(placeChad(92).chad, 10);
+    assert.equal(placeChad(72).chad, 8);
   });
 
   it("states the GC Scale and does not use the old placement names", () => {
-    const labels = [0, 50, 69.9, 80, 88, 100].map((score) => placeChad(score, peers).label ?? "");
+    const labels = [0, 39.9, 40, 50, 69.9, 70, 80, 88, 100].map((score) => placeChad(score).label ?? "");
     assert.match(labels[0] ?? "", /GC Scale/);
     for (const label of labels) {
       assert.match(label, /GC/);
-      assert.doesNotMatch(label, /chad|chud|charoof|grade calibration|ch-factor/i);
+      assert.match(label, /40|70/);
+      assert.doesNotMatch(label, /chad|chud|charoof|grade calibration|ch-factor|peer|top 30/i);
     }
+    assert.match(placeChad(0).label ?? "", /WEAK/);
+    assert.match(placeChad(50).label ?? "", /PROVISIONAL/);
+    assert.match(placeChad(80).label ?? "", /STRONG/);
   });
 });
 

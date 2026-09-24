@@ -7,7 +7,7 @@
 
 export type GcGradeId = "strong" | "weak" | "provisional" | "exit";
 
-/** Same absolute line as CHUD_LINE in scoring.ts. At or above this, the tube reads Strong. */
+/** At or above this, the tube reads STRONG and the GC badge is 8–10. Same line as CHUD_LINE. */
 export const GC_STRONG_LINE = 70;
 
 /** Graded scores from this line up to (but not including) strong are Provisional. */

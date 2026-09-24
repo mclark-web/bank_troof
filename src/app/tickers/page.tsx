@@ -32,25 +32,25 @@ export default async function TickersPage() {
                     <th>Voices</th>
                     <th>
                       Buy
-                      <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                      <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                         direction
                       </span>
                     </th>
                     <th>
                       Hold
-                      <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                      <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                         direction
                       </span>
                     </th>
                     <th>
                       Sell
-                      <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                      <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                         direction
                       </span>
                     </th>
                     <th>
                       Overall factor
-                      <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
+                      <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
                     </th>
                     <th>90D hit</th>
                   </tr>

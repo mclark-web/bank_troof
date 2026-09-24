@@ -6,7 +6,7 @@ import { HorizonChips, OverallFactorCard, PageIntro, ScoreBar } from "@/componen
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { parseHorizon } from "@/lib/scoring";
-import { analystRowsForCalls, factorForCalls, getBank, rankedPeerScores, sectorBreakdown } from "@/lib/queries";
+import { analystRowsForCalls, factorForCalls, getBank, sectorBreakdown } from "@/lib/queries";
 
 type Params = { slug: string };
 
@@ -40,7 +40,6 @@ export default async function BankPage({
   if (!data) notFound();
   const { bank, calls } = data;
   const factor = factorForCalls(calls, horizon);
-  const peers = await rankedPeerScores("bank", horizon);
   const sectors = sectorBreakdown(calls, horizon);
   const roster = analystRowsForCalls(calls, horizon);
   const maxGraded = Math.max(...sectors.map((item) => item.aggregate.graded), 1);
@@ -62,7 +61,7 @@ export default async function BankPage({
           <h2 className="font-serif text-2xl">Overall factor</h2>
           <HorizonChips path={`/banks/${bank.slug}`} current={current} horizon={horizon} />
         </div>
-        <OverallFactorCard factor={factor} horizon={horizon} peers={peers} />
+        <OverallFactorCard factor={factor} horizon={horizon} />
       </div>
       <section className="mb-8 grid gap-4 lg:grid-cols-2">
         <div className="panel p-5">
@@ -98,7 +97,7 @@ export default async function BankPage({
                 <th>Hit</th>
                 <th>
                   Overall factor
-                  <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
+                  <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
                 </th>
               </tr>
             </thead>
