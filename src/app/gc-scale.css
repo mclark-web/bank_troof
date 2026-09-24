@@ -624,6 +624,7 @@
   padding: 3px 9px;
   border-radius: 999px;
   line-height: 18px;
+  white-space: nowrap;
 }
 .gc-grade-tag.strong { color: #eb6505; background: linear-gradient(rgba(235,101,5,.12), rgba(235,101,5,.12)), #14171e; border: 1px solid rgba(235,101,5,.35); }
 .gc-grade-tag.weak { color: #c9c9cf; background: rgba(154,154,163,.12); border: 1px solid rgba(154,154,163,.35); }

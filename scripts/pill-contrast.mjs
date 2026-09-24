@@ -212,21 +212,26 @@ try {
       await sleep(250);
       const listed = await send("Runtime.evaluate", {
         expression: `(() => {
-          const pills = [...document.querySelectorAll(".gc-grade-tag")].map((el) => {
+          let n = 0;
+          const mark = (el, kind) => {
+            const id = "c" + n;
+            n += 1;
+            el.dataset.contrastId = id;
             const box = el.getBoundingClientRect();
+            const style = getComputedStyle(el);
             return {
-              kind: "pill",
-              type: ["strong", "weak", "provisional", "exit"].find((name) => el.classList.contains(name)),
+              id,
+              kind,
+              type: kind === "label" ? "label" : ["strong", "weak", "provisional", "exit"].find((name) => el.classList.contains(name)),
               text: el.textContent.trim(),
               top: box.top + window.scrollY,
               h: box.height,
+              visible: style.display !== "none" && style.visibility !== "hidden" && box.width > 0 && box.height > 0,
             };
-          });
-          const marks = [...document.querySelectorAll(".gc-label")].map((el) => {
-            const box = el.getBoundingClientRect();
-            return { kind: "label", type: "label", text: el.textContent.trim(), top: box.top + window.scrollY, h: box.height };
-          });
-          return [...pills, ...marks];
+          };
+          const pills = [...document.querySelectorAll(".gc-grade-tag")].map((el) => mark(el, "pill"));
+          const marks = [...document.querySelectorAll(".gc-label")].map((el) => mark(el, "label"));
+          return [...pills, ...marks].filter((item) => item.visible);
         })()`,
         returnByValue: true,
       });
@@ -240,13 +245,14 @@ try {
         await sleep(40);
         const box = await send("Runtime.evaluate", {
           expression: `(() => {
-            const selector = ${JSON.stringify(item.kind === "label" ? ".gc-label" : ".gc-grade-tag")};
-            const el = [...document.querySelectorAll(selector)].find((node) => Math.abs(node.getBoundingClientRect().top + window.scrollY - ${item.top}) < 2 && node.textContent.trim() === ${JSON.stringify(item.text)});
+            const el = document.querySelector(${JSON.stringify(`[data-contrast-id="${item.id}"]`)});
+            if (!el) return null;
             const rect = el.getBoundingClientRect();
             return { x: rect.x, y: rect.y, w: rect.width, h: rect.height, color: getComputedStyle(el).color };
           })()`,
           returnByValue: true,
         });
+        if (!box.result.value) continue;
         const textRgb = parseRgb(box.result.value.color);
         const measured = await measureBox(send, box.result.value, textRgb, item.kind);
         rows.push({ path, type: item.type, ...measured, h: box.result.value.h });
