@@ -18,10 +18,27 @@ async function waitForAnalysts(): Promise<void> {
   throw new Error("Analysts page did not become ready");
 }
 
+function stopServer(server: ReturnType<typeof spawn>) {
+  const pid = server.pid;
+  if (!pid) return;
+  for (const signal of ["SIGTERM", "SIGKILL"] as const) {
+    try {
+      process.kill(-pid, signal);
+    } catch {
+      try {
+        server.kill(signal);
+      } catch {
+        // The dev server has already exited.
+      }
+    }
+  }
+}
+
 test("grade pill contrast on Analysts is at least 4.5:1 at 390, 820, and 1440", { timeout: 120000 }, async () => {
   const server = spawn("npx", ["next", "dev", "--port", String(port)], {
     cwd: process.cwd(),
     stdio: "ignore",
+    detached: true,
   });
   let output = "";
   try {
@@ -50,6 +67,6 @@ test("grade pill contrast on Analysts is at least 4.5:1 at 390, 820, and 1440", 
     }
     console.log(lines.map((line) => `${line.width} ${JSON.stringify(line.mins)}`).join("\n"));
   } finally {
-    server.kill("SIGTERM");
+    stopServer(server);
   }
 });
