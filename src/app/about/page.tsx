@@ -24,7 +24,7 @@ export default function AboutPage() {
           This build is the demo vintage dated {DATASET.vintageLabel}. Analysts, biographies, notes, ratings, and price targets are a sample. Firm names are labels for that sample. They are not those firms’ research, and they are not a description of any person who works there. The banner on every page says so.
         </p>
         <p>
-          When a call is graded, the price at the call and the later prices are historical split-adjusted closes. The windows are 14 calendar days, 30 days, 60 days, 90 days, and 1 year. A window that has not elapsed stays ungraded. A graded score of exactly 0 is an empty glass and reads EXIT LIQUIDITY. The badge is a dash, not GC 1.
+          Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); a few recent calls use the raw close on the call date. The windows are 14 calendar days, 30 days, 60 days, 90 days, and 1 year. A window that has not elapsed stays ungraded. A graded score of exactly 0 is an empty glass and reads EXIT LIQUIDITY. The badge is a dash, not GC 1.
         </p>
       </section>
 
