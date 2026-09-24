@@ -315,7 +315,7 @@ export function AnalystsBoard({
             </p>
             <p className="mt-2.5 text-xs">
               <Link href="/methodology#gc-scale" className="text-brass hover:text-ink">
-                View GC scale →
+                View GC Scale →
               </Link>
             </p>
           </section>

@@ -286,6 +286,25 @@ a.text-brass:not(.hidden) {
     vertical-align: top;
   }
 }
+
+/* About body links keep a 44px hit target without stretching the line box. */
+.about-prose p a.text-brass {
+  display: inline;
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  line-height: inherit;
+  vertical-align: baseline;
+}
+.about-prose p a::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 44px);
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
 .hz-near {
   color: #121820;
   background: #8aa0c8;

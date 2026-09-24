@@ -58,7 +58,7 @@
   max-width: none;
 }
 
-/* Bloom stays inside the glass. The label row paints its own charcoal so a halo cannot sit behind a grade pill. */
+/* Glass wraps the capsule. Sidebar bloom is positioned on the scale, so this box must not clip it. */
 .gc-glass {
   position: relative;
   z-index: 1;
@@ -69,8 +69,10 @@
 .gc-scale.is-vertical .gc-glass {
   align-self: center;
 }
+.gc-scale.is-sidebar .gc-glass,
 .gc-scale.is-inline .gc-glass,
 .gc-scale.is-mini .gc-glass {
+  position: static;
   overflow: visible;
 }
 
@@ -178,6 +180,13 @@
   opacity: 1;
   pointer-events: none;
   transition: width 1.15s cubic-bezier(0.32, 0.72, 0.22, 1);
+}
+/* Stop the halo at the bottom of the tube so it cannot paint under the label row. */
+.gc-scale.is-sidebar .gc-bloom {
+  top: -18px;
+  bottom: auto;
+  height: 66px;
+  clip-path: inset(-60% -60% 0 -60%);
 }
 
 /* Liquid — fills LEFT → RIGHT via --gc-fill
@@ -614,8 +623,9 @@
   text-transform: uppercase;
   padding: 3px 9px;
   border-radius: 999px;
+  line-height: 18px;
 }
-.gc-grade-tag.strong { color: #eb6505; background: rgba(235,101,5,.12); border: 1px solid rgba(235,101,5,.35); }
+.gc-grade-tag.strong { color: #eb6505; background: linear-gradient(rgba(235,101,5,.12), rgba(235,101,5,.12)), #14171e; border: 1px solid rgba(235,101,5,.35); }
 .gc-grade-tag.weak { color: #c9c9cf; background: rgba(154,154,163,.12); border: 1px solid rgba(154,154,163,.35); }
 .gc-grade-tag.provisional { color: #c9c9cf; background: rgba(154,154,163,.12); border: 1px dashed rgba(154,154,163,.35); }
 .gc-grade-tag.exit { color: #9a9aa3; background: transparent; border: 1px solid rgba(154,154,163,.35); }

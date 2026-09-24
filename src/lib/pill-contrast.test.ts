@@ -34,7 +34,7 @@ function stopServer(server: ReturnType<typeof spawn>) {
   }
 }
 
-test("grade pill contrast on Analysts is at least 4.5:1 at 390, 820, and 1440", { timeout: 120000 }, async () => {
+test("grade pill and label contrast is at least 4.5:1 at 390, 820, and 1440", { timeout: 180000 }, async () => {
   const server = spawn("npx", ["next", "dev", "--port", String(port)], {
     cwd: process.cwd(),
     stdio: "ignore",
@@ -61,8 +61,8 @@ test("grade pill contrast on Analysts is at least 4.5:1 at 390, 820, and 1440", 
     const lines = output.trim().split("\n").map((line) => JSON.parse(line) as { width: number; mins: Record<string, number> });
     assert.deepEqual(lines.map((line) => line.width), [390, 820, 1440]);
     for (const line of lines) {
-      for (const [type, ratio] of Object.entries(line.mins)) {
-        assert.ok(ratio >= 4.5, `${line.width} ${type} ${ratio}`);
+      for (const type of ["strong", "weak", "provisional", "exit", "label"]) {
+        assert.ok(line.mins[type] >= 4.5, `${line.width} ${type} ${line.mins[type]}`);
       }
     }
     console.log(lines.map((line) => `${line.width} ${JSON.stringify(line.mins)}`).join("\n"));

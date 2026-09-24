@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <article className="max-w-3xl">
+    <article className="about-prose max-w-3xl">
       <PageIntro
         kicker="About"
         title="Banks make the calls. We grade them."
