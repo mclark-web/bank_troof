@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { GcGradePill, GcTube } from "@/components/gc-tube";
+import { GcGradePill, GcTube, GcUngraded } from "@/components/gc-tube";
 import { hrefWith, SupersessionNotes } from "@/components/ui";
 import { initials, usd } from "@/lib/format";
-import { percentShares, readCallCalibration, readMean, type GcGradeId, type GcReading } from "@/lib/gc-grade";
+import { boardHealth, readBoardMean, readCallCalibration, type GcReading } from "@/lib/gc-grade";
 import { recommendationLabel } from "@/lib/labels";
 import type { ScoredCall } from "@/lib/queries";
 import { HORIZONS, HORIZON_KEYS, type HorizonKey } from "@/lib/scoring";
@@ -44,6 +44,12 @@ function slices(call: ScoredCall) {
   return HORIZON_KEYS.map((key) => call.grades[key]);
 }
 
+function isGraded(call: ScoredCall, horizon: BoardHorizon): boolean {
+  if (horizon === "all") return slices(call).some((grade) => grade.gradeable && grade.score != null);
+  const grade = call.grades[horizon];
+  return grade.gradeable && grade.score != null;
+}
+
 function readingFor(call: ScoredCall, horizon: BoardHorizon): GcReading {
   if (horizon === "all") return readCallCalibration(slices(call), "all");
   const index = HORIZON_KEYS.indexOf(horizon);
@@ -72,15 +78,18 @@ function FilterLink({
 
 function HorizonMarks({ call }: { call: ScoredCall }) {
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex max-w-[220px] flex-wrap gap-1.5">
       {HORIZON_KEYS.map((key) => {
         const grade = call.grades[key];
         const result = grade.gradeable ? grade.directionResult : null;
         const tone = result === "hit" ? "hz-hit" : result === "miss" ? "hz-miss" : result === "near" ? "hz-near" : "hz-open";
-        const name = result === "hit" ? "Hit" : result === "miss" ? "Miss" : result === "near" ? "Near" : "Open";
+        const name = result === "hit" ? "Hit" : result === "miss" ? "Miss" : result === "near" ? "Near" : "Not graded yet";
         return (
-          <span key={key} className={tone} title={`${HORIZONS[key].label}: ${name}`}>
-            {HORIZONS[key].short}
+          <span key={key} className="inline-flex max-w-full flex-wrap items-center gap-1">
+            <span className={tone} title={`${HORIZONS[key].label}: ${name}`}>
+              {HORIZONS[key].short}
+            </span>
+            {result == null ? <GcUngraded compact /> : null}
           </span>
         );
       })}
@@ -110,7 +119,7 @@ export function AnalystsBoard({
   const superseded = scoped.filter((call) => call.supersession.status === "nullified");
   const visible =
     book === "superseded" ? superseded : book === "all" ? scoped : active;
-  const gradedVisible = visible.filter((call) => readingFor(call, horizon).id !== "exit");
+  const gradedVisible = visible.filter((call) => isGraded(call, horizon));
   const shown = gradedVisible.slice(0, 40);
   const stillOpen = visible.length - gradedVisible.length;
 
@@ -125,14 +134,9 @@ export function AnalystsBoard({
       return grade.gradeable && grade.score != null ? grade.score : null;
     })
     .filter((score): score is number => score != null);
-  const factor = readMean(factorScores);
-
-  const healthIds = active.map((call) => readCallCalibration(slices(call), HORIZON_KEYS.indexOf("30")));
-  const healthCounts: Record<GcGradeId, number> = { strong: 0, weak: 0, provisional: 0, exit: 0 };
-  for (const reading of healthIds) healthCounts[reading.id] += 1;
-  const health = percentShares(healthCounts, ["strong", "provisional", "weak"]);
-  const healthGraded = healthCounts.strong + healthCounts.provisional + healthCounts.weak;
-  const openOnBoard = active.filter((call) => readingFor(call, horizon).id === "exit").length;
+  const boardMean = readBoardMean(factorScores);
+  const health = boardHealth(active.map((call) => call.grades["30"]));
+  const openOnBoard = active.filter((call) => !isGraded(call, horizon)).length;
 
   const windowLabel = horizon === "all" ? "every closed horizon" : HORIZONS[horizon].label;
 
@@ -143,19 +147,23 @@ export function AnalystsBoard({
           <p className="chip-live">Sector · Analysts</p>
           <h1 className="mt-3 font-sans text-[2rem] tracking-tight">Street calls, graded vs real prices</h1>
           <p className="mt-2 max-w-[52ch] text-sm leading-6 text-muted">
-            Upgrades, downgrades, and targets from the sample book. Every grade uses split-adjusted historical closes — never a stale print.
+            Upgrades, downgrades, and targets from the sample book. Every grade uses closes adjusted for splits and dividends — never a stale print. Two recent calls use the raw close on the call date.
           </p>
         </div>
         <div className="w-full max-w-[340px] rounded-xl border border-line bg-white/[0.03] px-4 py-3.5">
-          <GcTube percent={factor.percent} tube={factor.tube} grade={factor.id} meta="row" />
+          {boardMean.state === "ungraded" ? (
+            <GcUngraded />
+          ) : (
+            <GcTube percent={boardMean.reading.percent} tube={boardMean.reading.tube} grade={boardMean.reading.id} meta="row" />
+          )}
         </div>
       </div>
 
       <div className="sim-banner mb-4">
-        Sample names on this board. Firms stay marked <strong className="font-semibold">sample</strong> until a live research feed replaces them. Prices are historical adjusted closes, not a simulated path.
+        Sample names on this board. Firms stay marked <strong className="font-semibold">sample</strong> until a live research feed replaces them. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. Not a simulated path.
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Horizon and call type">
+      <div className="mb-4 flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Horizon and call type">
         <FilterLink href={hrefWith(path, current, { horizon: null })} on={horizon === "all"}>
           All horizons
         </FilterLink>
@@ -178,17 +186,19 @@ export function AnalystsBoard({
       </div>
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="panel overflow-x-auto">
+        <div className="panel stack-table">
           <div className="flex items-end justify-between gap-3 border-b border-line px-4 py-3.5">
             <div>
               <h2 className="text-sm font-semibold">Latest graded calls</h2>
               <p className="mt-0.5 text-xs text-faint">
                 Newest with a print · {gradedVisible.length} graded
                 {shown.length < gradedVisible.length ? ` · showing ${shown.length}` : ""}
-                {stillOpen > 0 ? ` · ${stillOpen} still open` : ""}
+                {stillOpen > 0 ? ` · ${stillOpen} not graded yet` : ""}
               </p>
             </div>
-            <p className="hidden text-right font-mono text-[11px] text-faint sm:block">Prices · Yahoo Finance · split-adj</p>
+            <p className="hidden text-right font-mono text-xs leading-5 text-faint sm:block">
+              Prices · Yahoo Finance · split- and dividend-adjusted
+            </p>
           </div>
           <table className="data-table">
             <thead>
@@ -205,7 +215,7 @@ export function AnalystsBoard({
               {shown.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-sm text-muted">
-                    No graded print in this cut yet. Open windows stay on the EXIT LIQUIDITY card.
+                    No graded print in this cut yet. Open windows stay ungraded.
                   </td>
                 </tr>
               ) : (
@@ -214,7 +224,7 @@ export function AnalystsBoard({
                   const target = call.priceTargetTo == null ? "" : ` · PT ${usd(call.priceTargetTo)}`;
                   return (
                     <tr key={call.id}>
-                      <td>
+                      <td data-label="Analyst">
                         <div className="flex items-center gap-2.5">
                           <div className="gc-avatar" aria-hidden>
                             {initials(call.analyst.name)}
@@ -231,7 +241,7 @@ export function AnalystsBoard({
                           </div>
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Call">
                         <Link href={`/calls/${call.id}`} className="num font-semibold tracking-wide hover:text-brass">
                           {call.ticker.symbol}
                         </Link>{" "}
@@ -239,24 +249,22 @@ export function AnalystsBoard({
                           {recommendationLabel(call)}
                           {target}
                         </span>
-                        {call.controversial ? (
-                          <span className="mt-1 block text-[10px] uppercase tracking-wider text-brass">Controversial</span>
-                        ) : null}
+                        {call.controversial ? <span className="tag-note">Controversial</span> : null}
                       </td>
-                      <td className="num whitespace-nowrap">
+                      <td className="num whitespace-nowrap" data-label="Entry">
                         {usd(call.priceAtCall)}
-                        <span className="mt-0.5 block text-[11px] text-faint">{shortDate(call.callDate)}</span>
+                        <span className="mt-0.5 block text-xs text-faint">{shortDate(call.callDate)}</span>
                       </td>
-                      <td>
+                      <td data-label="Horizons">
                         <HorizonMarks call={call} />
                       </td>
-                      <td>
+                      <td data-label="GC">
                         <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} variant="inline" meta="none" />
                       </td>
-                      <td>
+                      <td data-label="Grade">
                         <GcGradePill grade={reading.id} />
                         {call.supersession.status === "nullified" ? (
-                          <p className="mt-1 text-[10px] uppercase tracking-wider text-faint">Not scored</p>
+                          <p className="tag-note">Not scored</p>
                         ) : null}
                       </td>
                     </tr>
@@ -270,29 +278,53 @@ export function AnalystsBoard({
         <div className="grid gap-3">
           <section className="panel p-4">
             <h2 className="text-sm font-semibold">Board health</h2>
-            <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.08em] text-faint">30D outcomes</p>
-            <div className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-white/[0.06]" aria-hidden>
-              <span className="h-full bg-hit" style={{ width: `${health.strong}%` }} />
-              <span className="h-full bg-provisional" style={{ width: `${health.provisional}%` }} />
-              <span className="h-full bg-miss" style={{ width: `${health.weak}%` }} />
-            </div>
-            <div className="mt-1.5 flex justify-between font-mono text-[11px] text-faint">
-              <span>STRONG {health.strong}%</span>
-              <span>PROVISIONAL {health.provisional}%</span>
-              <span>WEAK {health.weak}%</span>
-            </div>
+            <p className="mt-2 font-mono text-xs uppercase tracking-[0.08em] text-faint">30D outcomes</p>
+            {health.graded === 0 ? null : (
+              <>
+                <div className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-[#14171e]" aria-hidden>
+                  {(
+                    [
+                      ["health-strong", health.shares.strong],
+                      ["health-provisional", health.shares.provisional],
+                      ["health-weak", health.shares.weak],
+                      ["health-exit", health.shares.exit],
+                    ] as const
+                  ).map(([tone, share]) =>
+                    share > 0 ? <span key={tone} className={`health-seg ${tone}`} style={{ width: `${share}%` }} /> : null,
+                  )}
+                </div>
+                <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-faint">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="health-swatch health-strong" aria-hidden />
+                    STRONG {health.shares.strong}%
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="health-swatch health-provisional" aria-hidden />
+                    PROVISIONAL {health.shares.provisional}%
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="health-swatch health-weak" aria-hidden />
+                    WEAK {health.shares.weak}%
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="health-swatch health-exit" aria-hidden />
+                    EXIT {health.shares.exit}%
+                  </span>
+                </div>
+              </>
+            )}
             <p className="mt-3 text-xs leading-5 text-muted">
-              {healthGraded === 0
+              {health.graded === 0
                 ? "No active call has a 30-day print in this cut yet."
-                : `Shares of the ${healthGraded} active calls that already have a 30-day print. Open windows are not in the bar.`}{" "}
-              Grades never use intraday spikes. Close-to-close only, split-adjusted.
+                : `Shares of the ${health.graded} active calls that already have a 30-day print. Open windows are not in the bar.`}{" "}
+              Grades never use intraday spikes. Close-to-close only, adjusted for splits and dividends. Two recent calls use the raw close on the call date.
             </p>
           </section>
 
           <section className="panel p-4">
             <h2 className="text-sm font-semibold">Price integrity</h2>
             <ul className="mt-2 space-y-1 text-[13px] leading-6 text-muted">
-              <li>✓ Split-adjusted history</li>
+              <li>✓ Adjusted for splits and dividends; two recent calls use the raw close on the call date</li>
               <li>✓ Close-to-close prints only</li>
               <li>✓ A missing quote stops the seed</li>
               <li>
@@ -306,16 +338,25 @@ export function AnalystsBoard({
 
           <section className="panel p-4">
             <h2 className="text-sm font-semibold">GC Scale</h2>
-            <GcTube percent={factor.percent} tube={factor.tube} grade={factor.id} className="my-3" />
+            {boardMean.state === "ungraded" ? (
+              <GcUngraded className="my-3" />
+            ) : (
+              <GcTube
+                percent={boardMean.reading.percent}
+                tube={boardMean.reading.tube}
+                grade={boardMean.reading.id}
+                className="my-3"
+              />
+            )}
             <p className="text-xs leading-5 text-muted">
               The tube is the mean 0–100 grade of active calls over {windowLabel}.{" "}
-              <strong className="font-medium text-ink">STRONG</strong> — at or above 70, direction held often enough to clear the line.{" "}
-              <strong className="font-medium text-ink">WEAK</strong> — graded under 40.{" "}
-              <strong className="font-medium text-ink">PROVISIONAL</strong> — graded from 40 up to 70, mixed against the print.
+              <strong className="font-medium text-ink">STRONG</strong> — at or above 70, GC 8–10.{" "}
+              <strong className="font-medium text-ink">PROVISIONAL</strong> — from 40 up to 70, GC 5–7.{" "}
+              <strong className="font-medium text-ink">WEAK</strong> — graded under 40, GC 1–4. The badge uses those same lines. Rank only orders the directory.
             </p>
             <p className="mt-2.5 text-xs">
               <Link href="/methodology#gc-scale" className="text-brass hover:text-ink">
-                View GC scale →
+                View GC Scale →
               </Link>
             </p>
           </section>
@@ -324,10 +365,10 @@ export function AnalystsBoard({
             <h2 className="text-sm font-semibold">EXIT LIQUIDITY</h2>
             <GcTube percent={0} tube={0} grade="exit" meta="row" className="my-3" />
             <p className="text-xs leading-5 text-muted">
-              0% fill means no calibrated horizon yet — labeled <strong className="font-medium text-ink">EXIT LIQUIDITY</strong>, not a scored zero.{" "}
+              0% fill is an empty glass labeled <strong className="font-medium text-ink">EXIT LIQUIDITY</strong>. That is a graded score of exactly 0. The badge is a dash, not GC 1. An open horizon stays ungraded and is not this glass.{" "}
               {openOnBoard === 0
                 ? `Every active call in this cut has a print for ${windowLabel}.`
-                : `${openOnBoard} active ${openOnBoard === 1 ? "call has" : "calls have"} no print for ${windowLabel}.`}
+                : `${openOnBoard} active ${openOnBoard === 1 ? "call has" : "calls have"} no print for ${windowLabel} and stay ungraded.`}
             </p>
           </section>
         </div>

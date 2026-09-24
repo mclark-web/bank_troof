@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatDate, pct, returnTone, usd } from "@/lib/format";
+import { cx, formatDate, pct, usd } from "@/lib/format";
 import { deskRatingNote, directionForGradingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
 import { outcomeField, type HorizonKey } from "@/lib/scoring";
@@ -20,7 +20,7 @@ export function BoardTable({
   emphasize?: "score" | "miss";
 }) {
   return (
-    <div className="panel overflow-x-auto">
+    <div className="panel stack-table">
       <table className="data-table">
         <thead>
           <tr>
@@ -29,7 +29,7 @@ export function BoardTable({
             <th className="hidden sm:table-cell">Desk</th>
             <th>
               Active
-              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+              <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                 graded
               </span>
             </th>
@@ -38,13 +38,13 @@ export function BoardTable({
             <th className="hidden md:table-cell">If followed</th>
             <th>
               GC score
-              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+              <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                 GC Scale
               </span>
             </th>
             <th>
               Overall factor
-              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+              <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                 active avg /100
               </span>
             </th>
@@ -53,34 +53,34 @@ export function BoardTable({
         <tbody>
           {rows.map((row, index) => (
             <tr key={row.href}>
-              <td className="num text-faint">{index + 1}</td>
-              <td>
+              <td className="num text-faint" data-label="Rank">{index + 1}</td>
+              <td data-label={row.kind === "bank" ? "Bank" : "Analyst"}>
                 <Link href={row.href} className="font-medium hover:text-brass">
                   {row.name}
                 </Link>
                 <p className="text-xs text-faint sm:hidden">{row.subtitle}</p>
               </td>
-              <td className="hidden text-muted sm:table-cell">{row.subtitle}</td>
-              <td className="num">
+              <td className="hidden text-muted sm:table-cell" data-label="Desk">{row.subtitle}</td>
+              <td className="num" data-label="Active">
                 {row.aggregate.graded}
                 {row.superseded > 0 ? (
-                  <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+                  <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                     {row.superseded} superseded
                   </span>
                 ) : null}
               </td>
-              <td className="num">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
-              <td className={emphasize === "miss" ? "num text-miss" : "num text-muted"}>
+              <td className="num" data-label="Hit">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
+              <td className={emphasize === "miss" ? "num text-miss" : "num text-muted"} data-label="Miss">
                 {row.aggregate.missRate == null ? "—" : `${Math.round(row.aggregate.missRate * 100)}%`}
               </td>
-              <td className={`num hidden md:table-cell ${returnTone(row.aggregate.avgFollowedReturn)}`}>
+              <td className="num hidden text-ink md:table-cell show-on-card" data-label="If followed">
                 {pct(row.aggregate.avgFollowedReturn)}
               </td>
-              <td>
+              <td data-label="GC score">
                 <span className="num text-2xl leading-none">{row.placement.chad ?? "—"}</span>
-                <span className="num text-[11px] text-faint">/10</span>
+                <span className="num text-xs text-faint">/10</span>
               </td>
-              <td>
+              <td data-label="Overall factor">
                 <PointsCell score={row.aggregate.avgScore} />
               </td>
             </tr>
@@ -103,7 +103,7 @@ export function CallTable({
   showTicker?: boolean;
 }) {
   return (
-    <div className="panel overflow-x-auto">
+    <div className="panel stack-table">
       <table className="data-table">
         <thead>
           <tr>
@@ -113,7 +113,7 @@ export function CallTable({
             <th>Recommendation</th>
             <th className="hidden lg:table-cell">
               Direction
-              <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">
+              <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
                 for grading
               </span>
             </th>
@@ -130,17 +130,17 @@ export function CallTable({
             const after = call[outcomeField(horizon)];
             return (
               <tr key={call.id}>
-                <td className="whitespace-nowrap">
-                  <Link href={`/calls/${call.id}`} className="hover:text-brass">
+                <td data-label="Date">
+                  <Link href={`/calls/${call.id}`} className="whitespace-nowrap hover:text-brass">
                     {formatDate(call.callDate)}
                   </Link>
                   {call.controversial ? (
-                    <span className="mt-1 block text-[10px] uppercase tracking-wider text-brass">Controversial</span>
+                    <span className="tag-note">Controversial</span>
                   ) : null}
                   <SupersessionNotes mark={call.supersession} />
                 </td>
                 {showTicker ? (
-                  <td>
+                  <td data-label="Ticker">
                     <Link href={`/tickers/${call.ticker.symbol}`} className="num font-medium hover:text-brass">
                       {call.ticker.symbol}
                     </Link>
@@ -148,26 +148,26 @@ export function CallTable({
                   </td>
                 ) : null}
                 {showAnalyst ? (
-                  <td>
+                  <td data-label="Analyst">
                     <Link href={`/analysts/${call.analyst.slug}`} className="hover:text-brass">
                       {call.analyst.name}
                     </Link>
                     <p className="text-xs text-faint">{call.bank.shortName}</p>
                   </td>
                 ) : null}
-                <td>
+                <td data-label="Recommendation">
                   <RecommendationPill call={call} />
-                  <p className="mt-1 max-w-[14rem] text-[11px] normal-case tracking-normal text-faint">{deskRatingNote(call)}</p>
+                  <p className="mt-1 max-w-[14rem] text-xs normal-case tracking-normal text-faint">{deskRatingNote(call)}</p>
                 </td>
-                <td className="hidden text-sm text-muted lg:table-cell">{directionForGradingLabel(call.ratingTo)}</td>
-                <td className="num hidden lg:table-cell">{usd(call.priceTargetTo)}</td>
-                <td className="num hidden text-muted md:table-cell">{usd(call.priceAtCall)}</td>
-                <td className="num">{usd(after)}</td>
-                <td className={`num ${returnTone(grade.forwardReturn)}`}>{pct(grade.forwardReturn)}</td>
-                <td>
+                <td className="hidden text-sm text-muted lg:table-cell show-on-card" data-label="Direction">{directionForGradingLabel(call.ratingTo)}</td>
+                <td className="num hidden lg:table-cell show-on-card" data-label="Target">{usd(call.priceTargetTo)}</td>
+                <td className="num hidden text-muted md:table-cell show-on-card" data-label="Then">{usd(call.priceAtCall)}</td>
+                <td className="num" data-label="After">{usd(after)}</td>
+                <td className="num text-ink" data-label="Return">{pct(grade.forwardReturn)}</td>
+                <td data-label="Grade">
                   <GradePill result={grade.directionResult} />
                   {call.supersession.status === "nullified" ? (
-                    <p className="mt-1 text-[10px] uppercase tracking-wider text-faint">Not scored</p>
+                    <p className="tag-note">Not scored</p>
                   ) : null}
                 </td>
               </tr>
@@ -205,7 +205,7 @@ export function CallBook({
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Which calls to show">
+      <div className="mb-4 flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Which calls to show">
         <Link href={hrefWith(path, current, { book: "active" })} className={book === "active" ? "chip-on" : "chip"} aria-current={book === "active" ? "true" : undefined}>
           Active <span className="num ml-1">{active.length}</span>
         </Link>
@@ -291,13 +291,13 @@ function BookSection({
 export function ConsensusBar({ buckets, total }: { buckets: { buy: number; hold: number; sell: number }; total: number }) {
   if (total === 0) return <p className="text-sm text-muted">No current ratings in the sample.</p>;
   const parts = [
-    { key: "buy", label: "Buy", count: buckets.buy, className: "bg-hit" },
-    { key: "hold", label: "Hold", count: buckets.hold, className: "bg-[#d9d0c1]" },
-    { key: "sell", label: "Sell", count: buckets.sell, className: "bg-miss" },
+    { key: "buy", label: "Buy", count: buckets.buy, className: "consensus-buy" },
+    { key: "hold", label: "Hold", count: buckets.hold, className: "consensus-hold" },
+    { key: "sell", label: "Sell", count: buckets.sell, className: "consensus-sell" },
   ];
   return (
     <div>
-      <div className="flex h-3 overflow-hidden rounded-full bg-white/5" aria-hidden>
+      <div className="consensus-bar flex h-3 overflow-hidden rounded-full bg-[#14171e]" aria-hidden>
         {parts.map((part) =>
           part.count > 0 ? (
             <div key={part.key} className={part.className} style={{ width: `${(part.count / total) * 100}%` }} />
@@ -306,7 +306,8 @@ export function ConsensusBar({ buckets, total }: { buckets: { buy: number; hold:
       </div>
       <ul className="mt-3 flex flex-wrap gap-4 text-sm">
         {parts.map((part) => (
-          <li key={part.key} className="text-muted">
+          <li key={part.key} className="flex items-center gap-2 text-muted">
+            <span className={cx("consensus-swatch", part.className)} aria-hidden />
             <span className="text-ink">{part.label}</span>{" "}
             <span className="num">
               {part.count} · {Math.round((part.count / total) * 100)}%

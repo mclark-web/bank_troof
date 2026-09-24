@@ -16,8 +16,8 @@ function Mark() {
 
 export function DemoBanner() {
   return (
-    <div className="border-b border-warn/40 bg-warn/10 px-4 py-2 text-center text-xs text-warn sm:text-[13px]">
-      Demo vintage {DATASET.vintageLabel}. Analysts and notes are sample. Grades use historical adjusted closes. Not a live track record, and not investment advice.
+    <div className="border-b border-warn/40 bg-warn/6 px-4 py-2 text-center text-xs text-warn sm:text-[13px]">
+      Demo vintage {DATASET.vintageLabel}. Analysts and notes are sample. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. Not a live track record, and not investment advice.
     </div>
   );
 }
@@ -43,7 +43,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
       <div className="mx-auto flex max-w-page items-center gap-4 px-4 py-3 md:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="GradedCalls Analysts">
+        <Link href="/" className="brand-link flex shrink-0 items-center gap-2.5" aria-label="GradedCalls Analysts">
           <Mark />
           <span className="text-[17px] font-semibold tracking-tight">
             Graded<span className="text-brass">Calls</span>
@@ -84,11 +84,13 @@ export function SiteFooter() {
             Past accuracy does not predict future results. Not a broker. Not affiliated with any bank or ratings publisher.
           </p>
         </div>
-        <div className="flex flex-col gap-2 text-sm text-muted md:items-end">
+        <div className="flex flex-col gap-x-2 gap-y-3 text-sm text-muted md:items-end">
           <Link href="/methodology" className="hover:text-ink">Methodology</Link>
           <Link href="/leaderboards" className="hover:text-ink">Leaderboards</Link>
           <Link href="/leaderboards?view=offenders" className="hover:text-ink">Worst offenders</Link>
           <Link href="/watchlist" className="hover:text-ink">Watchlist</Link>
+          <Link href="/calls" className="hover:text-ink">Calls</Link>
+          <Link href="/about" className="hover:text-ink">About</Link>
           <Link href="/disclaimer" className="hover:text-ink">Disclaimer</Link>
           <Link href="/terms" className="hover:text-ink">Terms</Link>
           <Link href="/donate" className="hover:text-ink">Donate</Link>

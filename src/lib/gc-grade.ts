@@ -2,12 +2,12 @@
  * Visual grade for the GC tube. This does not grade a call.
  * `gradeCall` in scoring.ts remains the price grade. The percent on a tube
  * is that 0–100 score (or the mean of those scores). Exit liquidity is an
- * open window, not a scored zero.
+ * empty glass for a graded score of exactly 0. An open window is ungraded.
  */
 
 export type GcGradeId = "strong" | "weak" | "provisional" | "exit";
 
-/** Same absolute line as CHUD_LINE in scoring.ts. At or above this, the tube reads Strong. */
+/** At or above this, the tube reads STRONG and the GC badge is 8–10. Same line as CHUD_LINE. */
 export const GC_STRONG_LINE = 70;
 
 /** Graded scores from this line up to (but not including) strong are Provisional. */
@@ -27,7 +27,7 @@ export type GcReading = {
   id: GcGradeId;
   /** Integer printed beside the tube. */
   percent: number;
-  /** Liquid width. Zero only for exit liquidity, so a graded zero is not an empty glass. */
+  /** Liquid width. Zero for exit liquidity, including a graded score of exactly 0. */
   tube: number;
 };
 
@@ -36,6 +36,7 @@ const EXIT: GcReading = { id: "exit", percent: 0, tube: 0 };
 export function readCalibration(score: number | null | undefined, gradeable: boolean): GcReading {
   if (!gradeable || score == null || Number.isNaN(score)) return EXIT;
   const clamped = Math.min(100, Math.max(0, score));
+  if (clamped === 0) return EXIT;
   const percent = Math.round(clamped);
   const id: GcGradeId = clamped >= GC_STRONG_LINE ? "strong" : clamped >= GC_PROVISIONAL_LINE ? "provisional" : "weak";
   return { id, percent, tube: percent === 0 ? 2 : percent };
@@ -46,6 +47,30 @@ export function readMean(scores: readonly number[]): GcReading {
   if (scores.length === 0) return EXIT;
   const total = scores.reduce((sum, score) => sum + score, 0);
   return readCalibration(total / scores.length, true);
+}
+
+/**
+ * Board tube for a list of graded scores. No graded scores is ungraded.
+ * A graded mean of exactly 0 stays EXIT LIQUIDITY.
+ */
+export function readBoardMean(scores: readonly number[]): { state: "ungraded" } | { state: "graded"; reading: GcReading } {
+  if (scores.length === 0) return { state: "ungraded" };
+  return { state: "graded", reading: readMean(scores) };
+}
+
+/** One horizon across the active book. Graded exactly-0 counts. Open windows do not. */
+export function boardHealth(slices: readonly HorizonSlice[]): {
+  counts: Record<GcGradeId, number>;
+  graded: number;
+  shares: Record<GcGradeId, number>;
+} {
+  const counts: Record<GcGradeId, number> = { strong: 0, weak: 0, provisional: 0, exit: 0 };
+  for (const slice of slices) {
+    if (!slice.gradeable || slice.score == null) continue;
+    counts[readCalibration(slice.score, true).id] += 1;
+  }
+  const graded = counts.strong + counts.weak + counts.provisional + counts.exit;
+  return { counts, graded, shares: percentShares(counts, ["strong", "provisional", "weak", "exit"]) };
 }
 
 export type HorizonSlice = { score: number | null; gradeable: boolean };

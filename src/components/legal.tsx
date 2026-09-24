@@ -34,7 +34,7 @@ export function LegalShell({
       <PageIntro kicker={kicker} title={title} lede={lede} />
       <DraftNotice />
       <div className="mt-8 space-y-10">{children}</div>
-      <nav className="mt-12 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-6 text-sm text-muted" aria-label="Legal">
+      <nav className="mt-12 flex flex-wrap gap-x-5 gap-y-3 border-t border-line pt-6 text-sm text-muted" aria-label="Legal">
         {PAGES.map((page) => (
           <Link key={page.href} href={page.href} className="hover:text-ink">
             {page.label}

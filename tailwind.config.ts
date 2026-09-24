@@ -11,11 +11,11 @@ const config: Config = {
         line: "#2a2d36",
         ink: "#f2f1ee",
         muted: "#9a9aa3",
-        faint: "#7a7a84",
+        faint: "#9a9aa3",
         brass: "#ee9a44",
         orange: "#eb6505",
-        hit: "#7dcea0",
-        miss: "#e08a7a",
+        hit: "#4CC38A",
+        miss: "#F26D7D",
         provisional: "#8aa0c8",
         warn: "#e8c070",
       },
@@ -26,6 +26,9 @@ const config: Config = {
       },
       maxWidth: {
         page: "72rem",
+      },
+      opacity: {
+        6: "0.06",
       },
       boxShadow: {
         card: "0 1px 0 rgba(255,255,255,0.03) inset",

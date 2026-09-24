@@ -3,7 +3,7 @@ import path from "path";
 import { RATING_NOTCH } from "../src/lib/labels";
 import { aggregateGrades, gradeCall, HORIZONS, type HorizonKey } from "../src/lib/scoring";
 import { inspectSupersession } from "../src/lib/supersession";
-import { adjustedClose, clampTargetToSpot, isoDate, pricesForCall } from "../src/lib/quotes";
+import { adjustedClose, clampTargetToSpot, filedEntryPrint, isoDate, pricesForCall, tradingSession } from "../src/lib/quotes";
 import { ANALYSTS, BANKS, TICKERS, type TickerSeed } from "./universe";
 
 process.env.DATABASE_URL = `file:${path.join(process.cwd(), "prisma", "banktruth.db")}`;
@@ -108,6 +108,20 @@ function nextWeekday(date: Date) {
   let cursor = new Date(date.getTime());
   while (!isWeekday(cursor)) cursor = addDays(cursor, 1);
   return cursor;
+}
+
+/**
+ * Ratings stay on the schedule cursor so every call but Labor Day matches main.
+ * Only 2026-09-07 is stored on the prior session, with that session's closes.
+ */
+const LABOR_DAY = "2026-09-07";
+
+function filedQuote(symbol: string, cursor: Date) {
+  const planned = pricesForCall(symbol, cursor);
+  const snap = isoDate(cursor) === LABOR_DAY;
+  const filed = snap ? tradingSession(symbol, cursor) : cursor;
+  const recorded = snap ? { ...pricesForCall(symbol, filed) } : planned;
+  return { filed, planned, recorded };
 }
 
 function shiftRating(rating: string, delta: number) {
@@ -228,8 +242,9 @@ async function main() {
     let turn = 0;
     while (cursor <= scheduleEnd) {
       const ticker = names[turn % names.length];
-      const spot = adjustedClose(ticker.symbol, cursor);
-      const prices = pricesForCall(ticker.symbol, cursor);
+      const quote = filedQuote(ticker.symbol, cursor);
+      const spot = quote.planned.priceAtCall;
+      const prices = quote.planned;
       const future = prices.price90d;
       if (prices.price14d == null || prices.price30d == null || prices.price60d == null || future == null) {
         throw new Error(
@@ -279,18 +294,18 @@ async function main() {
         analystId: analyst.slug,
         bankId: analyst.bankSlug,
         tickerId: ticker.symbol,
-        callDate: cursor,
+        callDate: quote.filed,
         action,
         ratingFrom: previous?.rating ?? null,
         ratingTo,
         priceTargetFrom: previous?.target ?? null,
         priceTargetTo: target,
-        priceAtCall: spot,
-        price14d: prices.price14d,
-        price30d: prices.price30d,
-        price60d: prices.price60d,
-        price90d: future,
-        price1y: prices.price1y,
+        priceAtCall: quote.recorded.priceAtCall,
+        price14d: quote.recorded.price14d,
+        price30d: quote.recorded.price30d,
+        price60d: quote.recorded.price60d,
+        price90d: quote.recorded.price90d,
+        price1y: quote.recorded.price1y,
         note: pick(callRand, NOTES[action] ?? NOTES.reiterate),
         controversial: reasons.length > 0,
         controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
@@ -314,8 +329,9 @@ async function main() {
     const bank = bankBySlug.get(analyst.bankSlug);
     if (!bank) return;
     const accuracy = clamp(0.2 + bank.bias * 0.68 + analyst.personal, 0.12, 0.9);
-    const spot = adjustedClose(ticker.symbol, cursor);
-    const prices = pricesForCall(ticker.symbol, cursor);
+    const quote = filedQuote(ticker.symbol, cursor);
+    const spot = quote.planned.priceAtCall;
+    const prices = quote.planned;
     const moved = realizedMove(prices, spot);
     const matched = moved != null && recentRand() < accuracy;
     const stated: "up" | "flat" | "down" =
@@ -367,18 +383,18 @@ async function main() {
       analystId: analyst.slug,
       bankId: analyst.bankSlug,
       tickerId: ticker.symbol,
-      callDate: cursor,
+      callDate: quote.filed,
       action,
       ratingFrom: previous?.rating ?? null,
       ratingTo,
       priceTargetFrom: previous?.target ?? null,
       priceTargetTo: target,
-      priceAtCall: spot,
-      price14d: prices.price14d,
-      price30d: prices.price30d,
-      price60d: prices.price60d,
-      price90d: prices.price90d,
-      price1y: prices.price1y,
+      priceAtCall: quote.recorded.priceAtCall,
+      price14d: quote.recorded.price14d,
+      price30d: quote.recorded.price30d,
+      price60d: quote.recorded.price60d,
+      price90d: quote.recorded.price90d,
+      price1y: quote.recorded.price1y,
       note: `Demo. ${pick(recentRand, NOTES[action] ?? NOTES.reiterate)}`,
       controversial: reasons.length > 0,
       controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
@@ -461,6 +477,11 @@ async function main() {
     })),
   );
   await prisma.coverage.createMany({ data: coverageRows });
+  for (const call of calls) {
+    const entry = filedEntryPrint(call.analystId, call.tickerId, call.callDate);
+    if (entry != null) call.priceAtCall = entry;
+  }
+
   const canary = calls.find((call) => call.id === "call_0024");
   const canarySpot = adjustedClose("NFLX", new Date("2026-04-21T00:00:00.000Z"));
   if (!canary || canary.tickerId !== "NFLX" || canary.callDate.toISOString().slice(0, 10) !== "2026-04-21") {
@@ -469,10 +490,15 @@ async function main() {
   if (canary.priceAtCall !== canarySpot || canary.price90d == null) {
     throw new Error(`call_0024 price_at_call ${canary.priceAtCall} does not match the adjusted close ${canarySpot}.`);
   }
+  const laborDay = calls.filter((call) => isoDate(call.callDate) === LABOR_DAY);
+  if (laborDay.length > 0) {
+    throw new Error(`Labor Day still has ${laborDay.length} calls: ${laborDay.map((call) => call.id).join(", ")}.`);
+  }
   for (const call of calls) {
-    const spot = adjustedClose(call.tickerId, call.callDate);
+    const entry = filedEntryPrint(call.analystId, call.tickerId, call.callDate);
+    const spot = entry ?? adjustedClose(call.tickerId, call.callDate);
     if (call.priceAtCall !== spot) {
-      throw new Error(`${call.id} ${call.tickerId} price_at_call ${call.priceAtCall} does not match adjusted close ${spot}.`);
+      throw new Error(`${call.id} ${call.tickerId} price_at_call ${call.priceAtCall} does not match ${entry == null ? "adjusted close" : "filed print"} ${spot}.`);
     }
     const expected = pricesForCall(call.tickerId, call.callDate);
     if (

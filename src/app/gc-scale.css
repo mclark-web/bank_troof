@@ -37,9 +37,9 @@
   max-width: 180px;
 }
 .gc-scale.is-mini .gc-meta { gap: 2px; }
-.gc-scale.is-mini .gc-label { font-size: 10px; letter-spacing: 0.08em; }
+.gc-scale.is-mini .gc-label { font-size: 12px; letter-spacing: 0.08em; }
 .gc-scale.is-mini .gc-pct { font-size: 16px; }
-.gc-scale.is-mini .gc-grade-tag { font-size: 10px; padding: 2px 7px; }
+.gc-scale.is-mini .gc-grade-tag { font-size: 12px; padding: 3px 9px; }
 .gc-scale.is-inline {
   flex-direction: row;
   align-items: center;
@@ -56,6 +56,24 @@
 .gc-scale.is-inline .gc-pct { font-size: 15px; }
 .gc-scale.is-card {
   max-width: none;
+}
+
+/* Glass wraps the capsule. Sidebar bloom is positioned on the scale, so this box must not clip it. */
+.gc-glass {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 999px;
+  align-self: stretch;
+}
+.gc-scale.is-vertical .gc-glass {
+  align-self: center;
+}
+.gc-scale.is-sidebar .gc-glass,
+.gc-scale.is-inline .gc-glass,
+.gc-scale.is-mini .gc-glass {
+  position: static;
+  overflow: visible;
 }
 
 /* Alias: older .gc-vial markup still works */
@@ -82,7 +100,7 @@
     inset -1px 0 0 rgba(255,255,255,0.06),
     0 0 0 1px rgba(235,101,5,0.28),
     0 12px 36px rgba(0,0,0,0.42),
-    0 0 40px var(--gc-glow-soft);
+    0 0 10px rgba(224,103,16,.45);
   overflow: hidden;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -99,11 +117,15 @@
 .gc-scale.is-sidebar .gc-vial {
   --tube-h: 36px;
 }
+.gc-scale.is-inline > .gc-glass {
+  flex: 1 1 0%;
+  min-width: 0;
+}
 .gc-scale.is-inline .gc-tube,
 .gc-scale.is-inline .gc-vial {
   --tube-h: 24px;
   flex: 1;
-  min-width: 100px;
+  min-width: 0;
 }
 
 /* Inner glass rim + subtle refraction ring */
@@ -162,6 +184,23 @@
   opacity: 1;
   pointer-events: none;
   transition: width 1.15s cubic-bezier(0.32, 0.72, 0.22, 1);
+}
+/* Clip the halo above the tube and again at the bottom, so it cannot sit under text or the label row. A mask feathers those edges. */
+.gc-scale.is-sidebar .gc-bloom {
+  top: -18px;
+  bottom: auto;
+  left: 0;
+  width: min(calc(var(--gc-fill) + 16%), 100%);
+  height: 66px;
+  clip-path: inset(18px 0 0 0);
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0, transparent 18px, #000 36px, #000 48px, transparent 66px),
+    linear-gradient(to right, transparent 0, #000 14%, #000 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent 0, transparent 18px, #000 36px, #000 48px, transparent 66px),
+    linear-gradient(to right, transparent 0, #000 14%, #000 86%, transparent 100%);
+  mask-composite: intersect;
 }
 
 /* Liquid — fills LEFT → RIGHT via --gc-fill
@@ -539,6 +578,16 @@
   width: 0 !important;
   opacity: 0;
 }
+.gc-scale.is-empty .gc-tube,
+.gc-scale.is-empty .gc-vial {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.5),
+    inset 0 -10px 20px rgba(0,0,0,.32),
+    inset 1px 0 0 rgba(255,255,255,.12),
+    inset -1px 0 0 rgba(255,255,255,.06),
+    0 0 0 1px rgba(154,154,163,.35),
+    0 12px 36px rgba(0,0,0,.42);
+}
 .gc-scale[style*="--gc-fill: 0%"] .gc-meniscus,
 .gc-scale[style*="--gc-fill: 0%"] .gc-wave,
 .gc-scale[style*="--gc-fill: 0%"] .gc-swirl,
@@ -564,6 +613,9 @@
   gap: 4px;
   position: relative;
   z-index: 2;
+  background-color: #14171e;
+  border-radius: 10px;
+  padding: 6px 8px;
 }
 .gc-scale.is-centered .gc-meta,
 .gc-scale.is-hero .gc-meta {
@@ -572,7 +624,7 @@
   width: 100%;
 }
 .gc-label {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: none;
   color: var(--gc-orange-soft);
@@ -583,26 +635,45 @@
   font-weight: 700;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 24px var(--gc-glow-soft);
 }
 .gc-scale.is-hero .gc-pct { font-size: 36px; }
 .gc-grade-tag {
   display: inline-flex;
   align-items: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 3px 9px;
   border-radius: 999px;
+  line-height: 18px;
+  white-space: nowrap;
 }
-.gc-grade-tag.strong { color: #1a2a1e; background: #7dcea0; }
-.gc-grade-tag.weak { color: #2a1814; background: #e08a7a; }
-.gc-grade-tag.provisional { color: #121820; background: #8aa0c8; }
-.gc-grade-tag.exit {
-  color: #2a220e;
-  background: #c9a35a;
-  /* same typeface / weight / letter-spacing / uppercase as STRONG·WEAK·PROVISIONAL */
+.gc-grade-tag.strong { color: #eb6505; background: linear-gradient(rgba(235,101,5,.12), rgba(235,101,5,.12)), #14171e; border: 1px solid rgba(235,101,5,.35); }
+.gc-grade-tag.weak { color: #c9c9cf; background: rgba(154,154,163,.12); border: 1px solid rgba(154,154,163,.35); }
+.gc-grade-tag.provisional { color: #c9c9cf; background: rgba(154,154,163,.12); border: 1px dashed rgba(154,154,163,.35); }
+.gc-grade-tag.exit { color: #9a9aa3; background: transparent; border: 1px solid rgba(154,154,163,.35); }
+.gc-ungraded {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  margin: 0;
+  color: #9a9aa3;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+.gc-ungraded-glass {
+  width: 36px;
+  height: 14px;
+  flex: none;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.26);
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
 }
 
 /* Sidebar: tube + meta stacked */

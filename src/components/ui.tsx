@@ -2,10 +2,10 @@ import Link from "next/link";
 import { OVERALL_FACTOR_FORMULA, type OverallFactor } from "@/lib/overall-factor";
 import { HORIZONS, HORIZON_KEYS, formatPoints, placeChad, type ChadPlacement, type HorizonKey } from "@/lib/scoring";
 import { readCalibration } from "@/lib/gc-grade";
-import { avatarColor, cx, initials, pct } from "@/lib/format";
-import { actionLabel, recommendationLabel, recommendationTone, type RecommendationCall } from "@/lib/labels";
+import { cx, initials, pct } from "@/lib/format";
+import { actionLabel, recommendationLabel, type RecommendationCall } from "@/lib/labels";
 import type { SupersessionMark } from "@/lib/supersession";
-import { GcTube } from "@/components/gc-tube";
+import { GcGradePill, GcTube, GcUngraded } from "@/components/gc-tube";
 
 export function hrefWith(
   path: string,
@@ -58,7 +58,7 @@ export function HorizonChips({
   horizon: HorizonKey;
 }) {
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Horizon">
+    <div className="flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Horizon">
       {HORIZON_KEYS.map((key) => (
         <Link
           key={key}
@@ -121,7 +121,7 @@ export function Stat({
 }) {
   return (
     <div>
-      <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">{label}</p>
+      <p className="font-mono text-xs uppercase tracking-[0.16em] text-faint">{label}</p>
       <p
         className={cx(
           "mt-1 font-mono text-2xl tabular-nums md:text-3xl",
@@ -139,18 +139,18 @@ export function Stat({
 export function ScaleLegend({ className = "" }: { className?: string }) {
   return (
     <p className={cx("text-xs text-muted", className)}>
-      <span className="num text-miss">GC 1</span>
+      <span className="num text-muted">GC 1</span>
       <span className="text-faint">, poor track record</span>
       <span className="mx-1.5 text-faint">·</span>
-      <span className="num text-hit">GC 10</span>
+      <span className="num text-muted">GC 10</span>
       <span className="text-faint">, excellent track record</span>
     </p>
   );
 }
 
 export function SideNote({ placement, className = "" }: { placement: ChadPlacement; className?: string }) {
-  if (!placement.side || !placement.label) return null;
-  const tone = placement.side === "chud" ? "text-miss" : placement.side === "chad" ? "text-hit" : "text-brass";
+  if (!placement.label) return null;
+  const tone = placement.side ? "text-muted" : "text-faint";
   return <p className={cx("text-sm", tone, className)}>{placement.label}</p>;
 }
 
@@ -160,19 +160,23 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
     score == null
       ? "No overall factor"
       : `Overall factor ${formatPoints(score)} of 100. GC score ${chad ?? "—"} of 10. ${placement.label ?? ""}`;
-  const reading = readCalibration(score, score != null);
+  if (score == null) {
+    return <GcUngraded compact />;
+  }
+  const reading = readCalibration(score, true);
   return (
     <div title={title}>
       <div className="flex items-baseline gap-2">
         <span className="num text-2xl leading-none text-ink">{formatPoints(score)}</span>
-        <span className="num text-[11px] text-faint">/100</span>
+        <span className="num text-xs text-faint">/100</span>
         <span className="num text-sm text-muted">
           {chad == null ? "—" : chad}
           <span className="text-faint">/10</span>
         </span>
       </div>
+      {reading.id === "exit" ? <GcGradePill grade="exit" /> : null}
       <GcTube
-        className="mt-1.5 hidden sm:flex"
+        className="mt-1.5 hidden lg:flex"
         percent={reading.percent}
         tube={reading.tube}
         grade={reading.id}
@@ -184,14 +188,16 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
 }
 
 export function PointsCell({ score }: { score: number | null }) {
-  const reading = readCalibration(score, score != null);
+  if (score == null) return <GcUngraded compact />;
+  const reading = readCalibration(score, true);
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <span className="num min-w-14 text-ink">
         {formatPoints(score)}
         <span className="text-faint">/100</span>
       </span>
-      <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} variant="inline" meta="none" className="hidden md:flex" />
+      {reading.id === "exit" ? <GcGradePill grade="exit" /> : null}
+      <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} variant="inline" meta="none" className="hidden xl:flex" />
     </div>
   );
 }
@@ -199,21 +205,17 @@ export function PointsCell({ score }: { score: number | null }) {
 export function SupersessionNotes({ mark, verbose = true }: { mark: SupersessionMark; verbose?: boolean }) {
   if (!mark.nullifiedNote && !mark.supersedesNote) return null;
   return (
-    <div className="mt-1 max-w-xs space-y-1">
+    <div className="supersession-notes mt-1 max-w-xs">
       <div className="flex flex-wrap gap-1">
         {mark.status === "nullified" ? (
-          <span className="inline-flex rounded-full border border-miss/50 bg-miss/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-miss">
-            Nullified
-          </span>
+          <span className="tag-note">Nullified</span>
         ) : null}
         {mark.supersedesId ? (
-          <span className="inline-flex rounded-full border border-brass/50 bg-brass/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-brass">
-            Supersedes
-          </span>
+          <span className="tag-note">Supersedes</span>
         ) : null}
       </div>
       {verbose && mark.nullifiedNote ? (
-        <p className="text-[11px] leading-4 text-muted">
+        <p className="text-xs leading-4 text-muted">
           {mark.nullifiedNote}
           {mark.supersededById ? (
             <>
@@ -226,7 +228,7 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
         </p>
       ) : null}
       {verbose && mark.supersedesNote ? (
-        <p className="text-[11px] leading-4 text-muted">
+        <p className="text-xs leading-4 text-muted">
           {mark.supersedesNote}
           {mark.supersedesId ? (
             <>
@@ -243,28 +245,27 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
 }
 
 export function GradePill({ result }: { result: "hit" | "near" | "miss" | null }) {
-  if (!result) return <span className="text-faint">Open</span>;
+  if (!result) return <GcUngraded compact />;
   const label = result === "hit" ? "Hit" : result === "near" ? "Near" : "Miss";
-  const cls =
-    result === "hit"
-      ? "border-hit/40 bg-hit/10 text-hit"
-      : result === "miss"
-        ? "border-miss/40 bg-miss/10 text-miss"
-        : "border-brass/40 bg-brass/10 text-brass";
-  return <span className={cx("inline-flex rounded-full border px-2 py-0.5 text-[11px] uppercase tracking-wider", cls)}>{label}</span>;
+  if (result === "near") {
+    return (
+      <span className="inline-flex rounded-full border border-[rgba(154,154,163,0.35)] bg-transparent px-2 py-0.5 text-xs text-[#c9c9cf]">
+        {label}
+      </span>
+    );
+  }
+  const cls = result === "hit" ? "border-hit/40 bg-hit/10 text-hit" : "border-miss/40 bg-miss/10 text-miss";
+  return <span className={cx("inline-flex rounded-full border px-2 py-0.5 text-xs uppercase tracking-wider", cls)}>{label}</span>;
 }
 
 export function RecommendationPill({ call }: { call: RecommendationCall }) {
-  const tone = recommendationTone(call);
-  const cls = tone === "up" ? "text-hit" : tone === "down" ? "text-miss" : "text-muted";
-  return <span className={cx("num text-sm font-medium uppercase tracking-wide", cls)}>{recommendationLabel(call)}</span>;
+  return <span className="num text-sm font-medium uppercase tracking-wide text-ink">{recommendationLabel(call)}</span>;
 }
 
-export function Avatar({ name, seed }: { name: string; seed?: string }) {
+export function Avatar({ name }: { name: string; seed?: string }) {
   return (
     <div
-      className="grid h-16 w-16 shrink-0 place-items-center rounded-md font-serif text-xl text-brass"
-      style={{ background: avatarColor(seed ?? name) }}
+      className="analyst-avatar grid h-16 w-16 shrink-0 place-items-center rounded-md font-serif text-xl text-brass"
       aria-hidden
     >
       {initials(name)}
@@ -274,16 +275,15 @@ export function Avatar({ name, seed }: { name: string; seed?: string }) {
 
 export function OverallFactorCard({
   factor,
-  peers,
   horizon,
 }: {
   factor: OverallFactor;
-  peers: number[];
   horizon: HorizonKey;
 }) {
-  const placement = placeChad(factor.score, peers);
+  const placement = placeChad(factor.score);
   const chad = placement.chad;
-  const reading = readCalibration(factor.score, factor.activeGraded > 0 && factor.score != null);
+  const gradeable = factor.activeGraded > 0 && factor.score != null;
+  const reading = readCalibration(factor.score, gradeable);
   const followed = factor.aggregate.avgFollowedReturn;
   const hit = factor.hitRate == null ? "—" : `${Math.round(factor.hitRate * 100)}%`;
   return (
@@ -305,7 +305,7 @@ export function OverallFactorCard({
           <span className="mt-2 block text-sm text-muted">Average of active call grades</span>
         </p>
         <p className="mb-1">
-          <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-faint">GC score</span>
+          <span className="block font-mono text-xs uppercase tracking-[0.16em] text-faint">GC score</span>
           <span
             className="num text-4xl leading-none"
             aria-label={
@@ -318,13 +318,17 @@ export function OverallFactorCard({
           </span>
           <span className="num text-lg text-faint">/10</span>
           <span className="mt-1 block text-xs text-muted">
-            <span className="text-miss">GC 1</span>
+            <span className="text-muted">GC 1</span>
             <span className="mx-1 text-faint">→</span>
-            <span className="text-hit">GC 10</span>
+            <span className="text-muted">GC 10</span>
           </span>
         </p>
       </div>
-      <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} meta="row" className="mt-4 max-w-sm" />
+      {gradeable ? (
+        <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} meta="row" className="mt-4 max-w-sm" />
+      ) : (
+        <GcUngraded className="mt-4 max-w-sm" />
+      )}
       <SideNote placement={placement} className="mt-2" />
       <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
         {OVERALL_FACTOR_FORMULA}{" "}
@@ -336,12 +340,7 @@ export function OverallFactorCard({
         <Stat label="Active graded" value={String(factor.activeGraded)} hint="In this factor" />
         <Stat label="Superseded" value={String(factor.superseded)} hint="Visible, not scored" />
         <Stat label="Hit rate" value={hit} hint="Active calls only" />
-        <Stat
-          label="If followed"
-          value={pct(followed)}
-          tone={followed == null ? "plain" : followed >= 0 ? "hit" : "miss"}
-          hint="Active directional calls"
-        />
+        <Stat label="If followed" value={pct(followed)} hint="Active directional calls" />
       </div>
     </div>
   );
@@ -365,7 +364,7 @@ export function MiniLeaderboard({
   rows: { name: string; href: string; subtitle: string; score: number | null; hitRate: number | null; placement: ChadPlacement }[];
 }) {
   return (
-    <section className="panel overflow-hidden">
+    <section className="panel">
       <div className="flex items-baseline justify-between border-b border-line px-4 py-3">
         <h2 className="font-serif text-xl">{title}</h2>
         <Link href={href} className="text-xs uppercase tracking-wider text-brass hover:text-ink">
@@ -384,7 +383,7 @@ export function MiniLeaderboard({
             </div>
             <div className="text-right">
               <ScoreBar score={row.score} placement={row.placement} />
-              <p className="mt-1 text-[11px] text-faint">
+              <p className="mt-1 text-xs text-faint">
                 {row.hitRate == null ? "—" : `${Math.round(row.hitRate * 100)}% hit`}
               </p>
             </div>

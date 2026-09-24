@@ -2,7 +2,7 @@ import { aggregateGrades, type Aggregate, type CallGrade } from "./scoring";
 
 /**
  * Overall factor is the report-card rollup: the average 0–100 grade of active
- * calls at one horizon. The GC score is `placeChad` of this same number.
+ * calls at one horizon. The GC score is `placeChad` of this same number on the absolute 70/40 lines.
  * `src/lib/queries.ts` is the only caller that turns stored calls into this input.
  */
 export const OVERALL_FACTOR_FORMULA =

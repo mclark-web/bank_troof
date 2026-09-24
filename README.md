@@ -6,9 +6,13 @@ GradedCalls Analysts is the GradedCalls scorecard for sell-side recommendations.
 
 This repository ships a complete demo. It does not scrape ranking sites, it is not affiliated with any bank or ratings publisher, and it is not investment advice. Past accuracy does not predict future results.
 
+Brand rules: read BRAND.md before any UI change; deviations are an automatic MUST-FIX.
+
 ## Run locally
 
-Requires Node.js 20 or newer.
+Requires Node.js 20 or newer. `npm test` passes on Node 20+ without a browser.
+
+The grade-pill contrast check is optional. It runs inside `npm test` only when Node provides a global `WebSocket` (Node 22 or newer), Google Chrome, and ffmpeg are all installed. If any of those are missing, that one test skips with a message and the rest of the suite still passes. Screenshots from the check are written under `artifacts/` (gitignored).
 
 ```bash
 npm install
@@ -22,7 +26,7 @@ Other commands:
 
 | Command | What it does |
 | --- | --- |
-| `npm test` | Scoring, 90-day supersession, and CSV-parser checks |
+| `npm test` | Scoring, 90-day supersession, and CSV-parser checks. The pill-contrast check runs only when Node 22, Chrome, and ffmpeg are available |
 | `npm run db:seed` | Rebuild the demo rows in place |
 | `npm run db:reset` | Recreate the SQLite file and seed it |
 | `npm run build` | Generate the client, push the schema, seed, and build Next.js |
@@ -42,7 +46,8 @@ Other commands:
 | `/analysts` and `/analysts/[slug]` | Directory and a scorecard: overall factor, active book, superseded history |
 | `/banks` and `/banks/[slug]` | Firm rollup, sector mix, roster |
 | `/tickers` and `/tickers/[symbol]` | Sample consensus versus who was right on that name |
-| `/calls/[id]` | Recommendation, desk rating, direction for grading, target, prices, and the grade at each horizon |
+| `/calls` and `/calls/[id]` | The sample book, then one call: recommendation, desk rating, direction for grading, target, prices, and the grade at each horizon |
+| `/about` | What the demo is: sample names, historical prices, and a formula that is not advice |
 | `/methodology` | The formula, read from the same constants the scorer uses |
 | `/search` | Analyst, bank, or ticker |
 | `/watchlist` | Saved in this browser only (`localStorage`). No account |
@@ -62,7 +67,7 @@ The full write-up is the Methodology page at `/methodology`. In short:
 - T is 1% at 2 weeks, 2% at 30 days, 4% at 60 days, 5% at 90 days, and 8% at 1 year. Windows are calendar days, not trading days.
 - A near-miss earns half of the 70 direction points and does **not** count as a hit.
 - Target error is `|price at horizon − target| / price at call`. Inside a tight band it adds 30 points; past a wide band it adds none; in between it fades linearly. No target means the direction score is scaled to 100.
-- Every card shows both grades. The full grade is the **0–100** score. The **GC Scale** places that score as an integer **GC score from 1–10**: 1 is a poor track record, 10 is an excellent one. Under 70 the GC score stays in 1–4, whatever the field looks like. The top 30% of the ranked peers lands on GC 8–10, and only if the score is also at least 70. At or above 70 but outside that top 30% is GC 5–7. Leaderboards show both columns and sort by the 100-point score by default. A GC score sort breaks ties with the 100-point score. Hit rate stays as a supporting stat.
+- Every card shows both grades. The full grade is the **0–100** score. The **GC Scale** places that score as an integer **GC score from 1–10**: 1 is a poor track record, 10 is an excellent one. The cut is absolute. Under 40 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. A graded score of exactly 0 is an empty glass at 0% and reads EXIT LIQUIDITY. An open horizon stays ungraded. Peer rank does not set the badge. Leaderboards show both columns and sort by the 100-point score by default. A GC score sort breaks ties with the 100-point score. Hit rate stays as a supporting stat.
 - The **overall factor** is that 0–100 average of active graded calls at the selected horizon (`src/lib/overall-factor.ts`). The GC score is the same factor placed on the GC Scale. Superseded calls do not enter it. Leaderboards sort on this factor. The tube grades are STRONG, WEAK, PROVISIONAL, and EXIT LIQUIDITY.
 - “If followed” averages the stock return on buys and the inverse return on sells. Holds are excluded.
 - Leaderboards hide thin samples (8 graded calls for an analyst, 20 for a bank; lower inside a sector filter).
@@ -79,7 +84,7 @@ SQLite via Prisma, file at `prisma/banktruth.db`.
 - Grades are computed when pages render (`src/lib/scoring.ts`). They are not baked into the row, so a formula change does not require a reseed
 - The 90-day same-ticker rule is computed the same way (`src/lib/supersession.ts`) for every call in the database, including the demo seed and CSV imports. Nullified rows are not stored as a separate flag
 
-The demo generator (`prisma/seed.ts`) places fictional calls on real split-adjusted closes from Yahoo Finance. The price at the call and the 14-, 30-, 60-, 90-, and 365-day prices are that adjusted close. A missing quote aborts the seed. A horizon that runs past 21 Sep 2026 is stored blank and left ungraded. Each fictional analyst is “right” on the real move (the longest window that has closed, or 90 days when that print exists) with a fixed probability, which is why the board has a spread. Calls run from February 2024 through 21 Sep 2026. From July 2026 the book is denser, so upgrades, downgrades, and target changes cluster in the last quarter instead of stopping in June. Analysts, notes, ratings, and targets are sample data. Targets stay in a band around the real price at the call.
+The demo generator (`prisma/seed.ts`) places fictional calls on Yahoo Finance adjusted closes (adjusted for splits and dividends). Two recent calls use the raw close on the call date. The later prices, and every other price at the call, are that adjusted close. A missing quote aborts the seed. A horizon that runs past 21 Sep 2026 is stored blank and left ungraded. Each fictional analyst is “right” on the real move (the longest window that has closed, or 90 days when that print exists) with a fixed probability, which is why the board has a spread. Calls run from February 2024 through 21 Sep 2026. From July 2026 the book is denser, so upgrades, downgrades, and target changes cluster in the last quarter instead of stopping in June. Analysts, notes, ratings, and targets are sample data. Targets stay in a band around the real price at the call.
 
 Firm names are recognizable labels so search behaves the way a reader expects. The people and the notes are not a research record. Hit rates are the grader applied to the real later prices.
 
