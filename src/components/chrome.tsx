@@ -17,7 +17,7 @@ function Mark() {
 export function DemoBanner() {
   return (
     <div className="border-b border-warn/40 bg-warn/6 px-4 py-2 text-center text-xs text-warn sm:text-[13px]">
-      Demo vintage {DATASET.vintageLabel}. Analysts and notes are sample. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); a few recent calls use the raw close on the call date. Not a live track record, and not investment advice.
+      Demo vintage {DATASET.vintageLabel}. Analysts and notes are sample. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. Not a live track record, and not investment advice.
     </div>
   );
 }

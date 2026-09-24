@@ -39,7 +39,7 @@ export default function DisclaimerPage() {
 
       <LegalSection id="prices" title="How the prices are real, and how the rest is a demo">
         <p>
-          When a call is graded, the price at the call and the later prices are historical split-adjusted closes from Yahoo Finance. The windows are 14 calendar days (2 weeks), 30 days, 60 days, 90 days, and 1 year. If the calendar date is not a trading session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote is an error. The site does not invent a price to fill a gap. A window that has not elapsed is left ungraded.
+          Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. The windows are 14 calendar days (2 weeks), 30 days, 60 days, 90 days, and 1 year. If the calendar date is not a trading session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote is an error. The site does not invent a price to fill a gap. A window that has not elapsed is left ungraded.
         </p>
         <p>
           Analysts, biographies, notes, ratings, and price targets in this vintage are a demo sample. Firm names are labels for that sample. They are not those firms’ research, and they are not a description of any person who works there. Targets are fictional numbers kept in a band around the real price at the call so the arithmetic has something to grade. The banner on every page marks this vintage as a demo.

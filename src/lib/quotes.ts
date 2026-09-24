@@ -2,9 +2,10 @@ import history from "./adjusted-closes.json";
 
 /**
  * Price at the call and each forward window are this print.
- * Adjusted closes are split-adjusted. Nothing in the seed invents a session.
+ * Adjusted closes include splits and dividends. Nothing in the seed invents a session.
  */
-export const PRICE_SOURCE = "Yahoo Finance adjusted close, split-adjusted, rounded to the cent.";
+export const PRICE_SOURCE =
+  "Yahoo Finance adjusted close, adjusted for splits and dividends, rounded to the cent. Two recent calls use the raw close on the call date.";
 
 /** A closed market may use the prior session only this many calendar days back. */
 export const MAX_CLOSED_GAP_DAYS = 4;
@@ -42,7 +43,7 @@ export function addUtcDays(date: Date, days: number): Date {
 }
 
 /**
- * Split-adjusted close for a calendar date.
+ * Adjusted close for a calendar date, including splits and dividends.
  * On a day with no session, returns the prior session when it is within
  * MAX_CLOSED_GAP_DAYS. A wider hole throws.
  */
@@ -106,6 +107,11 @@ export function filedEntryPrint(analystId: string, symbol: string, callDate: Dat
   const iso = isoDate(callDate);
   const row = FILED_ENTRY_PRINTS.find((item) => item.analystId === analystId && item.symbol === symbol && item.date === iso);
   return row ? row.priceAtCall : null;
+}
+
+/** Label for the price at the call. Only a filed raw entry reads “Raw close”. */
+export function entryCloseLabel(analystId: string, symbol: string, callDate: Date): "Raw close" | "Adjusted close" {
+  return filedEntryPrint(analystId, symbol, callDate) == null ? "Adjusted close" : "Raw close";
 }
 
 /** Horizon prices from the series. Entry price uses a filed print when one is set. */

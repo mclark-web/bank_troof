@@ -6,6 +6,7 @@ import { RecommendationPill, SupersessionNotes } from "@/components/ui";
 import { callHeadline, formatDate, usd } from "@/lib/format";
 import { callPageTitle, deskRatingNote, directionForGradingLabel, recommendationLabel } from "@/lib/labels";
 import { getCall } from "@/lib/queries";
+import { entryCloseLabel } from "@/lib/quotes";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { id: string };
@@ -60,7 +61,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
           hint={deskRatingNote(call)}
         />
         <Fact label="Price target" value={usd(call.priceTargetTo)} hint={call.priceTargetFrom != null ? `Prior ${usd(call.priceTargetFrom)}` : "No prior target"} />
-        <Fact label="Price at call" value={usd(call.priceAtCall)} hint={SPLIT_ADJUSTED[call.ticker.symbol] ? "Split-adjusted close" : "Adjusted close"} />
+        <Fact label="Price at call" value={usd(call.priceAtCall)} hint={entryCloseLabel(call.analystId, call.ticker.symbol, call.callDate)} />
         <Fact
           label="Direction for grading"
           value={<span className="text-base text-muted">{directionForGradingLabel(call.ratingTo)}</span>}

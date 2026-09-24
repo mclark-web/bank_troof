@@ -6,7 +6,8 @@ import { listAnalysts, loadCalls } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Analysts",
-  description: "Street calls graded against split-adjusted prices. Sample names, real closes, on the GradedCalls Analysts board.",
+  description:
+    "Street calls graded against prices adjusted for splits and dividends. Two recent calls use the raw close on the call date. Sample names, real closes, on the GradedCalls Analysts board.",
 };
 
 export default async function AnalystsPage({

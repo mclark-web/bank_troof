@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { adjustedClose, bindHistoricalPrices, filedEntryPrint, forwardClose, isoDate, addUtcDays, tradingSession } from "./quotes";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { adjustedClose, bindHistoricalPrices, entryCloseLabel, filedEntryPrint, forwardClose, isoDate, addUtcDays, tradingSession } from "./quotes";
+
+(globalThis as { React?: typeof React }).React = React;
 
 test("NFLX 21 Apr 2026 is the post-split adjusted close in the 90s", () => {
   const price = adjustedClose("NFLX", new Date("2026-04-21T00:00:00.000Z"));
@@ -13,6 +17,35 @@ test("NFLX 30 Jul 2024 is the same split-adjusted scale", () => {
   assert.equal(july, 62.26);
   const april = adjustedClose("NFLX", new Date("2026-04-21T00:00:00.000Z"));
   assert.ok(april / july < 3);
+});
+
+test("raw-entry calls render Raw close", async () => {
+  const session = new Date("2026-09-04T00:00:00.000Z");
+  assert.equal(entryCloseLabel("anika-desai", "UNH", session), "Raw close");
+  assert.equal(entryCloseLabel("alice-chen", "NVDA", session), "Raw close");
+  assert.equal(entryCloseLabel("marcus-ellison", "UNH", session), "Adjusted close");
+  assert.equal(entryCloseLabel("alice-chen", "AAPL", session), "Adjusted close");
+
+  const { default: CallPage } = await import("../app/calls/[id]/page");
+  const hint = (html: string) => {
+    const start = html.indexOf("Price at call");
+    const end = html.indexOf("Direction for grading", start);
+    return html.slice(start, end);
+  };
+
+  const unh = hint(renderToStaticMarkup(await CallPage({ params: Promise.resolve({ id: "call_1168" }) })));
+  assert.match(unh, /\$397\.14/);
+  assert.match(unh, /Raw close/);
+  assert.doesNotMatch(unh, /Split-adjusted close|Adjusted close/);
+
+  const nvda = hint(renderToStaticMarkup(await CallPage({ params: Promise.resolve({ id: "call_0965" }) })));
+  assert.match(nvda, /\$230\.36/);
+  assert.match(nvda, /Raw close/);
+  assert.doesNotMatch(nvda, /Split-adjusted close|Adjusted close/);
+
+  const other = hint(renderToStaticMarkup(await CallPage({ params: Promise.resolve({ id: "call_1209" }) })));
+  assert.match(other, /Adjusted close/);
+  assert.doesNotMatch(other, /Raw close/);
 });
 
 test("Labor Day 2026 resolves to the Friday session", () => {
