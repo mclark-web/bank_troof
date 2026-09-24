@@ -68,9 +68,9 @@ export default async function TickersPage() {
                         </td>
                         <td className="hidden text-muted md:table-cell">{ticker.name}</td>
                         <td className="num">{voices}</td>
-                        <td className="num text-hit">{buckets.buy}</td>
+                        <td className="num text-ink">{buckets.buy}</td>
                         <td className="num">{buckets.hold}</td>
-                        <td className="num text-miss">{buckets.sell}</td>
+                        <td className="num text-ink">{buckets.sell}</td>
                         <td>
                           <ScoreBar score={aggregate.avgScore} placement={placement} />
                         </td>

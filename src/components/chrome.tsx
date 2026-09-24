@@ -43,7 +43,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
       <div className="mx-auto flex max-w-page items-center gap-4 px-4 py-3 md:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="GradedCalls Analysts">
+        <Link href="/" className="brand-link flex shrink-0 items-center gap-2.5" aria-label="GradedCalls Analysts">
           <Mark />
           <span className="text-[17px] font-semibold tracking-tight">
             Graded<span className="text-brass">Calls</span>
@@ -84,7 +84,7 @@ export function SiteFooter() {
             Past accuracy does not predict future results. Not a broker. Not affiliated with any bank or ratings publisher.
           </p>
         </div>
-        <div className="flex flex-col gap-2 text-sm text-muted md:items-end">
+        <div className="flex flex-col gap-x-2 gap-y-3 text-sm text-muted md:items-end">
           <Link href="/methodology" className="hover:text-ink">Methodology</Link>
           <Link href="/leaderboards" className="hover:text-ink">Leaderboards</Link>
           <Link href="/leaderboards?view=offenders" className="hover:text-ink">Worst offenders</Link>

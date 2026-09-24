@@ -155,7 +155,7 @@ export function AnalystsBoard({
         Sample names on this board. Firms stay marked <strong className="font-semibold">sample</strong> until a live research feed replaces them. Prices are historical adjusted closes, not a simulated path.
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Horizon and call type">
+      <div className="mb-4 flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Horizon and call type">
         <FilterLink href={hrefWith(path, current, { horizon: null })} on={horizon === "all"}>
           All horizons
         </FilterLink>
@@ -272,9 +272,9 @@ export function AnalystsBoard({
             <h2 className="text-sm font-semibold">Board health</h2>
             <p className="mt-2 font-mono text-xs uppercase tracking-[0.08em] text-faint">30D outcomes</p>
             <div className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-white/[0.06]" aria-hidden>
-              <span className="h-full bg-hit" style={{ width: `${health.strong}%` }} />
+              <span className="h-full bg-orange" style={{ width: `${health.strong}%` }} />
               <span className="h-full bg-provisional" style={{ width: `${health.provisional}%` }} />
-              <span className="h-full bg-miss" style={{ width: `${health.weak}%` }} />
+              <span className="h-full bg-muted" style={{ width: `${health.weak}%` }} />
             </div>
             <div className="mt-1.5 flex justify-between font-mono text-xs text-faint">
               <span>STRONG {health.strong}%</span>

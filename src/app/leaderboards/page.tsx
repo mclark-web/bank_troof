@@ -60,7 +60,7 @@ export default async function LeaderboardsPage({
   return (
     <div>
       <PageIntro kicker="Leaderboards" title={title} lede={lede} />
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-4 flex flex-wrap gap-x-2 gap-y-3">
         {(
           [
             ["analysts", "Top analysts"],
@@ -80,7 +80,7 @@ export default async function LeaderboardsPage({
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <HorizonChips path="/leaderboards" current={current} horizon={horizon} />
-          <div className="flex gap-2" role="group" aria-label="Sort">
+          <div className="flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Sort">
             <a href={hrefWith("/leaderboards", current, { rank: null })} className={rank === "points" ? "chip-on" : "chip"}>
               Overall factor
             </a>
@@ -91,7 +91,7 @@ export default async function LeaderboardsPage({
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {view === "offenders" ? (
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-x-2 gap-y-3">
               <a href={hrefWith("/leaderboards", current, { who: null })} className={who === "banks" ? "chip-on" : "chip"}>
                 Banks
               </a>

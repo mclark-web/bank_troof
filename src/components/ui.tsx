@@ -3,7 +3,7 @@ import { OVERALL_FACTOR_FORMULA, type OverallFactor } from "@/lib/overall-factor
 import { HORIZONS, HORIZON_KEYS, formatPoints, placeChad, type ChadPlacement, type HorizonKey } from "@/lib/scoring";
 import { readCalibration } from "@/lib/gc-grade";
 import { avatarColor, cx, initials, pct } from "@/lib/format";
-import { actionLabel, recommendationLabel, recommendationTone, type RecommendationCall } from "@/lib/labels";
+import { actionLabel, recommendationLabel, type RecommendationCall } from "@/lib/labels";
 import type { SupersessionMark } from "@/lib/supersession";
 import { GcTube } from "@/components/gc-tube";
 
@@ -58,7 +58,7 @@ export function HorizonChips({
   horizon: HorizonKey;
 }) {
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Horizon">
+    <div className="flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Horizon">
       {HORIZON_KEYS.map((key) => (
         <Link
           key={key}
@@ -139,10 +139,10 @@ export function Stat({
 export function ScaleLegend({ className = "" }: { className?: string }) {
   return (
     <p className={cx("text-xs text-muted", className)}>
-      <span className="num text-miss">GC 1</span>
+      <span className="num text-muted">GC 1</span>
       <span className="text-faint">, poor track record</span>
       <span className="mx-1.5 text-faint">·</span>
-      <span className="num text-hit">GC 10</span>
+      <span className="num text-muted">GC 10</span>
       <span className="text-faint">, excellent track record</span>
     </p>
   );
@@ -150,8 +150,7 @@ export function ScaleLegend({ className = "" }: { className?: string }) {
 
 export function SideNote({ placement, className = "" }: { placement: ChadPlacement; className?: string }) {
   if (!placement.label) return null;
-  const tone =
-    placement.side === "chud" ? "text-miss" : placement.side === "chad" ? "text-hit" : placement.side === "mid" ? "text-brass" : "text-faint";
+  const tone = placement.side ? "text-muted" : "text-faint";
   return <p className={cx("text-sm", tone, className)}>{placement.label}</p>;
 }
 
@@ -203,7 +202,7 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
     <div className="mt-1 max-w-xs space-y-1">
       <div className="flex flex-wrap gap-1">
         {mark.status === "nullified" ? (
-          <span className="inline-flex rounded-full border border-miss/50 bg-miss/10 px-1.5 py-0.5 text-xs uppercase tracking-wider text-miss">
+          <span className="inline-flex rounded-full border border-white/15 bg-white/5 px-1.5 py-0.5 text-xs uppercase tracking-wider text-muted">
             Nullified
           </span>
         ) : null}
@@ -256,9 +255,7 @@ export function GradePill({ result }: { result: "hit" | "near" | "miss" | null }
 }
 
 export function RecommendationPill({ call }: { call: RecommendationCall }) {
-  const tone = recommendationTone(call);
-  const cls = tone === "up" ? "text-hit" : tone === "down" ? "text-miss" : "text-muted";
-  return <span className={cx("num text-sm font-medium uppercase tracking-wide", cls)}>{recommendationLabel(call)}</span>;
+  return <span className="num text-sm font-medium uppercase tracking-wide text-ink">{recommendationLabel(call)}</span>;
 }
 
 export function Avatar({ name, seed }: { name: string; seed?: string }) {
@@ -317,9 +314,9 @@ export function OverallFactorCard({
           </span>
           <span className="num text-lg text-faint">/10</span>
           <span className="mt-1 block text-xs text-muted">
-            <span className="text-miss">GC 1</span>
+            <span className="text-muted">GC 1</span>
             <span className="mx-1 text-faint">→</span>
-            <span className="text-hit">GC 10</span>
+            <span className="text-muted">GC 10</span>
           </span>
         </p>
       </div>
@@ -335,12 +332,7 @@ export function OverallFactorCard({
         <Stat label="Active graded" value={String(factor.activeGraded)} hint="In this factor" />
         <Stat label="Superseded" value={String(factor.superseded)} hint="Visible, not scored" />
         <Stat label="Hit rate" value={hit} hint="Active calls only" />
-        <Stat
-          label="If followed"
-          value={pct(followed)}
-          tone={followed == null ? "plain" : followed >= 0 ? "hit" : "miss"}
-          hint="Active directional calls"
-        />
+        <Stat label="If followed" value={pct(followed)} hint="Active directional calls" />
       </div>
     </div>
   );

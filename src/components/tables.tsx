@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatDate, pct, returnTone, usd } from "@/lib/format";
+import { formatDate, pct, usd } from "@/lib/format";
 import { deskRatingNote, directionForGradingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
 import { outcomeField, type HorizonKey } from "@/lib/scoring";
@@ -73,7 +73,7 @@ export function BoardTable({
               <td className={emphasize === "miss" ? "num text-miss" : "num text-muted"}>
                 {row.aggregate.missRate == null ? "—" : `${Math.round(row.aggregate.missRate * 100)}%`}
               </td>
-              <td className={`num hidden md:table-cell ${returnTone(row.aggregate.avgFollowedReturn)}`}>
+              <td className="num hidden text-ink md:table-cell">
                 {pct(row.aggregate.avgFollowedReturn)}
               </td>
               <td>
@@ -130,8 +130,8 @@ export function CallTable({
             const after = call[outcomeField(horizon)];
             return (
               <tr key={call.id}>
-                <td className="whitespace-nowrap">
-                  <Link href={`/calls/${call.id}`} className="hover:text-brass">
+                <td>
+                  <Link href={`/calls/${call.id}`} className="whitespace-nowrap hover:text-brass">
                     {formatDate(call.callDate)}
                   </Link>
                   {call.controversial ? (
@@ -163,7 +163,7 @@ export function CallTable({
                 <td className="num hidden lg:table-cell">{usd(call.priceTargetTo)}</td>
                 <td className="num hidden text-muted md:table-cell">{usd(call.priceAtCall)}</td>
                 <td className="num">{usd(after)}</td>
-                <td className={`num ${returnTone(grade.forwardReturn)}`}>{pct(grade.forwardReturn)}</td>
+                <td className="num text-ink">{pct(grade.forwardReturn)}</td>
                 <td>
                   <GradePill result={grade.directionResult} />
                   {call.supersession.status === "nullified" ? (
@@ -205,7 +205,7 @@ export function CallBook({
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Which calls to show">
+      <div className="mb-4 flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Which calls to show">
         <Link href={hrefWith(path, current, { book: "active" })} className={book === "active" ? "chip-on" : "chip"} aria-current={book === "active" ? "true" : undefined}>
           Active <span className="num ml-1">{active.length}</span>
         </Link>
@@ -291,9 +291,9 @@ function BookSection({
 export function ConsensusBar({ buckets, total }: { buckets: { buy: number; hold: number; sell: number }; total: number }) {
   if (total === 0) return <p className="text-sm text-muted">No current ratings in the sample.</p>;
   const parts = [
-    { key: "buy", label: "Buy", count: buckets.buy, className: "bg-hit" },
+    { key: "buy", label: "Buy", count: buckets.buy, className: "bg-ink" },
     { key: "hold", label: "Hold", count: buckets.hold, className: "bg-[#d9d0c1]" },
-    { key: "sell", label: "Sell", count: buckets.sell, className: "bg-miss" },
+    { key: "sell", label: "Sell", count: buckets.sell, className: "bg-muted" },
   ];
   return (
     <div>

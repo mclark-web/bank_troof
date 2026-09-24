@@ -83,7 +83,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
         <div
           className={
             call.supersession.status === "nullified"
-              ? "mt-4 rounded-md border border-miss/40 bg-miss/10 px-4 py-3 text-sm text-muted"
+              ? "mt-4 rounded-md border border-white/15 bg-white/5 px-4 py-3 text-sm text-muted"
               : "mt-4 rounded-md border border-brass/40 bg-brass/10 px-4 py-3 text-sm text-muted"
           }
         >

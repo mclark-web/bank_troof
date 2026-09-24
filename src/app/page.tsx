@@ -104,16 +104,8 @@ export default async function HomePage() {
       </section>
 
       <section className="mt-10 grid gap-4 md:grid-cols-2">
-        <Featured
-          eyebrow="Best followed, 90D"
-          call={home.featuredHit}
-          tone="hit"
-        />
-        <Featured
-          eyebrow="Worst followed, 90D"
-          call={home.featuredMiss}
-          tone="miss"
-        />
+        <Featured eyebrow="Best followed, 90D" call={home.featuredHit} />
+        <Featured eyebrow="Worst followed, 90D" call={home.featuredMiss} />
       </section>
 
       <section className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
@@ -209,11 +201,9 @@ function Count({ label, value }: { label: string; value: number }) {
 function Featured({
   eyebrow,
   call,
-  tone,
 }: {
   eyebrow: string;
   call: Awaited<ReturnType<typeof getHome>>["featuredHit"];
-  tone: "hit" | "miss";
 }) {
   if (!call) return null;
   const followed = call.grades["90"].followedReturn;
@@ -233,7 +223,7 @@ function Featured({
       <p className="mt-2 text-sm text-muted">
         {call.bank.shortName} · {formatDate(call.callDate)} · target {call.priceTargetTo ? `$${Math.round(call.priceTargetTo)}` : "—"}
       </p>
-      <p className={`num mt-4 text-4xl ${tone === "hit" ? "text-hit" : "text-miss"}`}>{pct(followed)}</p>
+      <p className="num mt-4 text-4xl text-ink">{pct(followed)}</p>
       <p className="mt-1 text-xs text-faint">Return if the directional call was followed for 90 days. Holds are excluded from this cut.</p>
     </article>
   );

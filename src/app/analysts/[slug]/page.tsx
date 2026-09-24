@@ -79,7 +79,7 @@ export default async function AnalystPage({
       </div>
       <section className="mb-8">
         <h2 className="mb-3 font-serif text-2xl">Coverage</h2>
-        <ul className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-x-2 gap-y-3">
           {analyst.coverage.map((item) => (
             <li key={item.tickerId}>
               <Link href={`/tickers/${item.ticker.symbol}`} className="chip">
@@ -93,7 +93,7 @@ export default async function AnalystPage({
       <section>
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <h2 className="font-serif text-2xl">Calls</h2>
-          <div className="flex gap-2" role="group" aria-label="Call theme">
+          <div className="flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Call theme">
             <Link
               href={hrefWith(`/analysts/${analyst.slug}`, current, { focus: null })}
               className={focus === "controversial" ? "chip" : "chip-on"}
