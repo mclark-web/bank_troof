@@ -108,7 +108,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
 
       <h2 className="mb-3 mt-10 font-serif text-3xl">The grade</h2>
       <p className="mb-4 max-w-2xl text-sm leading-6 text-muted">
-        The large number is the GC score for that window, on the GC Scale from 1 to 10. GC 1 is a poor track record. GC 10 is an excellent one. The same card shows the full score out of 100. Under 40 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. A missing print is an empty glass at 0% and reads EXIT LIQUIDITY. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
+        The large number is the GC score for that window, on the GC Scale from 1 to 10. GC 1 is a poor track record. GC 10 is an excellent one. The same card shows the full score out of 100. Under 40 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. A missing print, or a graded score of exactly 0, is an empty glass at 0% and reads EXIT LIQUIDITY. The badge is a dash, not GC 1. A hit is a full direction match. Near-misses earn 35 of 70 direction points and do not count in the hit rate.
       </p>
       <GradeLedger call={call} />
 

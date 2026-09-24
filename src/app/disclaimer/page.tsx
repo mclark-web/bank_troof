@@ -57,7 +57,7 @@ export default function DisclaimerPage() {
 
       <LegalSection id="opinions" title="GC scores are opinions">
         <p>
-          The GC score is the GC Scale in the published methodology, not a regulated rating and not a statement about a person. Under 40 out of 100 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. A missing print is an empty glass at 0% and reads EXIT LIQUIDITY. The full grade out of 100 is always the score. The 1–10 number is that score on the GC Scale. Both are opinions produced by a formula applied to a sample. They are not for sale.
+          The GC score is the GC Scale in the published methodology, not a regulated rating and not a statement about a person. Under 40 out of 100 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. A missing print, or a graded score of exactly 0, is an empty glass at 0% and reads EXIT LIQUIDITY. The badge is a dash, not GC 1. The full grade out of 100 is always the score. The 1–10 number is that score on the GC Scale. Both are opinions produced by a formula applied to a sample. They are not for sale.
         </p>
       </LegalSection>
 

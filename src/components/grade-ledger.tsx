@@ -3,7 +3,7 @@ import { readCalibration } from "@/lib/gc-grade";
 import { directionForGradingLabel } from "@/lib/labels";
 import { formatPoints, HORIZONS, HORIZON_KEYS, outcomeField, placeChad, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
-import { GcTube } from "./gc-tube";
+import { GcGradePill, GcTube } from "./gc-tube";
 import { GradePill, SideNote } from "./ui";
 
 function expectation(grade: CallGrade, rating: string, horizon: HorizonKey) {
@@ -66,6 +66,9 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
                   variant="sidebar"
                   meta="none"
                 />
+                <div className="mt-2">
+                  <GcGradePill grade={reading.id} />
+                </div>
                 <SideNote placement={placement} className="mt-2" />
               </div>
             ) : null}

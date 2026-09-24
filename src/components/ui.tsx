@@ -149,8 +149,9 @@ export function ScaleLegend({ className = "" }: { className?: string }) {
 }
 
 export function SideNote({ placement, className = "" }: { placement: ChadPlacement; className?: string }) {
-  if (!placement.side || !placement.label) return null;
-  const tone = placement.side === "chud" ? "text-miss" : placement.side === "chad" ? "text-hit" : "text-brass";
+  if (!placement.label) return null;
+  const tone =
+    placement.side === "chud" ? "text-miss" : placement.side === "chad" ? "text-hit" : placement.side === "mid" ? "text-brass" : "text-faint";
   return <p className={cx("text-sm", tone, className)}>{placement.label}</p>;
 }
 
