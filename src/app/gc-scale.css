@@ -39,7 +39,7 @@
 .gc-scale.is-mini .gc-meta { gap: 2px; }
 .gc-scale.is-mini .gc-label { font-size: 12px; letter-spacing: 0.08em; }
 .gc-scale.is-mini .gc-pct { font-size: 16px; }
-.gc-scale.is-mini .gc-grade-tag { font-size: 12px; padding: 2px 7px; }
+.gc-scale.is-mini .gc-grade-tag { font-size: 12px; padding: 3px 9px; }
 .gc-scale.is-inline {
   flex-direction: row;
   align-items: center;
@@ -596,14 +596,10 @@
   padding: 3px 9px;
   border-radius: 999px;
 }
-.gc-grade-tag.strong { color: #1a2a1e; background: #7dcea0; }
-.gc-grade-tag.weak { color: #2a1814; background: #e08a7a; }
-.gc-grade-tag.provisional { color: #121820; background: #8aa0c8; }
-.gc-grade-tag.exit {
-  color: #2a220e;
-  background: #c9a35a;
-  /* same typeface / weight / letter-spacing / uppercase as STRONG·WEAK·PROVISIONAL */
-}
+.gc-grade-tag.strong { color: #eb6505; background: rgba(235,101,5,.12); border: 1px solid rgba(235,101,5,.35); }
+.gc-grade-tag.weak { color: #c9c9cf; background: rgba(154,154,163,.12); border: 1px solid rgba(154,154,163,.35); }
+.gc-grade-tag.provisional { color: #c9c9cf; background: rgba(154,154,163,.12); border: 1px dashed rgba(154,154,163,.35); }
+.gc-grade-tag.exit { color: #9a9aa3; background: transparent; border: 1px solid rgba(154,154,163,.35); }
 
 /* Sidebar: tube + meta stacked */
 .gc-scale.is-sidebar {

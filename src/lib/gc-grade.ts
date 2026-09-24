@@ -2,7 +2,7 @@
  * Visual grade for the GC tube. This does not grade a call.
  * `gradeCall` in scoring.ts remains the price grade. The percent on a tube
  * is that 0–100 score (or the mean of those scores). Exit liquidity is an
- * open window, not a scored zero.
+ * empty glass: an open window, or a graded score of exactly 0.
  */
 
 export type GcGradeId = "strong" | "weak" | "provisional" | "exit";
@@ -27,7 +27,7 @@ export type GcReading = {
   id: GcGradeId;
   /** Integer printed beside the tube. */
   percent: number;
-  /** Liquid width. Zero only for exit liquidity, so a graded zero is not an empty glass. */
+  /** Liquid width. Zero for exit liquidity, including a graded score of exactly 0. */
   tube: number;
 };
 
@@ -36,6 +36,7 @@ const EXIT: GcReading = { id: "exit", percent: 0, tube: 0 };
 export function readCalibration(score: number | null | undefined, gradeable: boolean): GcReading {
   if (!gradeable || score == null || Number.isNaN(score)) return EXIT;
   const clamped = Math.min(100, Math.max(0, score));
+  if (clamped === 0) return EXIT;
   const percent = Math.round(clamped);
   const id: GcGradeId = clamped >= GC_STRONG_LINE ? "strong" : clamped >= GC_PROVISIONAL_LINE ? "provisional" : "weak";
   return { id, percent, tube: percent === 0 ? 2 : percent };

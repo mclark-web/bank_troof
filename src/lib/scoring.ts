@@ -55,20 +55,29 @@ function clampScore(raw: number | null | undefined): number | null {
   return Math.min(100, Math.max(0, raw));
 }
 
-function bandFor(score: number): (typeof GC_BANDS)[number] {
+function bandFor(score: number): (typeof GC_BANDS)[number] | null {
+  if (score === 0) return null;
   const band = GC_BANDS.find((row) => score >= row.min && score < row.max);
   return band ?? GC_BANDS[GC_BANDS.length - 1];
 }
 
 /**
  * 1–10 GC Scale placement for one 0–100 score.
- * Under 40 is GC 1–4 (WEAK). From 40 up to 70 is GC 5–7 (PROVISIONAL).
+ * Exactly 0 is a dash (empty glass, EXIT LIQUIDITY), not GC 1.
+ * Above 0 and under 40 is GC 1–4 (WEAK). From 40 up to 70 is GC 5–7 (PROVISIONAL).
  * At or above 70 is GC 8–10 (STRONG). Peer rank is not an input.
  */
 export function placeChad(score: number | null | undefined): ChadPlacement {
   const clamped = clampScore(score);
-  if (clamped == null) return { chad: null, side: null, label: null };
+  if (clamped == null || clamped === 0) {
+    return {
+      chad: null,
+      side: null,
+      label: clamped === 0 ? "A graded score of 0 is EXIT LIQUIDITY, an empty glass, and a dash on the GC Scale." : null,
+    };
+  }
   const band = bandFor(clamped);
+  if (!band) return { chad: null, side: null, label: null };
   if (band.grade === "STRONG") {
     return { chad: band.gc, side: "chad", label: "GC 8–10. At or above 70 is STRONG on the GC Scale." };
   }

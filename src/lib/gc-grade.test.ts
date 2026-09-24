@@ -25,11 +25,12 @@ describe("readCalibration", () => {
     assert.deepEqual(readCalibration(undefined, true), { id: "exit", percent: 0, tube: 0 });
   });
 
-  it("keeps a graded zero off the exit label", () => {
-    const reading = readCalibration(0, true);
-    assert.equal(reading.id, "weak");
-    assert.equal(reading.percent, 0);
-    assert.ok(reading.tube > 0);
+  it("draws a graded zero as empty glass and exit liquidity", () => {
+    assert.deepEqual(readCalibration(0, true), { id: "exit", percent: 0, tube: 0 });
+    const hair = readCalibration(0.4, true);
+    assert.equal(hair.id, "weak");
+    assert.equal(hair.percent, 0);
+    assert.ok(hair.tube > 0);
   });
 
   it("bands the real 0–100 score without changing it", () => {
@@ -47,7 +48,8 @@ describe("readCalibration", () => {
     assert.equal(hit.gradeable, true);
     assert.equal(miss.gradeable, true);
     assert.equal(readCalibration(hit.score, hit.gradeable).id, "strong");
-    assert.equal(readCalibration(miss.score, miss.gradeable).id, "weak");
+    assert.equal(miss.score, 0);
+    assert.equal(readCalibration(miss.score, miss.gradeable).id, "exit");
     assert.equal(readCalibration(hit.score, false).id, "exit");
   });
 });

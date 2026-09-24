@@ -324,7 +324,7 @@ export function AnalystsBoard({
             <h2 className="text-sm font-semibold">EXIT LIQUIDITY</h2>
             <GcTube percent={0} tube={0} grade="exit" meta="row" className="my-3" />
             <p className="text-xs leading-5 text-muted">
-              0% fill means no calibrated horizon yet — labeled <strong className="font-medium text-ink">EXIT LIQUIDITY</strong>, not a scored zero.{" "}
+              0% fill is an empty glass labeled <strong className="font-medium text-ink">EXIT LIQUIDITY</strong>. That is a missing print, or a graded score of exactly 0. The badge is a dash, not GC 1.{" "}
               {openOnBoard === 0
                 ? `Every active call in this cut has a print for ${windowLabel}.`
                 : `${openOnBoard} active ${openOnBoard === 1 ? "call has" : "calls have"} no print for ${windowLabel}.`}

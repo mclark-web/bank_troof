@@ -46,21 +46,33 @@ export function addUtcDays(date: Date, days: number): Date {
  * On a day with no session, returns the prior session when it is within
  * MAX_CLOSED_GAP_DAYS. A wider hole throws.
  */
-export function adjustedClose(symbol: string, date: Date): number {
+/**
+ * Calendar date of the print `adjustedClose` would use.
+ * A session returns itself. A closed day returns the prior session inside the gap.
+ */
+export function tradingSession(symbol: string, date: Date): Date {
   const series = seriesFor(symbol);
   const iso = isoDate(date);
   if (iso > QUOTE_AS_OF) {
     throw new Error(`No adjusted close for ${symbol} on ${iso}. History ends ${QUOTE_AS_OF}. Refusing to invent a price.`);
   }
-  const exact = series[iso];
-  if (exact != null) return exact;
+  if (series[iso] != null) return date;
   for (let gap = 1; gap <= MAX_CLOSED_GAP_DAYS; gap += 1) {
-    const prior = series[isoDate(addUtcDays(date, -gap))];
-    if (prior != null) return prior;
+    const prior = addUtcDays(date, -gap);
+    if (series[isoDate(prior)] != null) return prior;
   }
   throw new Error(
     `No adjusted close for ${symbol} on ${iso} within ${MAX_CLOSED_GAP_DAYS} calendar days. Refusing to invent a price.`,
   );
+}
+
+export function adjustedClose(symbol: string, date: Date): number {
+  const session = tradingSession(symbol, date);
+  const price = seriesFor(symbol)[isoDate(session)];
+  if (price == null) {
+    throw new Error(`No adjusted close for ${symbol} on ${isoDate(date)}. Refusing to invent a price.`);
+  }
+  return price;
 }
 
 /** Adjusted close `days` calendar days after the call. Null only when that date is past the history. */

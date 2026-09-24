@@ -3,7 +3,7 @@ import path from "path";
 import { RATING_NOTCH } from "../src/lib/labels";
 import { aggregateGrades, gradeCall, HORIZONS, type HorizonKey } from "../src/lib/scoring";
 import { inspectSupersession } from "../src/lib/supersession";
-import { adjustedClose, clampTargetToSpot, isoDate, pricesForCall } from "../src/lib/quotes";
+import { adjustedClose, clampTargetToSpot, isoDate, pricesForCall, tradingSession } from "../src/lib/quotes";
 import { ANALYSTS, BANKS, TICKERS, type TickerSeed } from "./universe";
 
 process.env.DATABASE_URL = `file:${path.join(process.cwd(), "prisma", "banktruth.db")}`;
@@ -108,6 +108,20 @@ function nextWeekday(date: Date) {
   let cursor = new Date(date.getTime());
   while (!isWeekday(cursor)) cursor = addDays(cursor, 1);
   return cursor;
+}
+
+/**
+ * The schedule cursor can land on a closed day. The rating is drawn from that
+ * cursor's prices so later calls stay on the same dates. The stored row uses
+ * the real session and that session's closes.
+ */
+function filedQuote(symbol: string, cursor: Date) {
+  const filed = tradingSession(symbol, cursor);
+  return {
+    filed,
+    planned: pricesForCall(symbol, cursor),
+    recorded: pricesForCall(symbol, filed),
+  };
 }
 
 function shiftRating(rating: string, delta: number) {
@@ -228,8 +242,9 @@ async function main() {
     let turn = 0;
     while (cursor <= scheduleEnd) {
       const ticker = names[turn % names.length];
-      const spot = adjustedClose(ticker.symbol, cursor);
-      const prices = pricesForCall(ticker.symbol, cursor);
+      const quote = filedQuote(ticker.symbol, cursor);
+      const spot = quote.planned.priceAtCall;
+      const prices = quote.planned;
       const future = prices.price90d;
       if (prices.price14d == null || prices.price30d == null || prices.price60d == null || future == null) {
         throw new Error(
@@ -279,18 +294,18 @@ async function main() {
         analystId: analyst.slug,
         bankId: analyst.bankSlug,
         tickerId: ticker.symbol,
-        callDate: cursor,
+        callDate: quote.filed,
         action,
         ratingFrom: previous?.rating ?? null,
         ratingTo,
         priceTargetFrom: previous?.target ?? null,
         priceTargetTo: target,
-        priceAtCall: spot,
-        price14d: prices.price14d,
-        price30d: prices.price30d,
-        price60d: prices.price60d,
-        price90d: future,
-        price1y: prices.price1y,
+        priceAtCall: quote.recorded.priceAtCall,
+        price14d: quote.recorded.price14d,
+        price30d: quote.recorded.price30d,
+        price60d: quote.recorded.price60d,
+        price90d: quote.recorded.price90d,
+        price1y: quote.recorded.price1y,
         note: pick(callRand, NOTES[action] ?? NOTES.reiterate),
         controversial: reasons.length > 0,
         controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
@@ -314,8 +329,9 @@ async function main() {
     const bank = bankBySlug.get(analyst.bankSlug);
     if (!bank) return;
     const accuracy = clamp(0.2 + bank.bias * 0.68 + analyst.personal, 0.12, 0.9);
-    const spot = adjustedClose(ticker.symbol, cursor);
-    const prices = pricesForCall(ticker.symbol, cursor);
+    const quote = filedQuote(ticker.symbol, cursor);
+    const spot = quote.planned.priceAtCall;
+    const prices = quote.planned;
     const moved = realizedMove(prices, spot);
     const matched = moved != null && recentRand() < accuracy;
     const stated: "up" | "flat" | "down" =
@@ -367,18 +383,18 @@ async function main() {
       analystId: analyst.slug,
       bankId: analyst.bankSlug,
       tickerId: ticker.symbol,
-      callDate: cursor,
+      callDate: quote.filed,
       action,
       ratingFrom: previous?.rating ?? null,
       ratingTo,
       priceTargetFrom: previous?.target ?? null,
       priceTargetTo: target,
-      priceAtCall: spot,
-      price14d: prices.price14d,
-      price30d: prices.price30d,
-      price60d: prices.price60d,
-      price90d: prices.price90d,
-      price1y: prices.price1y,
+      priceAtCall: quote.recorded.priceAtCall,
+      price14d: quote.recorded.price14d,
+      price30d: quote.recorded.price30d,
+      price60d: quote.recorded.price60d,
+      price90d: quote.recorded.price90d,
+      price1y: quote.recorded.price1y,
       note: `Demo. ${pick(recentRand, NOTES[action] ?? NOTES.reiterate)}`,
       controversial: reasons.length > 0,
       controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
@@ -470,6 +486,12 @@ async function main() {
     throw new Error(`call_0024 price_at_call ${canary.priceAtCall} does not match the adjusted close ${canarySpot}.`);
   }
   for (const call of calls) {
+    const session = tradingSession(call.tickerId, call.callDate);
+    if (isoDate(session) !== isoDate(call.callDate)) {
+      throw new Error(
+        `${call.id} ${call.tickerId} is dated ${isoDate(call.callDate)}, which is not a session. The print is ${isoDate(session)}.`,
+      );
+    }
     const spot = adjustedClose(call.tickerId, call.callDate);
     if (call.priceAtCall !== spot) {
       throw new Error(`${call.id} ${call.tickerId} price_at_call ${call.priceAtCall} does not match adjusted close ${spot}.`);

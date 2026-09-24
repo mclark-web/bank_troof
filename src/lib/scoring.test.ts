@@ -133,7 +133,8 @@ describe("placeChad", () => {
   });
 
   it("maps each ten points to one GC step, with 90–100 as GC 10", () => {
-    assert.equal(placeChad(0).chad, 1);
+    assert.equal(placeChad(0).chad, null);
+    assert.equal(placeChad(0.1).chad, 1);
     assert.equal(placeChad(9.9).chad, 1);
     assert.equal(placeChad(10).chad, 2);
     assert.equal(placeChad(39.9).chad, 4);
@@ -147,7 +148,7 @@ describe("placeChad", () => {
     assert.equal(placeChad(92).chad, 10);
     assert.equal(placeChad(100).chad, 10);
     assert.equal(placeChad(null).chad, null);
-    assert.equal(placeChad(-5).chad, 1);
+    assert.equal(placeChad(-5).chad, null);
     assert.equal(placeChad(140).chad, 10);
   });
 
@@ -163,7 +164,7 @@ describe("placeChad", () => {
     assert.equal(placeChad(65).side, "mid");
     assert.equal(placeChad(65).chad, 7);
     for (const band of GC_BANDS) {
-      const sample = band.gc === 10 ? 100 : band.min;
+      const sample = band.gc === 10 ? 100 : band.min === 0 ? 5 : band.min;
       const placement = placeChad(sample);
       const reading = readCalibration(sample, true);
       assert.equal(placement.chad, band.gc);
@@ -200,15 +201,28 @@ describe("placeChad", () => {
     assert.equal(placeChad(72).chad, 8);
   });
 
+  it("draws a graded zero as EXIT LIQUIDITY with a dash, not GC 1", () => {
+    const placed = placeChad(0);
+    assert.equal(placed.chad, null);
+    assert.equal(placed.side, null);
+    assert.match(placed.label ?? "", /EXIT LIQUIDITY/);
+    assert.match(placed.label ?? "", /dash/);
+    assert.match(placed.label ?? "", /GC Scale/);
+    assert.doesNotMatch(placed.label ?? "", /GC 1|chad|chud|charoof|peer|top 30/i);
+    assert.deepEqual(readCalibration(0, true), { id: "exit", percent: 0, tube: 0 });
+    assert.equal(placeChad(0.1).chad, 1);
+    assert.equal(readCalibration(0.1, true).id, "weak");
+  });
+
   it("states the GC Scale and does not use the old placement names", () => {
-    const labels = [0, 39.9, 40, 50, 69.9, 70, 80, 88, 100].map((score) => placeChad(score).label ?? "");
+    const labels = [0.1, 39.9, 40, 50, 69.9, 70, 80, 88, 100].map((score) => placeChad(score).label ?? "");
     assert.match(labels[0] ?? "", /GC Scale/);
     for (const label of labels) {
       assert.match(label, /GC/);
       assert.match(label, /40|70/);
       assert.doesNotMatch(label, /chad|chud|charoof|grade calibration|ch-factor|peer|top 30/i);
     }
-    assert.match(placeChad(0).label ?? "", /WEAK/);
+    assert.match(placeChad(0.1).label ?? "", /WEAK/);
     assert.match(placeChad(50).label ?? "", /PROVISIONAL/);
     assert.match(placeChad(80).label ?? "", /STRONG/);
   });

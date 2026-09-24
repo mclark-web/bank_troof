@@ -11,7 +11,7 @@ const config: Config = {
         line: "#2a2d36",
         ink: "#f2f1ee",
         muted: "#9a9aa3",
-        faint: "#7a7a84",
+        faint: "#9a9aa3",
         brass: "#ee9a44",
         orange: "#eb6505",
         hit: "#7dcea0",
