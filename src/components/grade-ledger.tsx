@@ -39,7 +39,7 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
                 <p className="kicker">{spec.short}</p>
                 <p className="mt-1 text-sm text-muted">{spec.label} after the call</p>
               </div>
-              <GradePill result={grade.directionResult} />
+              {grade.directionResult ? <GradePill result={grade.directionResult} /> : null}
             </div>
             {grade.gradeable ? (
               <div className="mt-4">

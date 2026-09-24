@@ -58,7 +58,7 @@ export default async function HomePage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <Link href={`/calls/${call.id}`} className="text-sm leading-5 hover:text-brass">
-                      <span className="text-ink">{call.analyst.name}</span>{" "}
+                      <span className="text-ink">{call.analyst.name} </span>
                       <span className="text-muted">
                         {callHeadline({
                           action: call.action,

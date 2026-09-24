@@ -78,9 +78,9 @@ export default async function BankPage({
                     {item.aggregate.graded}
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                <div className="h-1.5 overflow-hidden rounded-full bg-[#14171e] shadow-[inset_0_0_0_1px_rgba(154,154,163,0.35)]">
                   <div
-                    className="h-full bg-brass/80"
+                    className="h-full bg-orange"
                     style={{ width: `${(item.aggregate.graded / maxGraded) * 100}%` }}
                   />
                 </div>

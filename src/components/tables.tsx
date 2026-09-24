@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatDate, pct, usd } from "@/lib/format";
+import { cx, formatDate, pct, usd } from "@/lib/format";
 import { deskRatingNote, directionForGradingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
 import { outcomeField, type HorizonKey } from "@/lib/scoring";
@@ -291,13 +291,13 @@ function BookSection({
 export function ConsensusBar({ buckets, total }: { buckets: { buy: number; hold: number; sell: number }; total: number }) {
   if (total === 0) return <p className="text-sm text-muted">No current ratings in the sample.</p>;
   const parts = [
-    { key: "buy", label: "Buy", count: buckets.buy, className: "bg-ink" },
-    { key: "hold", label: "Hold", count: buckets.hold, className: "bg-[#d9d0c1]" },
-    { key: "sell", label: "Sell", count: buckets.sell, className: "bg-muted" },
+    { key: "buy", label: "Buy", count: buckets.buy, className: "consensus-buy" },
+    { key: "hold", label: "Hold", count: buckets.hold, className: "consensus-hold" },
+    { key: "sell", label: "Sell", count: buckets.sell, className: "consensus-sell" },
   ];
   return (
     <div>
-      <div className="flex h-3 overflow-hidden rounded-full bg-white/5" aria-hidden>
+      <div className="consensus-bar flex h-3 overflow-hidden rounded-full bg-[#14171e]" aria-hidden>
         {parts.map((part) =>
           part.count > 0 ? (
             <div key={part.key} className={part.className} style={{ width: `${(part.count / total) * 100}%` }} />
@@ -306,7 +306,8 @@ export function ConsensusBar({ buckets, total }: { buckets: { buy: number; hold:
       </div>
       <ul className="mt-3 flex flex-wrap gap-4 text-sm">
         {parts.map((part) => (
-          <li key={part.key} className="text-muted">
+          <li key={part.key} className="flex items-center gap-2 text-muted">
+            <span className={cx("consensus-swatch", part.className)} aria-hidden />
             <span className="text-ink">{part.label}</span>{" "}
             <span className="num">
               {part.count} · {Math.round((part.count / total) * 100)}%

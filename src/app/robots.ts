@@ -7,6 +7,5 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
     },
     sitemap: "https://bank-troof.vercel.app/sitemap.xml",
-    host: "https://bank-troof.vercel.app",
   };
 }

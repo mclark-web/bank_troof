@@ -279,18 +279,40 @@ export function AnalystsBoard({
           <section className="panel p-4">
             <h2 className="text-sm font-semibold">Board health</h2>
             <p className="mt-2 font-mono text-xs uppercase tracking-[0.08em] text-faint">30D outcomes</p>
-            <div className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-white/[0.06]" aria-hidden>
-              <span className="h-full bg-orange" style={{ width: `${health.shares.strong}%` }} />
-              <span className="h-full bg-provisional" style={{ width: `${health.shares.provisional}%` }} />
-              <span className="h-full bg-muted" style={{ width: `${health.shares.weak}%` }} />
-              <span className="health-exit h-full" style={{ width: `${health.shares.exit}%` }} />
-            </div>
-            <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-faint">
-              <span>STRONG {health.shares.strong}%</span>
-              <span>PROVISIONAL {health.shares.provisional}%</span>
-              <span>WEAK {health.shares.weak}%</span>
-              <span>EXIT {health.shares.exit}%</span>
-            </div>
+            {health.graded === 0 ? null : (
+              <>
+                <div className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-[#14171e]" aria-hidden>
+                  {(
+                    [
+                      ["health-strong", health.shares.strong],
+                      ["health-provisional", health.shares.provisional],
+                      ["health-weak", health.shares.weak],
+                      ["health-exit", health.shares.exit],
+                    ] as const
+                  ).map(([tone, share]) =>
+                    share > 0 ? <span key={tone} className={`health-seg ${tone}`} style={{ width: `${share}%` }} /> : null,
+                  )}
+                </div>
+                <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-faint">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="health-swatch health-strong" aria-hidden />
+                    STRONG {health.shares.strong}%
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="health-swatch health-provisional" aria-hidden />
+                    PROVISIONAL {health.shares.provisional}%
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="health-swatch health-weak" aria-hidden />
+                    WEAK {health.shares.weak}%
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="health-swatch health-exit" aria-hidden />
+                    EXIT {health.shares.exit}%
+                  </span>
+                </div>
+              </>
+            )}
             <p className="mt-3 text-xs leading-5 text-muted">
               {health.graded === 0
                 ? "No active call has a 30-day print in this cut yet."

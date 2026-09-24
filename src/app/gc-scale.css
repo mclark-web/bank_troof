@@ -100,7 +100,7 @@
     inset -1px 0 0 rgba(255,255,255,0.06),
     0 0 0 1px rgba(235,101,5,0.28),
     0 12px 36px rgba(0,0,0,0.42),
-    0 0 40px var(--gc-glow-soft);
+    0 0 10px rgba(224,103,16,.45);
   overflow: hidden;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -117,11 +117,15 @@
 .gc-scale.is-sidebar .gc-vial {
   --tube-h: 36px;
 }
+.gc-scale.is-inline > .gc-glass {
+  flex: 1 1 0%;
+  min-width: 0;
+}
 .gc-scale.is-inline .gc-tube,
 .gc-scale.is-inline .gc-vial {
   --tube-h: 24px;
   flex: 1;
-  min-width: 100px;
+  min-width: 0;
 }
 
 /* Inner glass rim + subtle refraction ring */
@@ -181,12 +185,22 @@
   pointer-events: none;
   transition: width 1.15s cubic-bezier(0.32, 0.72, 0.22, 1);
 }
-/* Stop the halo at the bottom of the tube so it cannot paint under the label row. */
+/* Clip the halo above the tube and again at the bottom, so it cannot sit under text or the label row. A mask feathers those edges. */
 .gc-scale.is-sidebar .gc-bloom {
   top: -18px;
   bottom: auto;
+  left: 0;
+  width: min(calc(var(--gc-fill) + 16%), 100%);
   height: 66px;
-  clip-path: inset(-60% -60% 0 -60%);
+  clip-path: inset(18px 0 0 0);
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0, transparent 18px, #000 36px, #000 48px, transparent 66px),
+    linear-gradient(to right, transparent 0, #000 14%, #000 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent 0, transparent 18px, #000 36px, #000 48px, transparent 66px),
+    linear-gradient(to right, transparent 0, #000 14%, #000 86%, transparent 100%);
+  mask-composite: intersect;
 }
 
 /* Liquid — fills LEFT → RIGHT via --gc-fill
@@ -563,6 +577,16 @@
 .gc-scale.is-empty .gc-bloom {
   width: 0 !important;
   opacity: 0;
+}
+.gc-scale.is-empty .gc-tube,
+.gc-scale.is-empty .gc-vial {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.5),
+    inset 0 -10px 20px rgba(0,0,0,.32),
+    inset 1px 0 0 rgba(255,255,255,.12),
+    inset -1px 0 0 rgba(255,255,255,.06),
+    0 0 0 1px rgba(154,154,163,.35),
+    0 12px 36px rgba(0,0,0,.42);
 }
 .gc-scale[style*="--gc-fill: 0%"] .gc-meniscus,
 .gc-scale[style*="--gc-fill: 0%"] .gc-wave,

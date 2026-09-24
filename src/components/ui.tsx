@@ -2,7 +2,7 @@ import Link from "next/link";
 import { OVERALL_FACTOR_FORMULA, type OverallFactor } from "@/lib/overall-factor";
 import { HORIZONS, HORIZON_KEYS, formatPoints, placeChad, type ChadPlacement, type HorizonKey } from "@/lib/scoring";
 import { readCalibration } from "@/lib/gc-grade";
-import { avatarColor, cx, initials, pct } from "@/lib/format";
+import { cx, initials, pct } from "@/lib/format";
 import { actionLabel, recommendationLabel, type RecommendationCall } from "@/lib/labels";
 import type { SupersessionMark } from "@/lib/supersession";
 import { GcGradePill, GcTube, GcUngraded } from "@/components/gc-tube";
@@ -205,7 +205,7 @@ export function PointsCell({ score }: { score: number | null }) {
 export function SupersessionNotes({ mark, verbose = true }: { mark: SupersessionMark; verbose?: boolean }) {
   if (!mark.nullifiedNote && !mark.supersedesNote) return null;
   return (
-    <div className="mt-1 max-w-xs space-y-1">
+    <div className="supersession-notes mt-1 max-w-xs">
       <div className="flex flex-wrap gap-1">
         {mark.status === "nullified" ? (
           <span className="tag-note">Nullified</span>
@@ -247,12 +247,14 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
 export function GradePill({ result }: { result: "hit" | "near" | "miss" | null }) {
   if (!result) return <GcUngraded compact />;
   const label = result === "hit" ? "Hit" : result === "near" ? "Near" : "Miss";
-  const cls =
-    result === "hit"
-      ? "border-hit/40 bg-hit/10 text-hit"
-      : result === "miss"
-        ? "border-miss/40 bg-miss/10 text-miss"
-        : "border-brass/40 bg-brass/10 text-brass";
+  if (result === "near") {
+    return (
+      <span className="inline-flex rounded-full border border-[rgba(154,154,163,0.35)] bg-transparent px-2 py-0.5 text-xs text-[#c9c9cf]">
+        {label}
+      </span>
+    );
+  }
+  const cls = result === "hit" ? "border-hit/40 bg-hit/10 text-hit" : "border-miss/40 bg-miss/10 text-miss";
   return <span className={cx("inline-flex rounded-full border px-2 py-0.5 text-xs uppercase tracking-wider", cls)}>{label}</span>;
 }
 
@@ -260,11 +262,10 @@ export function RecommendationPill({ call }: { call: RecommendationCall }) {
   return <span className="num text-sm font-medium uppercase tracking-wide text-ink">{recommendationLabel(call)}</span>;
 }
 
-export function Avatar({ name, seed }: { name: string; seed?: string }) {
+export function Avatar({ name }: { name: string; seed?: string }) {
   return (
     <div
-      className="grid h-16 w-16 shrink-0 place-items-center rounded-md font-serif text-xl text-brass"
-      style={{ background: avatarColor(seed ?? name) }}
+      className="analyst-avatar grid h-16 w-16 shrink-0 place-items-center rounded-md font-serif text-xl text-brass"
       aria-hidden
     >
       {initials(name)}
