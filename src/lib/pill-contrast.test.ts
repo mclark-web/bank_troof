@@ -1,6 +1,19 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import test from "node:test";
+import { contrastBlocker } from "./contrast-support.mjs";
+
+test("pill contrast skips with a clear reason when Chrome, ffmpeg, or WebSocket is missing", () => {
+  assert.equal(contrastBlocker({ websocket: true, chrome: "/usr/bin/google-chrome", ffmpeg: "/usr/bin/ffmpeg" }), null);
+  assert.match(contrastBlocker({ websocket: false, chrome: "/usr/bin/google-chrome", ffmpeg: "/usr/bin/ffmpeg" }) ?? "", /global WebSocket/);
+  assert.match(contrastBlocker({ websocket: true, chrome: null, ffmpeg: "/usr/bin/ffmpeg" }) ?? "", /Chrome/);
+  assert.match(contrastBlocker({ websocket: true, chrome: "/usr/bin/google-chrome", ffmpeg: null }) ?? "", /ffmpeg/);
+  const all = contrastBlocker({ websocket: false, chrome: null, ffmpeg: null }) ?? "";
+  assert.match(all, /Skipping pill contrast/);
+  assert.match(all, /npm test passes without it/);
+});
+
+const blocker = contrastBlocker();
 
 const port = 3011;
 const url = `http://127.0.0.1:${port}/analysts`;
@@ -34,7 +47,7 @@ function stopServer(server: ReturnType<typeof spawn>) {
   }
 }
 
-test("grade pill and label contrast is at least 4.5:1 at 390, 820, and 1440", { timeout: 180000 }, async () => {
+test("grade pill and label contrast is at least 4.5:1 at 390, 820, and 1440", { timeout: 180000, skip: blocker ?? false }, async () => {
   const server = spawn("npx", ["next", "dev", "--port", String(port)], {
     cwd: process.cwd(),
     stdio: "ignore",

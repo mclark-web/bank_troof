@@ -8,6 +8,13 @@ import { execFileSync, spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { contrastBlocker, findChrome } from "../src/lib/contrast-support.mjs";
+
+const blocker = contrastBlocker();
+if (blocker) {
+  console.log(blocker);
+  process.exit(0);
+}
 
 const pageUrl = process.argv[2] ?? process.env.PILL_CONTRAST_URL ?? "http://127.0.0.1:3001/analysts";
 const origin = new URL(pageUrl).origin;
@@ -16,9 +23,10 @@ const widths = [390, 820, 1440];
 const types = ["strong", "weak", "provisional", "exit", "label"];
 const pillTypes = ["strong", "weak", "provisional", "exit"];
 const labels = { strong: "STRONG", weak: "WEAK", provisional: "PROVISIONAL", exit: "EXIT LIQUIDITY" };
+const shotDir = process.env.PILL_CONTRAST_DIR || join(process.cwd(), "artifacts", "screenshots");
 const shots = {
-  "/banks/bernstein:390": "/opt/cursor/artifacts/screenshots/banks-bernstein-390.png",
-  "/tickers/HON:1440": "/opt/cursor/artifacts/screenshots/tickers-hon-1440.png",
+  "/banks/bernstein:390": join(shotDir, "banks-bernstein-390.png"),
+  "/tickers/HON:1440": join(shotDir, "tickers-hon-1440.png"),
 };
 
 function lum(r, g, b) {
@@ -48,7 +56,7 @@ function sleep(ms) {
 async function launchChrome() {
   const profile = mkdtempSync(join(tmpdir(), "pill-contrast-"));
   const chrome = spawn(
-    "/usr/bin/google-chrome",
+    findChrome(),
     [
       "--headless=new",
       "--remote-debugging-port=0",

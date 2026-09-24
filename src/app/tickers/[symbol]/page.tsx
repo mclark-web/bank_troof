@@ -61,7 +61,7 @@ export default async function TickerPage({
       </PageIntro>
       {SPLIT_ADJUSTED[ticker.symbol] ? (
         <p className="mb-6 max-w-3xl text-sm leading-6 text-muted">
-          Sample prices for {ticker.symbol} are split-adjusted for the {SPLIT_ADJUSTED[ticker.symbol].split}. Dates before the split use the same scale as dates after it.
+          Sample prices for {ticker.symbol} are adjusted for splits and dividends ({SPLIT_ADJUSTED[ticker.symbol].split}). Dates before the split use the same scale as dates after it.
         </p>
       ) : null}
 

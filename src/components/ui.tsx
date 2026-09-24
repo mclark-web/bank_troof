@@ -245,7 +245,7 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
 }
 
 export function GradePill({ result }: { result: "hit" | "near" | "miss" | null }) {
-  if (!result) return <span className="text-faint">Not graded yet</span>;
+  if (!result) return <GcUngraded compact />;
   const label = result === "hit" ? "Hit" : result === "near" ? "Near" : "Miss";
   const cls =
     result === "hit"

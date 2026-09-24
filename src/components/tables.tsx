@@ -35,7 +35,7 @@ export function BoardTable({
             </th>
             <th>Hit</th>
             <th>Miss</th>
-            <th className="hidden xl:table-cell">If followed</th>
+            <th className="hidden md:table-cell">If followed</th>
             <th>
               GC score
               <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
@@ -73,7 +73,7 @@ export function BoardTable({
               <td className={emphasize === "miss" ? "num text-miss" : "num text-muted"} data-label="Miss">
                 {row.aggregate.missRate == null ? "—" : `${Math.round(row.aggregate.missRate * 100)}%`}
               </td>
-              <td className="num hidden text-ink xl:table-cell" data-label="If followed">
+              <td className="num hidden text-ink md:table-cell show-on-card" data-label="If followed">
                 {pct(row.aggregate.avgFollowedReturn)}
               </td>
               <td data-label="GC score">
@@ -159,9 +159,9 @@ export function CallTable({
                   <RecommendationPill call={call} />
                   <p className="mt-1 max-w-[14rem] text-xs normal-case tracking-normal text-faint">{deskRatingNote(call)}</p>
                 </td>
-                <td className="hidden text-sm text-muted lg:table-cell" data-label="Direction">{directionForGradingLabel(call.ratingTo)}</td>
-                <td className="num hidden lg:table-cell" data-label="Target">{usd(call.priceTargetTo)}</td>
-                <td className="num hidden text-muted md:table-cell" data-label="Then">{usd(call.priceAtCall)}</td>
+                <td className="hidden text-sm text-muted lg:table-cell show-on-card" data-label="Direction">{directionForGradingLabel(call.ratingTo)}</td>
+                <td className="num hidden lg:table-cell show-on-card" data-label="Target">{usd(call.priceTargetTo)}</td>
+                <td className="num hidden text-muted md:table-cell show-on-card" data-label="Then">{usd(call.priceAtCall)}</td>
                 <td className="num" data-label="After">{usd(after)}</td>
                 <td className="num text-ink" data-label="Return">{pct(grade.forwardReturn)}</td>
                 <td data-label="Grade">

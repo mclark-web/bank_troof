@@ -386,6 +386,13 @@ header details[open] > div {
   .stack-table td.hidden {
     display: none !important;
   }
+  .stack-table td.hidden.show-on-card {
+    display: flex !important;
+  }
+}
+
+.health-exit {
+  background: repeating-linear-gradient(-45deg, #9a9aa3 0 3px, #14171e 3px 6px);
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {

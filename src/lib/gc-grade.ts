@@ -49,6 +49,30 @@ export function readMean(scores: readonly number[]): GcReading {
   return readCalibration(total / scores.length, true);
 }
 
+/**
+ * Board tube for a list of graded scores. No graded scores is ungraded.
+ * A graded mean of exactly 0 stays EXIT LIQUIDITY.
+ */
+export function readBoardMean(scores: readonly number[]): { state: "ungraded" } | { state: "graded"; reading: GcReading } {
+  if (scores.length === 0) return { state: "ungraded" };
+  return { state: "graded", reading: readMean(scores) };
+}
+
+/** One horizon across the active book. Graded exactly-0 counts. Open windows do not. */
+export function boardHealth(slices: readonly HorizonSlice[]): {
+  counts: Record<GcGradeId, number>;
+  graded: number;
+  shares: Record<GcGradeId, number>;
+} {
+  const counts: Record<GcGradeId, number> = { strong: 0, weak: 0, provisional: 0, exit: 0 };
+  for (const slice of slices) {
+    if (!slice.gradeable || slice.score == null) continue;
+    counts[readCalibration(slice.score, true).id] += 1;
+  }
+  const graded = counts.strong + counts.weak + counts.provisional + counts.exit;
+  return { counts, graded, shares: percentShares(counts, ["strong", "provisional", "weak", "exit"]) };
+}
+
 export type HorizonSlice = { score: number | null; gradeable: boolean };
 
 /**

@@ -42,7 +42,7 @@ export default async function BanksPage() {
                     {bank.name}
                   </Link>
                 </td>
-                <td className="hidden text-muted sm:table-cell" data-label="Base">{bank.headquarters}</td>
+                <td className="hidden text-muted sm:table-cell show-on-card" data-label="Base">{bank.headquarters}</td>
                 <td className="num" data-label="Analysts">{bank.analysts.length}</td>
                 <td className="num" data-label="N">{aggregate.graded}</td>
                 <td className="num" data-label="Hit">{aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`}</td>

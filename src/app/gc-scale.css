@@ -631,8 +631,10 @@
 .gc-grade-tag.exit { color: #9a9aa3; background: transparent; border: 1px solid rgba(154,154,163,.35); }
 .gc-ungraded {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
   margin: 0;
   color: #9a9aa3;
   font-size: 12px;
@@ -641,8 +643,8 @@
   letter-spacing: 0.02em;
 }
 .gc-ungraded-glass {
-  width: 48px;
-  height: 16px;
+  width: 36px;
+  height: 14px;
   flex: none;
   border-radius: 999px;
   border: 1.5px solid rgba(255, 255, 255, 0.26);

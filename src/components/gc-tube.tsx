@@ -33,23 +33,31 @@ export function GcGradePill({ grade }: { grade: GcGradeId }) {
   return <span className={cx("gc-grade-tag", tone)}>{GC_GRADE_LABEL[grade]}</span>;
 }
 
+const UNGRADED_NAME = "GC Scale, not graded yet";
+
+function UngradedGlass() {
+  return <span className="gc-ungraded-glass" role="img" aria-label={UNGRADED_NAME} />;
+}
+
 export function GcUngraded({ compact = false, className }: { compact?: boolean; className?: string }) {
   if (compact) {
     return (
-      <p className={cx("gc-ungraded", className)} aria-label="GC Scale, not graded yet">
-        <span className="gc-ungraded-glass" aria-hidden />
-        Not graded yet
+      <p className={cx("gc-ungraded", className)}>
+        <UngradedGlass />
+        <span aria-hidden="true">Not graded yet</span>
       </p>
     );
   }
   return (
-    <div className={cx("gc-scale is-sidebar is-empty", className)} style={{ ["--gc-fill" as string]: "0%" }} role="group" aria-label="GC Scale, not graded yet">
-      <div className="gc-glass">
+    <div className={cx("gc-scale is-sidebar is-empty", className)} style={{ ["--gc-fill" as string]: "0%" }}>
+      <div className="gc-glass" role="img" aria-label={UNGRADED_NAME}>
         <div className="gc-tube" aria-hidden />
       </div>
       <div className="gc-meta gc-meta-row">
         <div className="gc-label">{GC_SCALE_LABEL}</div>
-        <p className="gc-ungraded">Not graded yet</p>
+        <p className="gc-ungraded" aria-hidden="true">
+          Not graded yet
+        </p>
       </div>
     </div>
   );

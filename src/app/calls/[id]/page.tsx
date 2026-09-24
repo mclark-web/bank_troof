@@ -70,7 +70,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
       </dl>
       {SPLIT_ADJUSTED[call.ticker.symbol] ? (
         <p className="mt-3 text-xs text-faint">
-          {call.ticker.symbol} prices are split-adjusted ({SPLIT_ADJUSTED[call.ticker.symbol].split}). The price at the call, the target, and later prints use the same scale.
+          {call.ticker.symbol} prices are adjusted for splits and dividends ({SPLIT_ADJUSTED[call.ticker.symbol].split}). The price at the call, the target, and later prints use the same scale.
         </p>
       ) : null}
 

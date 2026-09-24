@@ -79,9 +79,9 @@ export default async function HomePage() {
                   </div>
                   <div className="text-right">
                     <GradePill result={closed?.grade.directionResult ?? null} />
-                    <p className="mt-1 text-xs uppercase tracking-wider text-faint">
-                      {closed ? HORIZONS[closed.horizon].short : "Not graded yet"}
-                    </p>
+                    {closed ? (
+                      <p className="mt-1 text-xs uppercase tracking-wider text-faint">{HORIZONS[closed.horizon].short}</p>
+                    ) : null}
                   </div>
                 </div>
               </li>
@@ -173,9 +173,11 @@ export default async function HomePage() {
                     <td className="max-w-xs text-sm text-muted" data-label="Why">{call.controversialReason}</td>
                     <td data-label="Grade">
                       <GradePill result={closed?.grade.directionResult ?? null} />
-                      <p className="num mt-1 text-xs text-faint">
-                        {closed ? `${HORIZONS[closed.horizon].short} ${pct(closed.grade.forwardReturn)}` : "Not graded yet"}
-                      </p>
+                      {closed ? (
+                        <p className="num mt-1 text-xs text-faint">
+                          {HORIZONS[closed.horizon].short} {pct(closed.grade.forwardReturn)}
+                        </p>
+                      ) : null}
                     </td>
                   </tr>
                   );

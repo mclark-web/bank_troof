@@ -10,7 +10,9 @@ Brand rules: read BRAND.md before any UI change; deviations are an automatic MUS
 
 ## Run locally
 
-Requires Node.js 20 or newer.
+Requires Node.js 20 or newer. `npm test` passes on Node 20+ without a browser.
+
+The grade-pill contrast check is optional. It runs inside `npm test` only when Node provides a global `WebSocket` (Node 22 or newer), Google Chrome, and ffmpeg are all installed. If any of those are missing, that one test skips with a message and the rest of the suite still passes. Screenshots from the check are written under `artifacts/` (gitignored).
 
 ```bash
 npm install
@@ -24,7 +26,7 @@ Other commands:
 
 | Command | What it does |
 | --- | --- |
-| `npm test` | Scoring, 90-day supersession, and CSV-parser checks |
+| `npm test` | Scoring, 90-day supersession, and CSV-parser checks. The pill-contrast check runs only when Node 22, Chrome, and ffmpeg are available |
 | `npm run db:seed` | Rebuild the demo rows in place |
 | `npm run db:reset` | Recreate the SQLite file and seed it |
 | `npm run build` | Generate the client, push the schema, seed, and build Next.js |
