@@ -60,9 +60,11 @@ export function GcTube({
       className={cx("gc-scale", variantClass, empty && "is-empty", className)}
       style={{ ["--gc-fill" as string]: `${empty ? 0 : tube}%` }}
     >
-      {rich ? <div className="gc-bloom" /> : null}
-      <div className="gc-tube" aria-hidden>
-        <Liquid rich={rich} />
+      <div className="gc-glass">
+        {rich ? <div className="gc-bloom" /> : null}
+        <div className="gc-tube" aria-hidden>
+          <Liquid rich={rich} />
+        </div>
       </div>
       {meta === "none" ? null : (
         <div className={cx("gc-meta", meta === "row" && "gc-meta-row")}>

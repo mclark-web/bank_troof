@@ -58,6 +58,22 @@
   max-width: none;
 }
 
+/* Bloom stays inside the glass. The label row paints its own charcoal so a halo cannot sit behind a grade pill. */
+.gc-glass {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 999px;
+  align-self: stretch;
+}
+.gc-scale.is-vertical .gc-glass {
+  align-self: center;
+}
+.gc-scale.is-inline .gc-glass,
+.gc-scale.is-mini .gc-glass {
+  overflow: visible;
+}
+
 /* Alias: older .gc-vial markup still works */
 .gc-tube,
 .gc-vial {
@@ -564,6 +580,9 @@
   gap: 4px;
   position: relative;
   z-index: 2;
+  background-color: #14171e;
+  border-radius: 10px;
+  padding: 6px 8px;
 }
 .gc-scale.is-centered .gc-meta,
 .gc-scale.is-hero .gc-meta {
