@@ -36,7 +36,7 @@ export default async function AnalystsPage({
           The 90-day overall factor for each sample name. The tube is that same 0–100 average. Superseded calls stay out of it.
         </p>
         <ScaleLegend className="mb-3 mt-3" />
-        <div className="panel overflow-x-auto">
+        <div className="panel stack-table">
           <table className="data-table">
             <thead>
               <tr>
@@ -54,21 +54,21 @@ export default async function AnalystsPage({
             <tbody>
               {rows.map(({ analyst, aggregate, placement }) => (
                 <tr key={analyst.id}>
-                  <td>
+                  <td data-label="Analyst">
                     <Link href={`/analysts/${analyst.slug}`} className="font-medium hover:text-brass">
                       {analyst.name}
                     </Link>
                     <p className="text-xs text-faint sm:hidden">{analyst.sector}</p>
                   </td>
-                  <td>
+                  <td data-label="Firm">
                     <Link href={`/banks/${analyst.bank.slug}`} className="text-muted hover:text-brass">
                       {analyst.bank.shortName}
                     </Link>
                   </td>
-                  <td className="hidden text-muted sm:table-cell">{analyst.sector}</td>
-                  <td className="num">{aggregate.graded}</td>
-                  <td className="num">{aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`}</td>
-                  <td>
+                  <td className="hidden text-muted sm:table-cell" data-label="Sector">{analyst.sector}</td>
+                  <td className="num" data-label="N">{aggregate.graded}</td>
+                  <td className="num" data-label="Hit">{aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`}</td>
+                  <td data-label="Overall factor">
                     <ScoreBar score={aggregate.avgScore} placement={placement} />
                   </td>
                 </tr>

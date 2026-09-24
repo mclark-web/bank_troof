@@ -611,7 +611,6 @@
   font-weight: 700;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 24px var(--gc-glow-soft);
 }
 .gc-scale.is-hero .gc-pct { font-size: 36px; }
 .gc-grade-tag {
@@ -630,6 +629,26 @@
 .gc-grade-tag.weak { color: #c9c9cf; background: rgba(154,154,163,.12); border: 1px solid rgba(154,154,163,.35); }
 .gc-grade-tag.provisional { color: #c9c9cf; background: rgba(154,154,163,.12); border: 1px dashed rgba(154,154,163,.35); }
 .gc-grade-tag.exit { color: #9a9aa3; background: transparent; border: 1px solid rgba(154,154,163,.35); }
+.gc-ungraded {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #9a9aa3;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+.gc-ungraded-glass {
+  width: 48px;
+  height: 16px;
+  flex: none;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.26);
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+}
 
 /* Sidebar: tube + meta stacked */
 .gc-scale.is-sidebar {

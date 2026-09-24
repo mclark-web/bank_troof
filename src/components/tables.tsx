@@ -20,7 +20,7 @@ export function BoardTable({
   emphasize?: "score" | "miss";
 }) {
   return (
-    <div className="panel overflow-x-auto">
+    <div className="panel stack-table">
       <table className="data-table">
         <thead>
           <tr>
@@ -35,7 +35,7 @@ export function BoardTable({
             </th>
             <th>Hit</th>
             <th>Miss</th>
-            <th className="hidden md:table-cell">If followed</th>
+            <th className="hidden xl:table-cell">If followed</th>
             <th>
               GC score
               <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
@@ -53,15 +53,15 @@ export function BoardTable({
         <tbody>
           {rows.map((row, index) => (
             <tr key={row.href}>
-              <td className="num text-faint">{index + 1}</td>
-              <td>
+              <td className="num text-faint" data-label="Rank">{index + 1}</td>
+              <td data-label={row.kind === "bank" ? "Bank" : "Analyst"}>
                 <Link href={row.href} className="font-medium hover:text-brass">
                   {row.name}
                 </Link>
                 <p className="text-xs text-faint sm:hidden">{row.subtitle}</p>
               </td>
-              <td className="hidden text-muted sm:table-cell">{row.subtitle}</td>
-              <td className="num">
+              <td className="hidden text-muted sm:table-cell" data-label="Desk">{row.subtitle}</td>
+              <td className="num" data-label="Active">
                 {row.aggregate.graded}
                 {row.superseded > 0 ? (
                   <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
@@ -69,18 +69,18 @@ export function BoardTable({
                   </span>
                 ) : null}
               </td>
-              <td className="num">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
-              <td className={emphasize === "miss" ? "num text-miss" : "num text-muted"}>
+              <td className="num" data-label="Hit">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
+              <td className={emphasize === "miss" ? "num text-miss" : "num text-muted"} data-label="Miss">
                 {row.aggregate.missRate == null ? "—" : `${Math.round(row.aggregate.missRate * 100)}%`}
               </td>
-              <td className="num hidden text-ink md:table-cell">
+              <td className="num hidden text-ink xl:table-cell" data-label="If followed">
                 {pct(row.aggregate.avgFollowedReturn)}
               </td>
-              <td>
+              <td data-label="GC score">
                 <span className="num text-2xl leading-none">{row.placement.chad ?? "—"}</span>
                 <span className="num text-xs text-faint">/10</span>
               </td>
-              <td>
+              <td data-label="Overall factor">
                 <PointsCell score={row.aggregate.avgScore} />
               </td>
             </tr>
@@ -103,7 +103,7 @@ export function CallTable({
   showTicker?: boolean;
 }) {
   return (
-    <div className="panel overflow-x-auto">
+    <div className="panel stack-table">
       <table className="data-table">
         <thead>
           <tr>
@@ -130,17 +130,17 @@ export function CallTable({
             const after = call[outcomeField(horizon)];
             return (
               <tr key={call.id}>
-                <td>
+                <td data-label="Date">
                   <Link href={`/calls/${call.id}`} className="whitespace-nowrap hover:text-brass">
                     {formatDate(call.callDate)}
                   </Link>
                   {call.controversial ? (
-                    <span className="mt-1 block text-xs uppercase tracking-wider text-brass">Controversial</span>
+                    <span className="tag-note">Controversial</span>
                   ) : null}
                   <SupersessionNotes mark={call.supersession} />
                 </td>
                 {showTicker ? (
-                  <td>
+                  <td data-label="Ticker">
                     <Link href={`/tickers/${call.ticker.symbol}`} className="num font-medium hover:text-brass">
                       {call.ticker.symbol}
                     </Link>
@@ -148,26 +148,26 @@ export function CallTable({
                   </td>
                 ) : null}
                 {showAnalyst ? (
-                  <td>
+                  <td data-label="Analyst">
                     <Link href={`/analysts/${call.analyst.slug}`} className="hover:text-brass">
                       {call.analyst.name}
                     </Link>
                     <p className="text-xs text-faint">{call.bank.shortName}</p>
                   </td>
                 ) : null}
-                <td>
+                <td data-label="Recommendation">
                   <RecommendationPill call={call} />
                   <p className="mt-1 max-w-[14rem] text-xs normal-case tracking-normal text-faint">{deskRatingNote(call)}</p>
                 </td>
-                <td className="hidden text-sm text-muted lg:table-cell">{directionForGradingLabel(call.ratingTo)}</td>
-                <td className="num hidden lg:table-cell">{usd(call.priceTargetTo)}</td>
-                <td className="num hidden text-muted md:table-cell">{usd(call.priceAtCall)}</td>
-                <td className="num">{usd(after)}</td>
-                <td className="num text-ink">{pct(grade.forwardReturn)}</td>
-                <td>
+                <td className="hidden text-sm text-muted lg:table-cell" data-label="Direction">{directionForGradingLabel(call.ratingTo)}</td>
+                <td className="num hidden lg:table-cell" data-label="Target">{usd(call.priceTargetTo)}</td>
+                <td className="num hidden text-muted md:table-cell" data-label="Then">{usd(call.priceAtCall)}</td>
+                <td className="num" data-label="After">{usd(after)}</td>
+                <td className="num text-ink" data-label="Return">{pct(grade.forwardReturn)}</td>
+                <td data-label="Grade">
                   <GradePill result={grade.directionResult} />
                   {call.supersession.status === "nullified" ? (
-                    <p className="mt-1 text-xs uppercase tracking-wider text-faint">Not scored</p>
+                    <p className="tag-note">Not scored</p>
                   ) : null}
                 </td>
               </tr>

@@ -111,7 +111,7 @@ export default async function TickerPage({
         {byAnalyst.length === 0 ? (
           <p className="panel px-4 py-8 text-center text-sm text-muted">No graded calls for this horizon.</p>
         ) : (
-          <div className="panel overflow-x-auto">
+          <div className="panel stack-table">
             <table className="data-table">
               <thead>
                 <tr>
@@ -128,15 +128,15 @@ export default async function TickerPage({
               <tbody>
                 {byAnalyst.map((row) => (
                   <tr key={row.slug}>
-                    <td>
+                    <td data-label="Analyst">
                       <Link href={row.href} className="hover:text-brass">
                         {row.name}
                       </Link>
                     </td>
-                    <td className="text-muted">{row.subtitle}</td>
-                    <td className="num">{row.aggregate.graded}</td>
-                    <td className="num">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
-                    <td>
+                    <td className="text-muted" data-label="Firm">{row.subtitle}</td>
+                    <td className="num" data-label="N">{row.aggregate.graded}</td>
+                    <td className="num" data-label="Hit">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
+                    <td data-label="Overall factor">
                       <ScoreBar score={row.aggregate.avgScore} placement={row.placement} />
                     </td>
                   </tr>

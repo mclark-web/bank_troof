@@ -88,7 +88,7 @@ export default async function BankPage({
             ))}
           </ul>
         </div>
-        <div className="panel overflow-hidden">
+        <div className="panel stack-table">
           <h2 className="border-b border-line px-5 py-4 font-serif text-2xl">Roster</h2>
           <table className="data-table">
             <thead>
@@ -104,14 +104,14 @@ export default async function BankPage({
             <tbody>
               {roster.map((row) => (
                 <tr key={row.slug}>
-                  <td>
+                  <td data-label="Analyst">
                     <Link href={row.href} className="hover:text-brass">
                       {row.name}
                     </Link>
                     <p className="text-xs text-faint">{row.subtitle}</p>
                   </td>
-                  <td className="num">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
-                  <td>
+                  <td className="num" data-label="Hit">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
+                  <td data-label="Overall factor">
                     <ScoreBar score={row.aggregate.avgScore} placement={row.placement} />
                   </td>
                 </tr>

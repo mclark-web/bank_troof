@@ -6,6 +6,8 @@ GradedCalls Analysts is the GradedCalls scorecard for sell-side recommendations.
 
 This repository ships a complete demo. It does not scrape ranking sites, it is not affiliated with any bank or ratings publisher, and it is not investment advice. Past accuracy does not predict future results.
 
+Brand rules: read BRAND.md before any UI change; deviations are an automatic MUST-FIX.
+
 ## Run locally
 
 Requires Node.js 20 or newer.

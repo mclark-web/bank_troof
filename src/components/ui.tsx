@@ -5,7 +5,7 @@ import { readCalibration } from "@/lib/gc-grade";
 import { avatarColor, cx, initials, pct } from "@/lib/format";
 import { actionLabel, recommendationLabel, type RecommendationCall } from "@/lib/labels";
 import type { SupersessionMark } from "@/lib/supersession";
-import { GcTube } from "@/components/gc-tube";
+import { GcGradePill, GcTube, GcUngraded } from "@/components/gc-tube";
 
 export function hrefWith(
   path: string,
@@ -160,7 +160,10 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
     score == null
       ? "No overall factor"
       : `Overall factor ${formatPoints(score)} of 100. GC score ${chad ?? "—"} of 10. ${placement.label ?? ""}`;
-  const reading = readCalibration(score, score != null);
+  if (score == null) {
+    return <GcUngraded compact />;
+  }
+  const reading = readCalibration(score, true);
   return (
     <div title={title}>
       <div className="flex items-baseline gap-2">
@@ -171,8 +174,9 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
           <span className="text-faint">/10</span>
         </span>
       </div>
+      {reading.id === "exit" ? <GcGradePill grade="exit" /> : null}
       <GcTube
-        className="mt-1.5 hidden sm:flex"
+        className="mt-1.5 hidden lg:flex"
         percent={reading.percent}
         tube={reading.tube}
         grade={reading.id}
@@ -184,14 +188,16 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
 }
 
 export function PointsCell({ score }: { score: number | null }) {
-  const reading = readCalibration(score, score != null);
+  if (score == null) return <GcUngraded compact />;
+  const reading = readCalibration(score, true);
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <span className="num min-w-14 text-ink">
         {formatPoints(score)}
         <span className="text-faint">/100</span>
       </span>
-      <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} variant="inline" meta="none" className="hidden md:flex" />
+      {reading.id === "exit" ? <GcGradePill grade="exit" /> : null}
+      <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} variant="inline" meta="none" className="hidden xl:flex" />
     </div>
   );
 }
@@ -202,14 +208,10 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
     <div className="mt-1 max-w-xs space-y-1">
       <div className="flex flex-wrap gap-1">
         {mark.status === "nullified" ? (
-          <span className="inline-flex rounded-full border border-white/15 bg-white/5 px-1.5 py-0.5 text-xs uppercase tracking-wider text-muted">
-            Nullified
-          </span>
+          <span className="tag-note">Nullified</span>
         ) : null}
         {mark.supersedesId ? (
-          <span className="inline-flex rounded-full border border-brass/50 bg-brass/10 px-1.5 py-0.5 text-xs uppercase tracking-wider text-brass">
-            Supersedes
-          </span>
+          <span className="tag-note">Supersedes</span>
         ) : null}
       </div>
       {verbose && mark.nullifiedNote ? (
@@ -243,7 +245,7 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
 }
 
 export function GradePill({ result }: { result: "hit" | "near" | "miss" | null }) {
-  if (!result) return <span className="text-faint">Open</span>;
+  if (!result) return <span className="text-faint">Not graded yet</span>;
   const label = result === "hit" ? "Hit" : result === "near" ? "Near" : "Miss";
   const cls =
     result === "hit"
@@ -279,7 +281,8 @@ export function OverallFactorCard({
 }) {
   const placement = placeChad(factor.score);
   const chad = placement.chad;
-  const reading = readCalibration(factor.score, factor.activeGraded > 0 && factor.score != null);
+  const gradeable = factor.activeGraded > 0 && factor.score != null;
+  const reading = readCalibration(factor.score, gradeable);
   const followed = factor.aggregate.avgFollowedReturn;
   const hit = factor.hitRate == null ? "—" : `${Math.round(factor.hitRate * 100)}%`;
   return (
@@ -320,7 +323,11 @@ export function OverallFactorCard({
           </span>
         </p>
       </div>
-      <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} meta="row" className="mt-4 max-w-sm" />
+      {gradeable ? (
+        <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} meta="row" className="mt-4 max-w-sm" />
+      ) : (
+        <GcUngraded className="mt-4 max-w-sm" />
+      )}
       <SideNote placement={placement} className="mt-2" />
       <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
         {OVERALL_FACTOR_FORMULA}{" "}
@@ -356,7 +363,7 @@ export function MiniLeaderboard({
   rows: { name: string; href: string; subtitle: string; score: number | null; hitRate: number | null; placement: ChadPlacement }[];
 }) {
   return (
-    <section className="panel overflow-hidden">
+    <section className="panel">
       <div className="flex items-baseline justify-between border-b border-line px-4 py-3">
         <h2 className="font-serif text-xl">{title}</h2>
         <Link href={href} className="text-xs uppercase tracking-wider text-brass hover:text-ink">

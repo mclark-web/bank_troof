@@ -3,7 +3,7 @@ import { readCalibration } from "@/lib/gc-grade";
 import { directionForGradingLabel } from "@/lib/labels";
 import { formatPoints, HORIZONS, HORIZON_KEYS, outcomeField, placeChad, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
-import { GcGradePill, GcTube } from "./gc-tube";
+import { GcGradePill, GcTube, GcUngraded } from "./gc-tube";
 import { GradePill, SideNote } from "./ui";
 
 function expectation(grade: CallGrade, rating: string, horizon: HorizonKey) {
@@ -86,9 +86,12 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
                 <Row k="If followed" v={grade.followedReturn == null ? "Hold excluded" : pct(grade.followedReturn)} />
               </dl>
             ) : (
-              <p className="mt-6 text-sm leading-6 text-muted">
-                This window has no recorded price in the sample, so the call stays ungraded. Open windows are left out of hit rate and score.
-              </p>
+              <div className="mt-4">
+                <GcUngraded />
+                <p className="mt-4 text-sm leading-6 text-muted">
+                  This window has no recorded price in the sample, so the call stays ungraded. Open windows are left out of hit rate and score.
+                </p>
+              </div>
             )}
             <p className="mt-4 border-t border-line pt-3 text-xs leading-5 text-faint">{expectation(grade, call.ratingTo, horizon)}</p>
           </article>

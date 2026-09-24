@@ -33,6 +33,28 @@ export function GcGradePill({ grade }: { grade: GcGradeId }) {
   return <span className={cx("gc-grade-tag", tone)}>{GC_GRADE_LABEL[grade]}</span>;
 }
 
+export function GcUngraded({ compact = false, className }: { compact?: boolean; className?: string }) {
+  if (compact) {
+    return (
+      <p className={cx("gc-ungraded", className)} aria-label="GC Scale, not graded yet">
+        <span className="gc-ungraded-glass" aria-hidden />
+        Not graded yet
+      </p>
+    );
+  }
+  return (
+    <div className={cx("gc-scale is-sidebar is-empty", className)} style={{ ["--gc-fill" as string]: "0%" }} role="group" aria-label="GC Scale, not graded yet">
+      <div className="gc-glass">
+        <div className="gc-tube" aria-hidden />
+      </div>
+      <div className="gc-meta gc-meta-row">
+        <div className="gc-label">{GC_SCALE_LABEL}</div>
+        <p className="gc-ungraded">Not graded yet</p>
+      </div>
+    </div>
+  );
+}
+
 export function GcTube({
   percent,
   tube,

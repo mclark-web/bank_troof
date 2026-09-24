@@ -58,7 +58,7 @@ export default function MethodologyPage() {
           <li>Down hits when the forward return is at most −T.</li>
           <li>Flat hits when the absolute return is at most T.</li>
         </ul>
-        <div className="panel overflow-x-auto">
+        <div className="panel stack-table">
           <table className="data-table">
             <thead>
               <tr>
@@ -73,10 +73,10 @@ export default function MethodologyPage() {
                 const spec = HORIZONS[key];
                 return (
                   <tr key={key}>
-                    <td>{spec.label}</td>
-                    <td className="num">{pctUnsigned(spec.threshold, 0)}</td>
-                    <td className="num">within {pctUnsigned(spec.ptFull, 0)}</td>
-                    <td className="num">beyond {pctUnsigned(spec.ptZero, 0)}</td>
+                    <td data-label="Horizon">{spec.label}</td>
+                    <td className="num" data-label="Threshold T">{pctUnsigned(spec.threshold, 0)}</td>
+                    <td className="num" data-label="Target full credit">within {pctUnsigned(spec.ptFull, 0)}</td>
+                    <td className="num" data-label="Target zero">beyond {pctUnsigned(spec.ptZero, 0)}</td>
                   </tr>
                 );
               })}
@@ -112,7 +112,7 @@ export default function MethodologyPage() {
         <p>
           <strong className="font-medium text-ink">The cut is {GC_STRONG_LINE} and {GC_PROVISIONAL_LINE}.</strong> At or above {GC_STRONG_LINE} the tube reads STRONG and the GC score is 8–{CHAD_MAX}. From {GC_WEAK_LINE} up to {GC_STRONG_LINE} the tube reads PROVISIONAL and the GC score is 5–7. A graded score above 0 and under {GC_WEAK_LINE} reads WEAK and the GC score is 1–4. A graded score of exactly 0 is an empty glass labeled EXIT LIQUIDITY, and the badge is a dash, not GC 1. Each ten points above 0 is one step. The top of a step is not included, except 100, which is GC {CHAD_MAX}:
         </p>
-        <div className="panel overflow-x-auto">
+        <div className="panel stack-table">
           <table className="data-table">
             <thead>
               <tr>
@@ -123,17 +123,17 @@ export default function MethodologyPage() {
             </thead>
             <tbody>
               <tr>
-                <td className="num">0</td>
-                <td className="num">—</td>
-                <td>EXIT LIQUIDITY</td>
+                <td className="num" data-label="Score /100">0</td>
+                <td className="num" data-label="GC">—</td>
+                <td data-label="Tube">EXIT LIQUIDITY</td>
               </tr>
               {GC_BANDS.map((band) => (
                 <tr key={band.gc}>
-                  <td className="num">
+                  <td className="num" data-label="Score /100">
                     {band.min === 0 ? `above 0 up to ${band.max}` : band.max > 100 ? `${band.min}–100` : `${band.min} up to ${band.max}`}
                   </td>
-                  <td className="num">{band.gc}</td>
-                  <td>{band.grade}</td>
+                  <td className="num" data-label="GC">{band.gc}</td>
+                  <td data-label="Tube">{band.grade}</td>
                 </tr>
               ))}
             </tbody>

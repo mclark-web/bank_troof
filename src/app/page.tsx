@@ -45,7 +45,7 @@ export default async function HomePage() {
             <Count label="Active graded, 90D" value={home.graded90} />
           </dl>
         </div>
-        <aside className="panel overflow-hidden">
+        <aside className="panel">
           <div className="border-b border-line px-4 py-3">
             <h2 className="font-serif text-xl">Latest calls</h2>
             <p className="text-xs text-faint">Newest demo calls. Grade is the longest window that has closed.</p>
@@ -80,7 +80,7 @@ export default async function HomePage() {
                   <div className="text-right">
                     <GradePill result={closed?.grade.directionResult ?? null} />
                     <p className="mt-1 text-xs uppercase tracking-wider text-faint">
-                      {closed ? HORIZONS[closed.horizon].short : "Open"}
+                      {closed ? HORIZONS[closed.horizon].short : "Not graded yet"}
                     </p>
                   </div>
                 </div>
@@ -145,7 +145,7 @@ export default async function HomePage() {
               Why these are flagged
             </Link>
           </div>
-          <div className="panel overflow-x-auto">
+          <div className="panel stack-table">
             <table className="data-table">
               <thead>
                 <tr>
@@ -159,7 +159,7 @@ export default async function HomePage() {
                   const closed = longestClosed(call);
                   return (
                   <tr key={call.id}>
-                    <td>
+                    <td data-label="Call">
                       <Link href={`/calls/${call.id}`} className="hover:text-brass">
                         {call.analyst.name} on {call.ticker.symbol}
                       </Link>
@@ -170,11 +170,11 @@ export default async function HomePage() {
                       </p>
                       <SupersessionNotes mark={call.supersession} />
                     </td>
-                    <td className="max-w-xs text-sm text-muted">{call.controversialReason}</td>
-                    <td>
+                    <td className="max-w-xs text-sm text-muted" data-label="Why">{call.controversialReason}</td>
+                    <td data-label="Grade">
                       <GradePill result={closed?.grade.directionResult ?? null} />
                       <p className="num mt-1 text-xs text-faint">
-                        {closed ? `${HORIZONS[closed.horizon].short} ${pct(closed.grade.forwardReturn)}` : "Open"}
+                        {closed ? `${HORIZONS[closed.horizon].short} ${pct(closed.grade.forwardReturn)}` : "Not graded yet"}
                       </p>
                     </td>
                   </tr>

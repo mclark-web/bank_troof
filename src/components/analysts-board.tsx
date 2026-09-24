@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GcGradePill, GcTube } from "@/components/gc-tube";
+import { GcGradePill, GcTube, GcUngraded } from "@/components/gc-tube";
 import { hrefWith, SupersessionNotes } from "@/components/ui";
 import { initials, usd } from "@/lib/format";
 import { percentShares, readCallCalibration, readMean, type GcGradeId, type GcReading } from "@/lib/gc-grade";
@@ -44,6 +44,12 @@ function slices(call: ScoredCall) {
   return HORIZON_KEYS.map((key) => call.grades[key]);
 }
 
+function isGraded(call: ScoredCall, horizon: BoardHorizon): boolean {
+  if (horizon === "all") return slices(call).some((grade) => grade.gradeable && grade.score != null);
+  const grade = call.grades[horizon];
+  return grade.gradeable && grade.score != null;
+}
+
 function readingFor(call: ScoredCall, horizon: BoardHorizon): GcReading {
   if (horizon === "all") return readCallCalibration(slices(call), "all");
   const index = HORIZON_KEYS.indexOf(horizon);
@@ -77,7 +83,7 @@ function HorizonMarks({ call }: { call: ScoredCall }) {
         const grade = call.grades[key];
         const result = grade.gradeable ? grade.directionResult : null;
         const tone = result === "hit" ? "hz-hit" : result === "miss" ? "hz-miss" : result === "near" ? "hz-near" : "hz-open";
-        const name = result === "hit" ? "Hit" : result === "miss" ? "Miss" : result === "near" ? "Near" : "Open";
+        const name = result === "hit" ? "Hit" : result === "miss" ? "Miss" : result === "near" ? "Near" : "Not graded yet";
         return (
           <span key={key} className={tone} title={`${HORIZONS[key].label}: ${name}`}>
             {HORIZONS[key].short}
@@ -110,7 +116,7 @@ export function AnalystsBoard({
   const superseded = scoped.filter((call) => call.supersession.status === "nullified");
   const visible =
     book === "superseded" ? superseded : book === "all" ? scoped : active;
-  const gradedVisible = visible.filter((call) => readingFor(call, horizon).id !== "exit");
+  const gradedVisible = visible.filter((call) => isGraded(call, horizon));
   const shown = gradedVisible.slice(0, 40);
   const stillOpen = visible.length - gradedVisible.length;
 
@@ -132,7 +138,7 @@ export function AnalystsBoard({
   for (const reading of healthIds) healthCounts[reading.id] += 1;
   const health = percentShares(healthCounts, ["strong", "provisional", "weak"]);
   const healthGraded = healthCounts.strong + healthCounts.provisional + healthCounts.weak;
-  const openOnBoard = active.filter((call) => readingFor(call, horizon).id === "exit").length;
+  const openOnBoard = active.filter((call) => !isGraded(call, horizon)).length;
 
   const windowLabel = horizon === "all" ? "every closed horizon" : HORIZONS[horizon].label;
 
@@ -147,7 +153,11 @@ export function AnalystsBoard({
           </p>
         </div>
         <div className="w-full max-w-[340px] rounded-xl border border-line bg-white/[0.03] px-4 py-3.5">
-          <GcTube percent={factor.percent} tube={factor.tube} grade={factor.id} meta="row" />
+          {factorScores.length === 0 ? (
+            <GcUngraded />
+          ) : (
+            <GcTube percent={factor.percent} tube={factor.tube} grade={factor.id} meta="row" />
+          )}
         </div>
       </div>
 
@@ -178,14 +188,14 @@ export function AnalystsBoard({
       </div>
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="panel overflow-x-auto">
+        <div className="panel stack-table">
           <div className="flex items-end justify-between gap-3 border-b border-line px-4 py-3.5">
             <div>
               <h2 className="text-sm font-semibold">Latest graded calls</h2>
               <p className="mt-0.5 text-xs text-faint">
                 Newest with a print · {gradedVisible.length} graded
                 {shown.length < gradedVisible.length ? ` · showing ${shown.length}` : ""}
-                {stillOpen > 0 ? ` · ${stillOpen} still open` : ""}
+                {stillOpen > 0 ? ` · ${stillOpen} not graded yet` : ""}
               </p>
             </div>
             <p className="hidden text-right font-mono text-xs text-faint sm:block">Prices · Yahoo Finance · split-adj</p>
@@ -214,7 +224,7 @@ export function AnalystsBoard({
                   const target = call.priceTargetTo == null ? "" : ` · PT ${usd(call.priceTargetTo)}`;
                   return (
                     <tr key={call.id}>
-                      <td>
+                      <td data-label="Analyst">
                         <div className="flex items-center gap-2.5">
                           <div className="gc-avatar" aria-hidden>
                             {initials(call.analyst.name)}
@@ -231,7 +241,7 @@ export function AnalystsBoard({
                           </div>
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Call">
                         <Link href={`/calls/${call.id}`} className="num font-semibold tracking-wide hover:text-brass">
                           {call.ticker.symbol}
                         </Link>{" "}
@@ -239,24 +249,22 @@ export function AnalystsBoard({
                           {recommendationLabel(call)}
                           {target}
                         </span>
-                        {call.controversial ? (
-                          <span className="mt-1 block text-xs uppercase tracking-wider text-brass">Controversial</span>
-                        ) : null}
+                        {call.controversial ? <span className="tag-note">Controversial</span> : null}
                       </td>
-                      <td className="num whitespace-nowrap">
+                      <td className="num whitespace-nowrap" data-label="Entry">
                         {usd(call.priceAtCall)}
                         <span className="mt-0.5 block text-xs text-faint">{shortDate(call.callDate)}</span>
                       </td>
-                      <td>
+                      <td data-label="Horizons">
                         <HorizonMarks call={call} />
                       </td>
-                      <td>
+                      <td data-label="GC">
                         <GcTube percent={reading.percent} tube={reading.tube} grade={reading.id} variant="inline" meta="none" />
                       </td>
-                      <td>
+                      <td data-label="Grade">
                         <GcGradePill grade={reading.id} />
                         {call.supersession.status === "nullified" ? (
-                          <p className="mt-1 text-xs uppercase tracking-wider text-faint">Not scored</p>
+                          <p className="tag-note">Not scored</p>
                         ) : null}
                       </td>
                     </tr>

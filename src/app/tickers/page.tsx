@@ -23,12 +23,12 @@ export default async function TickersPage() {
         {sectors.map((sector) => (
           <section key={sector}>
             <h2 className="mb-3 font-serif text-2xl">{sector}</h2>
-            <div className="panel overflow-x-auto">
+            <div className="panel stack-table">
               <table className="data-table">
                 <thead>
                   <tr>
                     <th>Ticker</th>
-                    <th className="hidden md:table-cell">Name</th>
+                    <th className="hidden xl:table-cell">Name</th>
                     <th>Voices</th>
                     <th>
                       Buy
@@ -60,21 +60,21 @@ export default async function TickersPage() {
                     .filter((row) => row.ticker.sector === sector)
                     .map(({ ticker, aggregate, placement, buckets, voices }) => (
                       <tr key={ticker.id}>
-                        <td>
+                        <td data-label="Ticker">
                           <Link href={`/tickers/${ticker.symbol}`} className="num font-medium hover:text-brass">
                             {ticker.symbol}
                           </Link>
-                          <p className="text-xs text-faint md:hidden">{ticker.name}</p>
+                          <p className="text-xs text-faint xl:hidden">{ticker.name}</p>
                         </td>
-                        <td className="hidden text-muted md:table-cell">{ticker.name}</td>
-                        <td className="num">{voices}</td>
-                        <td className="num text-ink">{buckets.buy}</td>
-                        <td className="num">{buckets.hold}</td>
-                        <td className="num text-ink">{buckets.sell}</td>
-                        <td>
+                        <td className="hidden text-muted xl:table-cell" data-label="Name">{ticker.name}</td>
+                        <td className="num" data-label="Voices">{voices}</td>
+                        <td className="num text-ink" data-label="Buy">{buckets.buy}</td>
+                        <td className="num" data-label="Hold">{buckets.hold}</td>
+                        <td className="num text-ink" data-label="Sell">{buckets.sell}</td>
+                        <td data-label="Overall factor">
                           <ScoreBar score={aggregate.avgScore} placement={placement} />
                         </td>
-                        <td className="num">
+                        <td className="num" data-label="90D hit">
                           {aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`}
                         </td>
                       </tr>
