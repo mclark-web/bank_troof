@@ -27,6 +27,9 @@ const config: Config = {
       maxWidth: {
         page: "72rem",
       },
+      opacity: {
+        6: "0.06",
+      },
       boxShadow: {
         card: "0 1px 0 rgba(255,255,255,0.03) inset",
       },
