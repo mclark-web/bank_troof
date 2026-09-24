@@ -42,7 +42,8 @@ Other commands:
 | `/analysts` and `/analysts/[slug]` | Directory and a scorecard: overall factor, active book, superseded history |
 | `/banks` and `/banks/[slug]` | Firm rollup, sector mix, roster |
 | `/tickers` and `/tickers/[symbol]` | Sample consensus versus who was right on that name |
-| `/calls/[id]` | Recommendation, desk rating, direction for grading, target, prices, and the grade at each horizon |
+| `/calls` and `/calls/[id]` | The sample book, then one call: recommendation, desk rating, direction for grading, target, prices, and the grade at each horizon |
+| `/about` | What the demo is: sample names, historical prices, and a formula that is not advice |
 | `/methodology` | The formula, read from the same constants the scorer uses |
 | `/search` | Analyst, bank, or ticker |
 | `/watchlist` | Saved in this browser only (`localStorage`). No account |

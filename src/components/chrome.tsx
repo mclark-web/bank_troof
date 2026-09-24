@@ -16,7 +16,7 @@ function Mark() {
 
 export function DemoBanner() {
   return (
-    <div className="border-b border-warn/40 bg-warn/10 px-4 py-2 text-center text-xs text-warn sm:text-[13px]">
+    <div className="border-b border-warn/40 bg-warn/6 px-4 py-2 text-center text-xs text-warn sm:text-[13px]">
       Demo vintage {DATASET.vintageLabel}. Analysts and notes are sample. Grades use historical adjusted closes. Not a live track record, and not investment advice.
     </div>
   );
@@ -89,6 +89,8 @@ export function SiteFooter() {
           <Link href="/leaderboards" className="hover:text-ink">Leaderboards</Link>
           <Link href="/leaderboards?view=offenders" className="hover:text-ink">Worst offenders</Link>
           <Link href="/watchlist" className="hover:text-ink">Watchlist</Link>
+          <Link href="/calls" className="hover:text-ink">Calls</Link>
+          <Link href="/about" className="hover:text-ink">About</Link>
           <Link href="/disclaimer" className="hover:text-ink">Disclaimer</Link>
           <Link href="/terms" className="hover:text-ink">Terms</Link>
           <Link href="/donate" className="hover:text-ink">Donate</Link>
