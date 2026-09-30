@@ -38,7 +38,7 @@ export function SiteHeader() {
           <SearchForm />
         </div>
         <details className="relative ml-auto md:ml-0 lg:hidden">
-          <summary className="cursor-pointer list-none rounded-md border border-line px-3 py-1.5 text-sm text-muted [&::-webkit-details-marker]:hidden">
+          <summary className="cursor-pointer list-none rounded-md border px-3 py-1.5 text-sm [&::-webkit-details-marker]:hidden">
             Menu
           </summary>
           <div className="absolute right-0 z-40 mt-2 w-56 rounded-lg border border-line bg-raised p-3 shadow-card">
@@ -56,7 +56,7 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="mt-16 border-t border-line">
-      <div className="mx-auto grid max-w-page gap-8 px-4 py-10 md:grid-cols-[1.4fr_1fr] md:px-6">
+      <div className="mx-auto grid max-w-page grid-cols-1 gap-8 px-4 py-10 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:px-6">
         <div>
           <p className="text-xl font-semibold leading-none tracking-tight">
             Graded<span className="text-brass">Calls</span> <span className="text-muted">Analysts</span>

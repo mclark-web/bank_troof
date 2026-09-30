@@ -42,7 +42,6 @@ export default async function BankPage({
   const factor = factorForCalls(calls, horizon);
   const sectors = sectorBreakdown(calls, horizon);
   const roster = analystRowsForCalls(calls, horizon);
-  const maxGraded = Math.max(...sectors.map((item) => item.aggregate.graded), 1);
   const current = {
     horizon: horizon === "90" ? undefined : horizon,
     book: book === "all" ? undefined : book,
@@ -63,25 +62,34 @@ export default async function BankPage({
         </div>
         <OverallFactorCard factor={factor} horizon={horizon} />
       </div>
-      <section className="mb-8 grid gap-4 lg:grid-cols-2">
+      <section className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel p-5">
           <h2 className="font-serif text-2xl">By sector</h2>
           <ul className="mt-4 space-y-3">
             {sectors.map((item) => (
               <li key={item.sector}>
-                <div className="mb-1 flex justify-between text-sm">
+                <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-sm">
                   <Link href={`/leaderboards?view=banks&sector=${encodeURIComponent(item.sector)}`} className="hover:text-brass">
                     {item.sector}
                   </Link>
-                  <span className="num text-muted">
-                    {item.aggregate.hitRate == null ? "—" : `${Math.round(item.aggregate.hitRate * 100)}% hit`} · n=
-                    {item.aggregate.graded}
+                  <span className="num flex flex-wrap justify-end gap-x-2 text-muted">
+                    <span className="whitespace-nowrap">
+                      {item.aggregate.hitRate == null ? "—" : `${Math.round(item.aggregate.hitRate * 100)}% hit`}
+                    </span>
+                    <span className="whitespace-nowrap">n={item.aggregate.graded}</span>
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-[#14171e] shadow-[inset_0_0_0_1px_rgba(154,154,163,0.35)]">
+                <div
+                  className="h-1.5 overflow-hidden rounded-full bg-[#14171e] shadow-[inset_0_0_0_1px_rgba(154,154,163,0.35)]"
+                  role="meter"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={item.aggregate.hitRate == null ? 0 : Math.round(item.aggregate.hitRate * 100)}
+                  aria-label={`${item.sector} hit rate`}
+                >
                   <div
                     className="h-full bg-orange"
-                    style={{ width: `${(item.aggregate.graded / maxGraded) * 100}%` }}
+                    style={{ width: `${(item.aggregate.hitRate ?? 0) * 100}%` }}
                   />
                 </div>
               </li>

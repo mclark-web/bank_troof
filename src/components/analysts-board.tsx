@@ -57,7 +57,8 @@ function readingFor(call: ScoredCall, horizon: BoardHorizon): GcReading {
 }
 
 function shortDate(value: Date): string {
-  return value.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  const day = value.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  return `Demo · ${day}`;
 }
 
 function FilterLink({
@@ -83,11 +84,12 @@ function HorizonMarks({ call }: { call: ScoredCall }) {
         const grade = call.grades[key];
         const result = grade.gradeable ? grade.directionResult : null;
         const tone = result === "hit" ? "hz-hit" : result === "miss" ? "hz-miss" : result === "near" ? "hz-near" : "hz-open";
-        const name = result === "hit" ? "Hit" : result === "miss" ? "Miss" : result === "near" ? "Near" : "Not graded yet";
+        const name = result === "hit" ? "Hit" : result === "miss" ? "Miss" : result === "near" ? "Near" : "Open";
         return (
           <span key={key} className="inline-flex max-w-full flex-wrap items-center gap-1">
-            <span className={tone} title={`${HORIZONS[key].label}: ${name}`}>
-              {HORIZONS[key].short}
+            <span className={tone} title={`${HORIZONS[key].label}: ${result == null ? "Not graded yet" : name}`}>
+              <span>{HORIZONS[key].short}</span>
+              {result === "near" || result == null ? <span className="hz-status">{name}</span> : null}
             </span>
             {result == null ? <GcUngraded compact /> : null}
           </span>
@@ -185,7 +187,7 @@ export function AnalystsBoard({
         </FilterLink>
       </div>
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="panel stack-table">
           <div className="flex items-end justify-between gap-3 border-b border-line px-4 py-3.5">
             <div>
@@ -242,13 +244,11 @@ export function AnalystsBoard({
                         </div>
                       </td>
                       <td data-label="Call">
-                        <Link href={`/calls/${call.id}`} className="num font-semibold tracking-wide hover:text-brass">
+                        <Link href={`/calls/${call.id}`} className="num whitespace-nowrap font-semibold tracking-wide hover:text-brass">
                           {call.ticker.symbol}
-                        </Link>{" "}
-                        <span className="text-muted">
-                          {recommendationLabel(call)}
-                          {target}
-                        </span>
+                        </Link>
+                        <span className="whitespace-nowrap text-muted">{recommendationLabel(call)}</span>
+                        {target ? <span className="whitespace-nowrap text-muted">{target.replace(/^ · /, "")}</span> : null}
                         {call.controversial ? <span className="tag-note">Controversial</span> : null}
                       </td>
                       <td className="num whitespace-nowrap" data-label="Entry">

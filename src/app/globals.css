@@ -68,7 +68,12 @@ body {
   }
 
   .field {
-    @apply min-h-11 w-full rounded-md border border-line bg-inset px-3 text-sm text-ink placeholder:text-faint;
+    @apply min-h-11 w-full rounded-md border border-line bg-inset px-3 text-sm text-ink;
+  }
+
+  .field::placeholder {
+    color: #c9c9cf;
+    opacity: 1;
   }
 
   .data-table {
@@ -216,6 +221,9 @@ header details > summary {
   min-height: 44px;
   min-width: 44px;
   padding: 0 12px;
+  color: #c9c9cf;
+  background: #14171e;
+  border-color: rgba(154, 154, 163, 0.45);
 }
 
 /* Every visible link is a 44px target. inline-flex honors min-height; wrap keeps long labels inside the column. */
@@ -282,7 +290,8 @@ p a:not(.chip):not(.chip-on):not(.btn):not(.btn-ghost):not(.nav-link) {
   line-height: inherit;
   vertical-align: baseline;
 }
-p a:not(.chip):not(.chip-on):not(.btn):not(.btn-ghost):not(.nav-link)::before {
+p a:not(.chip):not(.chip-on):not(.btn):not(.btn-ghost):not(.nav-link)::before,
+a.compute-link::before {
   content: "";
   position: absolute;
   left: 50%;
@@ -290,6 +299,17 @@ p a:not(.chip):not(.chip-on):not(.btn):not(.btn-ghost):not(.nav-link)::before {
   width: max(100%, 44px);
   height: 44px;
   transform: translate(-50%, -50%);
+}
+
+/* Keep a wrapped formula link on one line so the 44px target covers the whole phrase. */
+a.compute-link {
+  display: inline;
+  position: relative;
+  white-space: nowrap;
+  min-height: 0;
+  min-width: 0;
+  line-height: inherit;
+  vertical-align: baseline;
 }
 
 /* The mobile menu paints outside the header. No ancestor clips it. */
@@ -345,10 +365,23 @@ header details[open] > div {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px 16px;
+    align-items: baseline;
+    gap: 4px 12px;
     border: 0;
     padding: 6px 16px;
+    text-align: right;
+  }
+  .stack-table td > a,
+  .stack-table td > span {
+    flex: 0 0 auto;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+  .stack-table td > p {
+    flex: 1 0 100%;
+    max-width: 100%;
+    margin-left: auto;
+    white-space: normal;
     text-align: right;
   }
   .stack-table td::before {
@@ -409,9 +442,17 @@ header details[open] > div {
 .consensus-bar > * + * {
   box-shadow: inset 0 0 0 1px rgba(154, 154, 163, 0.35), inset 1px 0 0 #0a0b0d;
 }
-.consensus-buy { background: #37373a; }
-.consensus-hold { background: #2a2b31; }
-.consensus-sell { background: #1c1e24; }
+.consensus-buy {
+  background-color: #3a3a3a;
+}
+.consensus-hold {
+  background-color: #14161c;
+  background-image: repeating-linear-gradient(90deg, #c9c9cf 0 2px, transparent 2px 5px);
+}
+.consensus-sell {
+  background-color: #101216;
+  background-image: repeating-linear-gradient(135deg, transparent 0 3px, #c9c9cf 3px 4px);
+}
 .consensus-swatch {
   width: 12px;
   height: 8px;
@@ -444,9 +485,21 @@ td .gc-ungraded > span[aria-hidden] {
 
 li a.text-sm.leading-5 {
   display: inline-flex;
+  max-width: 100%;
   column-gap: 0.3em;
   flex-wrap: wrap;
   align-items: baseline;
+}
+
+@media (max-width: 390px) {
+  main a.btn,
+  main a.btn-ghost {
+    max-width: 100%;
+    height: auto;
+    white-space: normal;
+    text-align: center;
+    flex-wrap: wrap;
+  }
 }
 
 @media (min-width: 640px) and (max-width: 1279px) {
@@ -461,8 +514,43 @@ li a.text-sm.leading-5 {
 }
 .hz-near,
 .hz-open {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.hz-near {
+  color: #c9c9cf;
+  background-color: #1c1e24;
+  background-image: repeating-linear-gradient(-45deg, rgba(201, 201, 207, 0.45) 0 1px, transparent 1px 4px);
+  border: 1px dashed #c9c9cf;
+  border-radius: 999px;
+}
+.hz-open {
+  color: #9a9aa3;
+  background: transparent;
+  border: 1px dotted #c9c9cf;
+  border-radius: 2px;
+}
+.hz-status {
+  margin-left: 4px;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.rec-pill {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  box-sizing: border-box;
   color: #c9c9cf;
   background: transparent;
   border: 1px solid rgba(154, 154, 163, 0.35);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
   text-transform: none;
+  white-space: nowrap;
 }

@@ -25,7 +25,7 @@ function priceFor(call: ScoredCall, horizon: HorizonKey) {
 
 export function GradeLedger({ call }: { call: ScoredCall }) {
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
       {HORIZON_KEYS.map((horizon) => {
         const grade = call.grades[horizon];
         const placement = placeChad(grade.gradeable ? grade.score : null);
@@ -43,18 +43,18 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
             </div>
             {grade.gradeable ? (
               <div className="mt-4">
-                <p className="flex items-end gap-2">
-                  <span className="num text-6xl leading-none">{placement.chad ?? "—"}</span>
-                  <span className="mb-1 text-sm text-muted">
-                    / 10
-                    <span className="mt-0.5 block text-xs">
-                      <span className="text-muted">GC 1</span>
-                      <span className="text-faint"> → </span>
-                      <span className="text-muted">GC 10</span>
-                    </span>
+                <p className="flex flex-wrap items-end gap-2">
+                  <span className="whitespace-nowrap">
+                    <span className="num text-6xl leading-none">{placement.chad ?? "—"}</span>
+                    <span className="num text-sm text-muted">/10</span>
+                  </span>
+                  <span className="mb-1 whitespace-nowrap text-xs text-muted">
+                    <span className="text-muted">GC 1</span>
+                    <span className="text-faint"> → </span>
+                    <span className="text-muted">GC 10</span>
                   </span>
                 </p>
-                <p className="mt-3 num text-xl text-ink">
+                <p className="num mt-3 whitespace-nowrap text-xl text-ink">
                   Score {formatPoints(grade.score)}
                   <span className="text-faint">/100</span>
                 </p>
@@ -80,7 +80,7 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
                 <Row k="Direction points" v={`${grade.directionPoints} / 70`} />
                 <Row
                   k="Target points"
-                  v={grade.targetPoints == null ? "No target · direction scaled to 100" : `${grade.targetPoints.toFixed(1)} / 30`}
+                  v={grade.targetPoints == null ? "No target · direction scaled to\u00a0100" : `${grade.targetPoints.toFixed(1)} / 30`}
                 />
                 <Row k="Target error" v={grade.targetError == null ? "—" : pctUnsigned(grade.targetError)} />
                 <Row k="If followed" v={grade.followedReturn == null ? "Hold excluded" : pct(grade.followedReturn)} />
@@ -102,10 +102,11 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
 }
 
 function Row({ k, v }: { k: string; v: string }) {
+  const together = v.length <= 28;
   return (
-    <div className="flex items-baseline justify-between gap-4">
+    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
       <dt className="text-faint">{k}</dt>
-      <dd className="num text-right text-ink">{v}</dd>
+      <dd className={together ? "num whitespace-nowrap text-right text-ink" : "num text-right text-ink"}>{v}</dd>
     </div>
   );
 }

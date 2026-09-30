@@ -45,7 +45,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
           {call.bank.name}
         </Link>
         {" · "}
-        {formatDate(call.callDate)}
+        <span className="whitespace-nowrap">{formatDate(call.callDate)}</span>
         {" · "}
         <Link href={`/tickers/${call.ticker.symbol}`} className="hover:text-brass">
           {call.ticker.symbol}
@@ -54,7 +54,7 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
         {call.ticker.sector}
       </p>
 
-      <dl className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Fact
           label="Recommendation"
           value={<RecommendationPill call={call} />}

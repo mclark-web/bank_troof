@@ -29,12 +29,13 @@ export function usd(value: number | null | undefined): string {
 
 export function formatDate(value: Date | string): string {
   const date = typeof value === "string" ? new Date(value) : value;
-  return date.toLocaleDateString("en-US", {
+  const formatted = date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
     timeZone: "UTC",
   });
+  return `Demo · ${formatted}`;
 }
 
 export function cx(...parts: Array<string | false | null | undefined>): string {

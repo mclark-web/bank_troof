@@ -17,8 +17,8 @@ export default async function HomePage() {
   });
 
   return (
-    <div>
-      <section className="grid items-end gap-8 lg:grid-cols-[1.3fr_0.7fr]">
+    <div className="min-w-0">
+      <section className="grid grid-cols-1 items-end gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
         <div>
           <p className="kicker">GradedCalls Analysts</p>
           <h1 className="mt-3 max-w-3xl font-sans text-5xl leading-[1.05] tracking-tight md:text-6xl">
@@ -69,9 +69,9 @@ export default async function HomePage() {
                     </Link>
                     <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-faint">
                       <RecommendationPill call={call} />
-                      <span>
-                        {call.bank.shortName} · {formatDate(call.callDate)}
-                        {" · "}
+                      <span className="whitespace-nowrap">{call.bank.shortName}</span>
+                      <span className="whitespace-nowrap">{formatDate(call.callDate)}</span>
+                      <span className="whitespace-nowrap">
                         {call.supersession.status === "nullified" ? "Superseded · not scored" : "Active book"}
                       </span>
                     </p>
@@ -96,19 +96,19 @@ export default async function HomePage() {
           Every card leads with the overall factor, the average 0–100 grade of active calls. The GC score sits beside it on the GC Scale, from{" "}
           <span className="text-ink">1</span> to <span className="text-ink">10</span>. Superseded calls do not enter the factor. Under 40 the GC score is 1–4 (WEAK). From 40 up to 70 it is 5–7 (PROVISIONAL). At or above 70 it is 8–10 (STRONG). Hit rate is underneath, on the active book only.
         </p>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <MiniLeaderboard title="Top analysts" href="/leaderboards?view=analysts" rows={home.analysts.map(toRow)} />
         <MiniLeaderboard title="Top banks" href="/leaderboards?view=banks" rows={home.banks.map(toRow)} />
         <MiniLeaderboard title="Worst offenders" href="/leaderboards?view=offenders" rows={home.offenders.map(toRow)} />
         </div>
       </section>
 
-      <section className="mt-10 grid gap-4 md:grid-cols-2">
+      <section className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
         <Featured eyebrow="Best followed, 90D" call={home.featuredHit} />
         <Featured eyebrow="Worst followed, 90D" call={home.featuredMiss} />
       </section>
 
-      <section className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div>
           <p className="kicker">No black box</p>
           <h2 className="mt-2 font-serif text-3xl tracking-tight">The grade is the product.</h2>
@@ -116,7 +116,7 @@ export default async function HomePage() {
             A call leads with the recommendation: an upgrade, a target raise, a reiteration. The grade uses a separate direction bucket, plus an optional target. Those pieces add up to a score from 0 to 100, shown in full. Under 40 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. Near-misses get half credit and do not count as hits.
           </p>
         </div>
-        <ol className="grid gap-3 sm:grid-cols-3">
+        <ol className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
             ["01", "Direction", "The grade uses a Buy, Hold, or Sell bucket. Buy has to rise. Sell has to fall. Hold has to stay inside the band. That bucket is not the headline."],
             ["02", "Target", "The price after the window is compared with the target, not with the press release."],
@@ -164,9 +164,15 @@ export default async function HomePage() {
                         {call.analyst.name} on {call.ticker.symbol}
                       </Link>
                       <p className="text-xs text-faint">
-                        {call.bank.shortName} · {formatDate(call.callDate)} · {recommendationLabel(call)}
+                        <span className="whitespace-nowrap">{call.bank.shortName}</span>
                         {" · "}
-                        {call.supersession.status === "nullified" ? "Superseded · not scored" : "Active book"}
+                        <span className="whitespace-nowrap">{formatDate(call.callDate)}</span>
+                        {" · "}
+                        <span className="whitespace-nowrap">{recommendationLabel(call)}</span>
+                        {" · "}
+                        <span className="whitespace-nowrap">
+                          {call.supersession.status === "nullified" ? "Superseded · not scored" : "Active book"}
+                        </span>
                       </p>
                       <SupersessionNotes mark={call.supersession} />
                     </td>
@@ -174,7 +180,7 @@ export default async function HomePage() {
                     <td data-label="Grade">
                       <GradePill result={closed?.grade.directionResult ?? null} />
                       {closed ? (
-                        <p className="num mt-1 text-xs text-faint">
+                        <p className="num mt-1 whitespace-nowrap text-xs text-faint">
                           {HORIZONS[closed.horizon].short} {pct(closed.grade.forwardReturn)}
                         </p>
                       ) : null}
@@ -222,8 +228,10 @@ function Featured({
           })}
         </Link>
       </h2>
-      <p className="mt-2 text-sm text-muted">
-        {call.bank.shortName} · {formatDate(call.callDate)} · target {call.priceTargetTo ? `$${Math.round(call.priceTargetTo)}` : "—"}
+      <p className="mt-2 flex flex-wrap gap-x-2 text-sm text-muted">
+        <span className="whitespace-nowrap">{call.bank.shortName}</span>
+        <span className="whitespace-nowrap">{formatDate(call.callDate)}</span>
+        <span className="whitespace-nowrap">target {call.priceTargetTo ? `$${Math.round(call.priceTargetTo)}` : "—"}</span>
       </p>
       <p className="num mt-4 text-4xl text-ink">{pct(followed)}</p>
       <p className="mt-1 text-xs text-faint">Return if the directional call was followed for 90 days. Holds are excluded from this cut.</p>

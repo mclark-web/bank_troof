@@ -122,9 +122,12 @@ export function recommendationTone(call: RecommendationCall): "up" | "flat" | "d
 export function deskRatingNote(call: RecommendationCall): string {
   const to = ratingLabel(call.ratingTo);
   const from = call.ratingFrom ? ratingLabel(call.ratingFrom) : null;
-  if (!from) return "First desk rating in the sample";
-  if (from === to) return `Desk rating stays ${to}`;
-  return `Desk rating ${from} → ${to}`;
+  const glue = (label: string) => label.replaceAll(" ", "\u00a0");
+  const toLabel = glue(to);
+  const fromLabel = from ? glue(from) : null;
+  if (!fromLabel) return "First desk rating in the sample";
+  if (fromLabel === toLabel) return `Desk rating stays ${toLabel}`;
+  return `Desk rating ${fromLabel} → ${toLabel}`;
 }
 
 export function callPageTitle(symbol: string, call: RecommendationCall): string {

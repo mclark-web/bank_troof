@@ -121,7 +121,7 @@ export default async function LeaderboardsPage({
           Not enough graded calls in this cut. The minimum sample is {board.minimum}. Try {HORIZONS["90"].short} or all sectors.
         </EmptyNote>
       ) : (
-        <BoardTable rows={board.rows} emphasize={view === "offenders" ? "miss" : "score"} />
+        <BoardTable rows={board.rows} />
       )}
       <p className="mt-4 max-w-3xl text-xs leading-5 text-faint">
         Showing {board.rows.length} of {board.considered} {entity === "bank" ? "banks" : "analysts"} with at least{" "}
