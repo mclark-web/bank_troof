@@ -1,18 +1,7 @@
 import Link from "next/link";
 import { DATASET } from "@/lib/labels";
+import { LogoLink } from "@/components/logo-link";
 import { PrimaryNav } from "@/components/primary-nav";
-
-function Mark() {
-  return (
-    <span className="gc-mark" aria-hidden>
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 3v3M12 18v3M5 12H2M22 12h-3" stroke="#ff6a00" strokeWidth="1.6" strokeLinecap="round" />
-        <path d="M7.5 8.5c1.8-2.2 7.2-2.2 9 0M7.5 15.5c1.8 2.2 7.2 2.2 9 0" stroke="#f2f1ee" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="12" cy="12" r="2.2" fill="#ff6a00" />
-      </svg>
-    </span>
-  );
-}
 
 export function DemoBanner() {
   return (
@@ -43,12 +32,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
       <div className="mx-auto flex max-w-page items-center gap-4 px-4 py-3 md:px-6">
-        <Link href="/" className="brand-link flex shrink-0 items-center gap-2.5" aria-label="GradedCalls Analysts">
-          <Mark />
-          <span className="text-[17px] font-semibold tracking-tight">
-            Graded<span className="text-brass">Calls</span>
-          </span>
-        </Link>
+        <LogoLink />
         <PrimaryNav variant="bar" />
         <div className="ml-auto hidden md:block">
           <SearchForm />
