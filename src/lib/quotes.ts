@@ -2,9 +2,10 @@ import history from "./adjusted-closes.json";
 
 /**
  * Price at the call and each forward window are this print.
- * Adjusted closes are split-adjusted. Nothing in the seed invents a session.
+ * Adjusted closes include splits and dividends. Nothing in the seed invents a session.
  */
-export const PRICE_SOURCE = "Yahoo Finance adjusted close, split-adjusted, rounded to the cent.";
+export const PRICE_SOURCE =
+  "Yahoo Finance adjusted close, adjusted for splits and dividends, rounded to the cent. Two recent calls use the raw close on the call date.";
 
 /** A closed market may use the prior session only this many calendar days back. */
 export const MAX_CLOSED_GAP_DAYS = 4;
@@ -42,25 +43,37 @@ export function addUtcDays(date: Date, days: number): Date {
 }
 
 /**
- * Split-adjusted close for a calendar date.
+ * Adjusted close for a calendar date, including splits and dividends.
  * On a day with no session, returns the prior session when it is within
  * MAX_CLOSED_GAP_DAYS. A wider hole throws.
  */
-export function adjustedClose(symbol: string, date: Date): number {
+/**
+ * Calendar date of the print `adjustedClose` would use.
+ * A session returns itself. A closed day returns the prior session inside the gap.
+ */
+export function tradingSession(symbol: string, date: Date): Date {
   const series = seriesFor(symbol);
   const iso = isoDate(date);
   if (iso > QUOTE_AS_OF) {
     throw new Error(`No adjusted close for ${symbol} on ${iso}. History ends ${QUOTE_AS_OF}. Refusing to invent a price.`);
   }
-  const exact = series[iso];
-  if (exact != null) return exact;
+  if (series[iso] != null) return date;
   for (let gap = 1; gap <= MAX_CLOSED_GAP_DAYS; gap += 1) {
-    const prior = series[isoDate(addUtcDays(date, -gap))];
-    if (prior != null) return prior;
+    const prior = addUtcDays(date, -gap);
+    if (series[isoDate(prior)] != null) return prior;
   }
   throw new Error(
     `No adjusted close for ${symbol} on ${iso} within ${MAX_CLOSED_GAP_DAYS} calendar days. Refusing to invent a price.`,
   );
+}
+
+export function adjustedClose(symbol: string, date: Date): number {
+  const session = tradingSession(symbol, date);
+  const price = seriesFor(symbol)[isoDate(session)];
+  if (price == null) {
+    throw new Error(`No adjusted close for ${symbol} on ${isoDate(date)}. Refusing to invent a price.`);
+  }
+  return price;
 }
 
 /** Adjusted close `days` calendar days after the call. Null only when that date is past the history. */
@@ -79,6 +92,34 @@ export function pricesForCall(symbol: string, callDate: Date) {
     price90d: forwardClose(symbol, callDate, 90),
     price1y: forwardClose(symbol, callDate, 365),
   };
+}
+
+/**
+ * Labor Day filings that keep a real close instead of the adjusted series.
+ * NVDA is the unadjusted 4 Sep 2026 close. UNH is the actual close, not 394.71.
+ */
+export const FILED_ENTRY_PRINTS: { analystId: string; symbol: string; date: string; priceAtCall: number }[] = [
+  { analystId: "alice-chen", symbol: "NVDA", date: "2026-09-04", priceAtCall: 230.36 },
+  { analystId: "anika-desai", symbol: "UNH", date: "2026-09-04", priceAtCall: 397.14 },
+];
+
+export function filedEntryPrint(analystId: string, symbol: string, callDate: Date): number | null {
+  const iso = isoDate(callDate);
+  const row = FILED_ENTRY_PRINTS.find((item) => item.analystId === analystId && item.symbol === symbol && item.date === iso);
+  return row ? row.priceAtCall : null;
+}
+
+/** Label for the price at the call. Only a filed raw entry reads “Raw close”. */
+export function entryCloseLabel(analystId: string, symbol: string, callDate: Date): "Raw close" | "Adjusted close" {
+  return filedEntryPrint(analystId, symbol, callDate) == null ? "Adjusted close" : "Raw close";
+}
+
+/** Horizon prices from the series. Entry price uses a filed print when one is set. */
+export function pricesForStoredCall(analystId: string, symbol: string, callDate: Date) {
+  const prices = pricesForCall(symbol, callDate);
+  const entry = filedEntryPrint(analystId, symbol, callDate);
+  if (entry == null) return prices;
+  return { ...prices, priceAtCall: entry };
 }
 
 export function clampTargetToSpot(target: number, spot: number): number {

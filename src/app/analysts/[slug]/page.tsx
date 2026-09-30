@@ -6,7 +6,7 @@ import { Avatar, HorizonChips, hrefWith, OverallFactorCard, PageIntro } from "@/
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { parseHorizon } from "@/lib/scoring";
-import { factorForCalls, getAnalyst, rankedPeerScores } from "@/lib/queries";
+import { factorForCalls, getAnalyst } from "@/lib/queries";
 
 type Params = { slug: string };
 
@@ -44,7 +44,6 @@ export default async function AnalystPage({
   const { analyst, calls } = data;
   const visible = focus === "controversial" ? calls.filter((call) => call.controversial) : calls;
   const factor = factorForCalls(calls, horizon);
-  const peers = await rankedPeerScores("analyst", horizon);
   const current = {
     horizon: horizon === "90" ? undefined : horizon,
     focus: focus === "controversial" ? "controversial" : undefined,
@@ -76,11 +75,11 @@ export default async function AnalystPage({
           <h2 className="font-serif text-2xl">Overall factor</h2>
           <HorizonChips path={`/analysts/${analyst.slug}`} current={current} horizon={horizon} />
         </div>
-        <OverallFactorCard factor={factor} horizon={horizon} peers={peers} />
+        <OverallFactorCard factor={factor} horizon={horizon} />
       </div>
       <section className="mb-8">
         <h2 className="mb-3 font-serif text-2xl">Coverage</h2>
-        <ul className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-x-2 gap-y-3">
           {analyst.coverage.map((item) => (
             <li key={item.tickerId}>
               <Link href={`/tickers/${item.ticker.symbol}`} className="chip">
@@ -94,7 +93,7 @@ export default async function AnalystPage({
       <section>
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <h2 className="font-serif text-2xl">Calls</h2>
-          <div className="flex gap-2" role="group" aria-label="Call theme">
+          <div className="flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Call theme">
             <Link
               href={hrefWith(`/analysts/${analyst.slug}`, current, { focus: null })}
               className={focus === "controversial" ? "chip" : "chip-on"}

@@ -6,8 +6,8 @@ import { SPLIT_ADJUSTED } from "@/lib/splits";
 import {
   CHAD_MAX,
   CHAD_MIN,
-  CHUD_BANDS,
-  CHUD_LINE,
+  GC_BANDS,
+  GC_WEAK_LINE,
   DIRECTION_WEIGHT,
   FLAT_NEAR_MULTIPLIER,
   HORIZONS,
@@ -58,7 +58,7 @@ export default function MethodologyPage() {
           <li>Down hits when the forward return is at most −T.</li>
           <li>Flat hits when the absolute return is at most T.</li>
         </ul>
-        <div className="panel overflow-x-auto">
+        <div className="panel stack-table">
           <table className="data-table">
             <thead>
               <tr>
@@ -73,10 +73,10 @@ export default function MethodologyPage() {
                 const spec = HORIZONS[key];
                 return (
                   <tr key={key}>
-                    <td>{spec.label}</td>
-                    <td className="num">{pctUnsigned(spec.threshold, 0)}</td>
-                    <td className="num">within {pctUnsigned(spec.ptFull, 0)}</td>
-                    <td className="num">beyond {pctUnsigned(spec.ptZero, 0)}</td>
+                    <td data-label="Horizon">{spec.label}</td>
+                    <td className="num" data-label="Threshold T">{pctUnsigned(spec.threshold, 0)}</td>
+                    <td className="num" data-label="Target full credit">within {pctUnsigned(spec.ptFull, 0)}</td>
+                    <td className="num" data-label="Target zero">beyond {pctUnsigned(spec.ptZero, 0)}</td>
                   </tr>
                 );
               })}
@@ -84,7 +84,7 @@ export default function MethodologyPage() {
           </table>
         </div>
         <p>
-          Forward return is the price at the horizon divided by the price on the call date, minus one. Windows are calendar days: 14 (2 weeks), 30, 60, 90, and 365. Each price is the split-adjusted close. A window that runs past the history is ungraded. A date with no quote is an error, not a blank.
+          Forward return is the price at the horizon divided by the price on the call date, minus one. Windows are calendar days: 14 (2 weeks), 30, 60, 90, and 365. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. A window that runs past the history is ungraded. A date with no quote is an error, not a blank.
         </p>
         <p>
           A near-miss is not a hit. For up calls it is a return from half of T up to, but not including, T. Down calls mirror that. Flat calls are a near-miss when the absolute return is outside T but inside {FLAT_NEAR_MULTIPLIER}×T. Hit rate uses full hits only. Miss rate is one minus the hit rate, so near-misses count as misses.
@@ -107,38 +107,43 @@ export default function MethodologyPage() {
           A report card shows two grades. The integer is the GC (Grade Calibration) score, from {CHAD_MIN} to {CHAD_MAX}. <strong className="font-medium text-ink">GC {CHAD_MIN} is a poor track record</strong>. <strong className="font-medium text-ink">GC {CHAD_MAX} is an excellent one</strong>. Beside it, every card shows the full score out of 100. Hit rate, return if followed, and sample size stay underneath. They do not set the rank.
         </p>
         <p>
-          The engine scores a call from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. That 0–100 score is always visible. The GC score is a bucket of the same score, not a replacement for it.
+          The engine scores a call from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. That 0–100 score is always visible. The GC score is the same number placed on the GC Scale. It is not a second formula, and it does not look at anyone else’s score.
         </p>
         <p>
-          <strong className="font-medium text-ink">Under {CHUD_LINE}, the GC score stays in 1–4.</strong> That line is absolute. A 69 is GC 1–4 no matter how the rest of the field looks. The 1–10 number under 70 is only a finer cut of a low score:
+          <strong className="font-medium text-ink">The cut is {GC_STRONG_LINE} and {GC_PROVISIONAL_LINE}.</strong> At or above {GC_STRONG_LINE} the tube reads STRONG and the GC score is 8–{CHAD_MAX}. From {GC_WEAK_LINE} up to {GC_STRONG_LINE} the tube reads PROVISIONAL and the GC score is 5–7. A graded score above 0 and under {GC_WEAK_LINE} reads WEAK and the GC score is 1–4. A graded score of exactly 0 is an empty glass labeled EXIT LIQUIDITY, and the badge is a dash, not GC 1. Each ten points above 0 is one step. The top of a step is not included, except 100, which is GC {CHAD_MAX}:
         </p>
-        <div className="panel overflow-x-auto">
+        <div className="panel stack-table">
           <table className="data-table">
             <thead>
               <tr>
                 <th>Score /100</th>
                 <th>GC</th>
-                <th>Band</th>
+                <th>Tube</th>
               </tr>
             </thead>
             <tbody>
-              {CHUD_BANDS.map((band) => (
-                <tr key={band.chad}>
-                  <td className="num">
-                    {band.min}–{band.max}
+              <tr>
+                <td className="num" data-label="Score /100">0</td>
+                <td className="num" data-label="GC">—</td>
+                <td data-label="Tube">EXIT LIQUIDITY</td>
+              </tr>
+              {GC_BANDS.map((band) => (
+                <tr key={band.gc}>
+                  <td className="num" data-label="Score /100">
+                    {band.min === 0 ? `above 0 up to ${band.max}` : band.max > 100 ? `${band.min}–100` : `${band.min} up to ${band.max}`}
                   </td>
-                  <td className="num">{band.chad}</td>
-                  <td>GC 1–4</td>
+                  <td className="num" data-label="GC">{band.gc}</td>
+                  <td data-label="Tube">{band.grade}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <p>
-          <strong className="font-medium text-ink">The top 30% who also cleared 70 land on GC 8–{CHAD_MAX}.</strong> Among the ranked peers at that horizon — analysts among analysts, banks among banks, tickers among tickers, a single call among calls — a score at or above 70 that also sits in the top 30% is GC 8–{CHAD_MAX}. A score at or above 70 that misses that cut is GC 5–7. If the whole field is under 70, nobody gets a free pass on the absolute line, and anyone who does clear 70 is on GC 8–{CHAD_MAX}.
+          A graded 0 is a dash. A 0.1 is GC 1. A 39.9 is GC 4. A 40 is GC 5. A 69.9 is GC 7. A 70 is GC 8. Values outside 0–100 are clamped first, so a negative score is the same empty glass as 0. The same lines apply to one call, an analyst, a bank, and a ticker. Who else is on the board does not move the badge or the tube.
         </p>
         <p>
-          Values outside 0–100 are clamped first. The card always shows the full score beside the bucket. A profile uses every qualified name at that horizon. A sector board uses the names on that board, so its top 30% can differ.
+          Order is separate. A board can sort names by the overall factor, or by the GC score. Names that share a GC score keep the higher overall factor ahead. That sort is the only use of rank.
         </p>
         <p>
           “If followed” is a separate column. Buys contribute the forward return. Sells contribute the inverse, the return from acting on the negative call. Holds are excluded, because a hold is not an instruction to be long or short.
@@ -149,7 +154,7 @@ export default function MethodologyPage() {
         <h2 className="font-serif text-3xl text-ink">Overall factor</h2>
         <p>{OVERALL_FACTOR_FORMULA}</p>
         <p>
-          That average is the same report-card rollup the leaderboards use. It is not a second formula and it is not a blend of horizons. Pick 2W, 30D, 60D, 90D, or 1Y, and the factor is the mean grade of the active calls at that window. An open window is not graded yet, so it waits. The GC score on the same card is this factor placed on the 1–10 GC Scale against the ranked peers. It is not a separate average.
+          That average is the same report-card rollup the leaderboards use. It is not a second formula and it is not a blend of horizons. Pick 2W, 30D, 60D, 90D, or 1Y, and the factor is the mean grade of the active calls at that window. An open window is not graded yet, so it waits. The GC score on the same card is this factor placed on the GC Scale with the {GC_STRONG_LINE} and {GC_PROVISIONAL_LINE} lines above. It is not a separate average.
         </p>
         <p>
           The card also shows how many active calls are graded, how many calls are superseded, and the hit rate on the active book only. Superseded calls stay in their own list, with the nullified and supersedes notes still attached.
@@ -159,10 +164,10 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="gc-scale">
         <h2 className="font-serif text-3xl text-ink">GC Scale</h2>
         <p>
-          The horizontal tube is the same 0–100 grade, drawn as a fill. It does not rescore the call. STRONG is a grade at or above {GC_STRONG_LINE}. PROVISIONAL is a grade from {GC_PROVISIONAL_LINE} up to that line. WEAK is a graded score under {GC_PROVISIONAL_LINE}. Those words sit on the tube. The GC score is still the 1–10 GC Scale placement of the same number, and it stays on the directory and the leaderboards.
+          The horizontal tube is the same 0–100 grade, drawn as a fill. It does not rescore the call. STRONG is a grade at or above {GC_STRONG_LINE}, and that is GC 8–10. PROVISIONAL is a grade from {GC_PROVISIONAL_LINE} up to that line, and that is GC 5–7. WEAK is a graded score above 0 and under {GC_PROVISIONAL_LINE}, and that is GC 1–4. Those words sit on the tube. The GC score is the 1–10 GC Scale placement of the same number, and it stays on the directory and the leaderboards.
         </p>
         <p>
-          EXIT LIQUIDITY is an empty glass at 0%. It means no calibrated horizon yet: the window has not closed, or that print is missing. It is not a scored zero. A call that was graded and earned nothing stays WEAK, with a hair of liquid, so an open window and a finished miss do not look like the same thing.
+          EXIT LIQUIDITY is an empty glass at 0%, and only for a graded score of exactly 0. The badge on that glass is a dash, not GC 1. An open horizon has no print yet, so it stays ungraded and is not drawn as that glass. A score above 0 that still earned almost nothing stays WEAK, with a hair of liquid, so a finished miss and an empty glass do not look like the same thing.
         </p>
         <p>
           On the analysts board, “all horizons” fills the tube with the mean of the windows that already have a print. Picking 2W, 30D, 60D, 90D, or 1Y uses that window only. The board tube averages active calls. A superseded call can still show its own tube. It does not move the board average, the hit rate, or the GC score.
@@ -172,10 +177,10 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="aggregation">
         <h2 className="font-serif text-3xl text-ink">Leaderboards</h2>
         <p>
-          An analyst’s overall factor is the average of that person’s active graded calls at the selected horizon, on the 0–100 scale. The GC score is that same factor, placed with the rules above against other analysts who clear the sample floor. A bank uses the average of the bank’s active calls, not the average of its analysts, and is ranked among banks. One analyst with forty active calls outweighs one analyst with eight. That is deliberate: the firm published the calls.
+          An analyst’s overall factor is the average of that person’s active graded calls at the selected horizon, on the 0–100 scale. The GC score is that same factor on the GC Scale, using the {GC_STRONG_LINE} and {GC_PROVISIONAL_LINE} lines. A bank uses the average of the bank’s active calls, not the average of its analysts. Boards then order those names. One analyst with forty active calls outweighs one analyst with eight. That is deliberate: the firm published the calls.
         </p>
         <p>
-          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} active graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the GC score and the overall factor are columns. The default order is the overall factor. Sorting by the GC score is on the page; names that share a bucket keep the higher overall factor ahead. Worst offenders reverse whichever key is selected. Under {CHUD_LINE} the GC score stays in 1–4. The top 30% who also cleared 70 land on GC 8–10.
+          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} active graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the GC score and the overall factor are columns. The default order is the overall factor. Sorting by the GC score is on the page; names that share a GC score keep the higher overall factor ahead. Worst offenders reverse whichever key is selected. Under {GC_WEAK_LINE} the GC score is 1–4. From {GC_WEAK_LINE} up to {GC_STRONG_LINE} it is 5–7. At or above {GC_STRONG_LINE} it is 8–10.
         </p>
         <p>
           Sector filters keep calls whose ticker is in that sector. An analyst who only covers technology is unchanged. A generalist would be scored only on the names in the filter.
@@ -191,7 +196,7 @@ export default function MethodologyPage() {
           A run of calls stays one streak while each step is {SUPERSESSION_WINDOW_DAYS} days or closer. Only the latest call in that streak is active. Every earlier call is nullified, and each one points at the call that replaced it. A gap longer than {SUPERSESSION_WINDOW_DAYS} days starts a new streak. Both sides of that gap stay active, and neither gets a nullify note.
         </p>
         <p>
-          The older row reads “Nullified — superseded by later call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” The newer row reads “Supersedes prior call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” A call in the middle of a streak carries both sentences. The date, recommendation, desk rating, target, entry price, and 2W / 30D / 60D / 90D / 1Y outcomes stay on the page. The horizon math does not change. Prices stay split-adjusted.
+          The older row reads “Nullified — superseded by later call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” The newer row reads “Supersedes prior call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” A call in the middle of a streak carries both sentences. The date, recommendation, desk rating, target, entry price, and 2W / 30D / 60D / 90D / 1Y outcomes stay on the page. The horizon math does not change. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date.
         </p>
         <p>
           Tickers match after dots and slashes are folded to hyphens, so BRK.B and BRK-B are one name. Two calls on the same calendar day are inside the window. The later timestamp wins, and if the timestamps match, the higher call id is treated as later. That same-day order is reported as ambiguous because the calendar date alone does not say which note came first. A call with no date is left active and is not chained.
@@ -208,7 +213,7 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="demo">
         <h2 className="font-serif text-3xl text-ink">What this vintage is</h2>
         <p>
-          Grades use real historical prices. The price at the call, and the prices 14, 30, 60, 90, and 365 calendar days later, are the Yahoo Finance adjusted close, already split-adjusted. If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no simulated price path. The sample runs through 21 Sep 2026, with more upgrades, downgrades, and target changes from July onward. A window that has not elapsed is left blank.
+          Grades use real historical prices. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no simulated price path. The sample runs through 21 Sep 2026, with more upgrades, downgrades, and target changes from July onward. A window that has not elapsed is left blank.
         </p>
         <p>
           Analysts, notes, ratings, and price targets are a demo sample. Targets are fictional, and each one is kept in a band around the real price at the call. Firm names are labels for that sample. Each fictional analyst is given a skill level so the leaderboard has a spread. None of it is a track record, a forecast, or a description of anyone’s research.
@@ -218,7 +223,7 @@ export default function MethodologyPage() {
           {Object.entries(SPLIT_ADJUSTED)
             .map(([symbol, info]) => `${symbol} (${info.split})`)
             .join(", ")}
-          {" "}— use that post-split adjusted close for every date, including sessions before the split, so a window that crosses the split does not print a fake crash.
+          {" "}— use that Yahoo Finance adjusted close, already on the post-split scale and adjusted for dividends, for every date, including sessions before the split, so a window that crosses the split does not print a fake crash.
         </p>
         <p>
           GradedCalls Analysts is not affiliated with any bank, broker-dealer, or third-party ratings site. It does not scrape rankings sites. Prices are adjusted closes, not a firm’s published targets.

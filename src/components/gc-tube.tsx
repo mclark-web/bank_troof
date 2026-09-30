@@ -33,6 +33,36 @@ export function GcGradePill({ grade }: { grade: GcGradeId }) {
   return <span className={cx("gc-grade-tag", tone)}>{GC_GRADE_LABEL[grade]}</span>;
 }
 
+const UNGRADED_NAME = "GC Scale, not graded yet";
+
+function UngradedGlass() {
+  return <span className="gc-ungraded-glass" role="img" aria-label={UNGRADED_NAME} />;
+}
+
+export function GcUngraded({ compact = false, className }: { compact?: boolean; className?: string }) {
+  if (compact) {
+    return (
+      <p className={cx("gc-ungraded", className)}>
+        <UngradedGlass />
+        <span aria-hidden="true">Not graded yet</span>
+      </p>
+    );
+  }
+  return (
+    <div className={cx("gc-scale is-sidebar is-empty", className)} style={{ ["--gc-fill" as string]: "0%" }}>
+      <div className="gc-glass" role="img" aria-label={UNGRADED_NAME}>
+        <div className="gc-tube" aria-hidden />
+      </div>
+      <div className="gc-meta gc-meta-row">
+        <div className="gc-label">{GC_SCALE_LABEL}</div>
+        <p className="gc-ungraded" aria-hidden="true">
+          Not graded yet
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function GcTube({
   percent,
   tube,
@@ -60,9 +90,11 @@ export function GcTube({
       className={cx("gc-scale", variantClass, empty && "is-empty", className)}
       style={{ ["--gc-fill" as string]: `${empty ? 0 : tube}%` }}
     >
-      {rich ? <div className="gc-bloom" /> : null}
-      <div className="gc-tube" aria-hidden>
-        <Liquid rich={rich} />
+      <div className="gc-glass">
+        {rich ? <div className="gc-bloom" /> : null}
+        <div className="gc-tube" aria-hidden>
+          <Liquid rich={rich} />
+        </div>
       </div>
       {meta === "none" ? null : (
         <div className={cx("gc-meta", meta === "row" && "gc-meta-row")}>

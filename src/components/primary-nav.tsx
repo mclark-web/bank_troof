@@ -20,7 +20,7 @@ export function PrimaryNav({ variant }: { variant: "bar" | "menu" }) {
   const pathname = usePathname();
   if (variant === "menu") {
     return (
-      <nav className="flex flex-col gap-1" aria-label="Mobile">
+      <nav className="flex flex-col gap-y-3" aria-label="Mobile">
         {NAV.map((item) => (
           <Link
             key={item.href}

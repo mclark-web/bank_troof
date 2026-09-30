@@ -156,7 +156,7 @@ export function WatchlistBoard() {
         return (
           <li key={`${item.kind}:${item.slug}`} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center">
             <div className="min-w-0 flex-1">
-              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">{item.kind}</p>
+              <p className="font-mono text-xs uppercase tracking-[0.16em] text-faint">{item.kind}</p>
               <Link href={href} className="font-serif text-xl hover:text-brass">
                 {item.label}
               </Link>
@@ -165,7 +165,7 @@ export function WatchlistBoard() {
             <div className="sm:text-right">
               {score?.found && score.overallFactor ? (
                 <>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-faint sm:text-right">Overall factor</p>
+                  <p className="font-mono text-xs uppercase tracking-[0.16em] text-faint sm:text-right">Overall factor</p>
                   <p className="flex items-baseline gap-2 sm:justify-end">
                     <span className="num text-4xl leading-none">{formatPoints(score.overallFactor.score)}</span>
                     <span className="num text-lg text-faint">/100</span>

@@ -45,7 +45,7 @@ export default async function HomePage() {
             <Count label="Active graded, 90D" value={home.graded90} />
           </dl>
         </div>
-        <aside className="panel overflow-hidden">
+        <aside className="panel">
           <div className="border-b border-line px-4 py-3">
             <h2 className="font-serif text-xl">Latest calls</h2>
             <p className="text-xs text-faint">Newest demo calls. Grade is the longest window that has closed.</p>
@@ -58,7 +58,7 @@ export default async function HomePage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <Link href={`/calls/${call.id}`} className="text-sm leading-5 hover:text-brass">
-                      <span className="text-ink">{call.analyst.name}</span>{" "}
+                      <span className="text-ink">{call.analyst.name} </span>
                       <span className="text-muted">
                         {callHeadline({
                           action: call.action,
@@ -79,9 +79,9 @@ export default async function HomePage() {
                   </div>
                   <div className="text-right">
                     <GradePill result={closed?.grade.directionResult ?? null} />
-                    <p className="mt-1 text-[10px] uppercase tracking-wider text-faint">
-                      {closed ? HORIZONS[closed.horizon].short : "Open"}
-                    </p>
+                    {closed ? (
+                      <p className="mt-1 text-xs uppercase tracking-wider text-faint">{HORIZONS[closed.horizon].short}</p>
+                    ) : null}
                   </div>
                 </div>
               </li>
@@ -94,7 +94,7 @@ export default async function HomePage() {
       <section className="mt-10">
         <p className="mb-3 text-sm text-muted">
           Every card leads with the overall factor, the average 0–100 grade of active calls. The GC score sits beside it on the GC Scale, from{" "}
-          <span className="text-ink">1</span> to <span className="text-ink">10</span>. Superseded calls do not enter the factor. Under 70 the GC score stays in 1–4. The top 30% who also cleared 70 land on GC 8–10. Hit rate is underneath, on the active book only.
+          <span className="text-ink">1</span> to <span className="text-ink">10</span>. Superseded calls do not enter the factor. Under 40 the GC score is 1–4 (WEAK). From 40 up to 70 it is 5–7 (PROVISIONAL). At or above 70 it is 8–10 (STRONG). Hit rate is underneath, on the active book only.
         </p>
         <div className="grid gap-4 lg:grid-cols-3">
         <MiniLeaderboard title="Top analysts" href="/leaderboards?view=analysts" rows={home.analysts.map(toRow)} />
@@ -104,16 +104,8 @@ export default async function HomePage() {
       </section>
 
       <section className="mt-10 grid gap-4 md:grid-cols-2">
-        <Featured
-          eyebrow="Best followed, 90D"
-          call={home.featuredHit}
-          tone="hit"
-        />
-        <Featured
-          eyebrow="Worst followed, 90D"
-          call={home.featuredMiss}
-          tone="miss"
-        />
+        <Featured eyebrow="Best followed, 90D" call={home.featuredHit} />
+        <Featured eyebrow="Worst followed, 90D" call={home.featuredMiss} />
       </section>
 
       <section className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
@@ -121,7 +113,7 @@ export default async function HomePage() {
           <p className="kicker">No black box</p>
           <h2 className="mt-2 font-serif text-3xl tracking-tight">The grade is the product.</h2>
           <p className="mt-3 text-sm leading-6 text-muted">
-            A call leads with the recommendation: an upgrade, a target raise, a reiteration. The grade uses a separate direction bucket, plus an optional target. Those pieces add up to a score from 0 to 100, shown in full. Under 70 the GC score stays in 1–4. The top 30% of peers who also cleared 70 land on GC 8–10. Near-misses get half credit and do not count as hits.
+            A call leads with the recommendation: an upgrade, a target raise, a reiteration. The grade uses a separate direction bucket, plus an optional target. Those pieces add up to a score from 0 to 100, shown in full. Under 40 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. Near-misses get half credit and do not count as hits.
           </p>
         </div>
         <ol className="grid gap-3 sm:grid-cols-3">
@@ -153,7 +145,7 @@ export default async function HomePage() {
               Why these are flagged
             </Link>
           </div>
-          <div className="panel overflow-x-auto">
+          <div className="panel stack-table">
             <table className="data-table">
               <thead>
                 <tr>
@@ -167,7 +159,7 @@ export default async function HomePage() {
                   const closed = longestClosed(call);
                   return (
                   <tr key={call.id}>
-                    <td>
+                    <td data-label="Call">
                       <Link href={`/calls/${call.id}`} className="hover:text-brass">
                         {call.analyst.name} on {call.ticker.symbol}
                       </Link>
@@ -178,12 +170,14 @@ export default async function HomePage() {
                       </p>
                       <SupersessionNotes mark={call.supersession} />
                     </td>
-                    <td className="max-w-xs text-sm text-muted">{call.controversialReason}</td>
-                    <td>
+                    <td className="max-w-xs text-sm text-muted" data-label="Why">{call.controversialReason}</td>
+                    <td data-label="Grade">
                       <GradePill result={closed?.grade.directionResult ?? null} />
-                      <p className="num mt-1 text-xs text-faint">
-                        {closed ? `${HORIZONS[closed.horizon].short} ${pct(closed.grade.forwardReturn)}` : "Open"}
-                      </p>
+                      {closed ? (
+                        <p className="num mt-1 text-xs text-faint">
+                          {HORIZONS[closed.horizon].short} {pct(closed.grade.forwardReturn)}
+                        </p>
+                      ) : null}
                     </td>
                   </tr>
                   );
@@ -209,11 +203,9 @@ function Count({ label, value }: { label: string; value: number }) {
 function Featured({
   eyebrow,
   call,
-  tone,
 }: {
   eyebrow: string;
   call: Awaited<ReturnType<typeof getHome>>["featuredHit"];
-  tone: "hit" | "miss";
 }) {
   if (!call) return null;
   const followed = call.grades["90"].followedReturn;
@@ -233,7 +225,7 @@ function Featured({
       <p className="mt-2 text-sm text-muted">
         {call.bank.shortName} · {formatDate(call.callDate)} · target {call.priceTargetTo ? `$${Math.round(call.priceTargetTo)}` : "—"}
       </p>
-      <p className={`num mt-4 text-4xl ${tone === "hit" ? "text-hit" : "text-miss"}`}>{pct(followed)}</p>
+      <p className="num mt-4 text-4xl text-ink">{pct(followed)}</p>
       <p className="mt-1 text-xs text-faint">Return if the directional call was followed for 90 days. Holds are excluded from this cut.</p>
     </article>
   );

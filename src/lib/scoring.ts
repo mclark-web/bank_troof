@@ -1,3 +1,5 @@
+import { GC_PROVISIONAL_LINE, GC_STRONG_LINE } from "./gc-grade";
+
 export const HORIZON_KEYS = ["14", "30", "60", "90", "365"] as const;
 
 export type HorizonKey = (typeof HORIZON_KEYS)[number];
@@ -15,18 +17,32 @@ export const FLAT_NEAR_MULTIPLIER = 1.35;
 export const CHAD_MIN = 1;
 export const CHAD_MAX = 10;
 
-/** Anything under this 0–100 score is GC 1–4, even if the field is weak. */
-export const CHUD_LINE = 70;
+/** At or above this 0–100 score the tube is STRONG and the GC badge is 8–10. */
+export const CHUD_LINE = GC_STRONG_LINE;
+
+/** From this score up to CHUD_LINE the tube is PROVISIONAL and the GC badge is 5–7. Under it, WEAK and GC 1–4. */
+export const GC_WEAK_LINE = GC_PROVISIONAL_LINE;
 
 export type ChadSide = "chud" | "mid" | "chad";
 
-/** Absolute buckets under 70. Upper bounds are exclusive. */
-export const CHUD_BANDS = [
-  { min: 0, max: 17, chad: 1 },
-  { min: 18, max: 34, chad: 2 },
-  { min: 35, max: 51, chad: 3 },
-  { min: 52, max: 69, chad: 4 },
-] as const;
+export type GcBandGrade = "WEAK" | "PROVISIONAL" | "STRONG";
+
+/**
+ * Absolute GC Scale steps. `max` is exclusive, except the last band, which includes 100.
+ * Ten points is one step. Under 40 is GC 1–4. From 40 up to 70 is GC 5–7. At or above 70 is GC 8–10.
+ */
+export const GC_BANDS = [
+  { min: 0, max: 10, gc: 1, grade: "WEAK" },
+  { min: 10, max: 20, gc: 2, grade: "WEAK" },
+  { min: 20, max: 30, gc: 3, grade: "WEAK" },
+  { min: 30, max: 40, gc: 4, grade: "WEAK" },
+  { min: 40, max: 50, gc: 5, grade: "PROVISIONAL" },
+  { min: 50, max: 60, gc: 6, grade: "PROVISIONAL" },
+  { min: 60, max: 70, gc: 7, grade: "PROVISIONAL" },
+  { min: 70, max: 80, gc: 8, grade: "STRONG" },
+  { min: 80, max: 90, gc: 9, grade: "STRONG" },
+  { min: 90, max: 101, gc: 10, grade: "STRONG" },
+] as const satisfies readonly { min: number; max: number; gc: number; grade: GcBandGrade }[];
 
 export type ChadPlacement = {
   chad: number | null;
@@ -39,54 +55,36 @@ function clampScore(raw: number | null | undefined): number | null {
   return Math.min(100, Math.max(0, raw));
 }
 
-function chudBucket(score: number): number {
-  if (score < 18) return 1;
-  if (score < 35) return 2;
-  if (score < 52) return 3;
-  return 4;
-}
-
-/** Split [low, high] into three integers starting at `start`. The top of the range gets start+2. */
-function splitThirds(score: number, low: number, high: number, start: number): number {
-  if (!(high > low)) return start + 2;
-  const t = Math.min(1, Math.max(0, (score - low) / (high - low)));
-  if (t >= 1) return start + 2;
-  return start + Math.min(2, Math.floor(t * 3));
-}
-
-/** Lowest score inside the top 30%. Ties at that score stay in. */
-export function topThirtyCutoff(peers: number[]): number {
-  const scores = peers.filter((score) => Number.isFinite(score));
-  if (scores.length === 0) return CHUD_LINE;
-  const sorted = [...scores].sort((a, b) => a - b);
-  const topCount = Math.max(1, Math.ceil(scores.length * 0.3));
-  return sorted[sorted.length - topCount];
+function bandFor(score: number): (typeof GC_BANDS)[number] | null {
+  if (score === 0) return null;
+  const band = GC_BANDS.find((row) => score >= row.min && score < row.max);
+  return band ?? GC_BANDS[GC_BANDS.length - 1];
 }
 
 /**
- * 1–10 GC Scale placement for one score against a peer set.
- * Under 70 is always GC 1–4. At or above 70 and in the top 30% is GC 8–10.
- * At or above 70 but outside that top 30% is GC 5–7.
+ * 1–10 GC Scale placement for one 0–100 score.
+ * Exactly 0 is a dash (empty glass, EXIT LIQUIDITY), not GC 1.
+ * Above 0 and under 40 is GC 1–4 (WEAK). From 40 up to 70 is GC 5–7 (PROVISIONAL).
+ * At or above 70 is GC 8–10 (STRONG). Peer rank is not an input.
  */
-export function placeChad(score: number | null | undefined, peers: number[]): ChadPlacement {
+export function placeChad(score: number | null | undefined): ChadPlacement {
   const clamped = clampScore(score);
-  if (clamped == null) return { chad: null, side: null, label: null };
-  if (clamped < CHUD_LINE) {
-    return { chad: chudBucket(clamped), side: "chud", label: "GC 1–4. A score under 70 stays at the low end of the GC Scale." };
-  }
-  const line = Math.max(topThirtyCutoff(peers), CHUD_LINE);
-  if (clamped + 1e-9 >= line) {
+  if (clamped == null || clamped === 0) {
     return {
-      chad: splitThirds(clamped, line, 100, 8),
-      side: "chad",
-      label: "GC 8–10. Top 30% of peers who also cleared 70.",
+      chad: null,
+      side: null,
+      label: clamped === 0 ? "A graded score of 0 is EXIT LIQUIDITY, an empty glass, and a dash on the GC Scale." : null,
     };
   }
-  return {
-    chad: splitThirds(clamped, CHUD_LINE, line, 5),
-    side: "mid",
-    label: "GC 5–7. Above 70, outside the top 30%.",
-  };
+  const band = bandFor(clamped);
+  if (!band) return { chad: null, side: null, label: null };
+  if (band.grade === "STRONG") {
+    return { chad: band.gc, side: "chad", label: "GC 8–10. At or above 70 is STRONG on the GC Scale." };
+  }
+  if (band.grade === "PROVISIONAL") {
+    return { chad: band.gc, side: "mid", label: "GC 5–7. From 40 up to 70 is PROVISIONAL on the GC Scale." };
+  }
+  return { chad: band.gc, side: "chud", label: "GC 1–4. Under 40 is WEAK on the GC Scale." };
 }
 
 /** Full engine score, shown beside the GC score. One decimal when it is not a whole number. */

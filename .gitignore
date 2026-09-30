@@ -10,3 +10,4 @@ prisma/banktruth.db-journal
 prisma/*.db
 prisma/*.db-journal
 .DS_Store
+artifacts/

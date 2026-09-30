@@ -39,7 +39,7 @@ export default function DisclaimerPage() {
 
       <LegalSection id="prices" title="How the prices are real, and how the rest is a demo">
         <p>
-          When a call is graded, the price at the call and the later prices are historical split-adjusted closes from Yahoo Finance. The windows are 14 calendar days (2 weeks), 30 days, 60 days, 90 days, and 1 year. If the calendar date is not a trading session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote is an error. The site does not invent a price to fill a gap. A window that has not elapsed is left ungraded.
+          Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. The windows are 14 calendar days (2 weeks), 30 days, 60 days, 90 days, and 1 year. If the calendar date is not a trading session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote is an error. The site does not invent a price to fill a gap. A window that has not elapsed is left ungraded.
         </p>
         <p>
           Analysts, biographies, notes, ratings, and price targets in this vintage are a demo sample. Firm names are labels for that sample. They are not those firms’ research, and they are not a description of any person who works there. Targets are fictional numbers kept in a band around the real price at the call so the arithmetic has something to grade. The banner on every page marks this vintage as a demo.
@@ -57,7 +57,7 @@ export default function DisclaimerPage() {
 
       <LegalSection id="opinions" title="GC scores are opinions">
         <p>
-          The GC score is the GC Scale in the published methodology, not a regulated rating and not a statement about a person. Under 70 out of 100 the GC score stays in 1–4. The top 30% of a ranked peer set lands on GC 8–10 only when the score is also at least 70. The full grade out of 100 is always the score. The 1–10 number is a bucket of that score. Both are opinions produced by a formula applied to a sample. They are not for sale.
+          The GC score is the GC Scale in the published methodology, not a regulated rating and not a statement about a person. Under 40 out of 100 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. A graded score of exactly 0 is an empty glass at 0% and reads EXIT LIQUIDITY. The badge is a dash, not GC 1. An open horizon stays ungraded. The full grade out of 100 is always the score. The 1–10 number is that score on the GC Scale. Both are opinions produced by a formula applied to a sample. They are not for sale.
         </p>
       </LegalSection>
 

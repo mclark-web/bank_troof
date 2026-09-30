@@ -6,7 +6,7 @@ import { HorizonChips, OverallFactorCard, PageIntro, ScoreBar } from "@/componen
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { parseHorizon } from "@/lib/scoring";
-import { analystRowsForCalls, factorForCalls, getBank, rankedPeerScores, sectorBreakdown } from "@/lib/queries";
+import { analystRowsForCalls, factorForCalls, getBank, sectorBreakdown } from "@/lib/queries";
 
 type Params = { slug: string };
 
@@ -40,7 +40,6 @@ export default async function BankPage({
   if (!data) notFound();
   const { bank, calls } = data;
   const factor = factorForCalls(calls, horizon);
-  const peers = await rankedPeerScores("bank", horizon);
   const sectors = sectorBreakdown(calls, horizon);
   const roster = analystRowsForCalls(calls, horizon);
   const maxGraded = Math.max(...sectors.map((item) => item.aggregate.graded), 1);
@@ -62,7 +61,7 @@ export default async function BankPage({
           <h2 className="font-serif text-2xl">Overall factor</h2>
           <HorizonChips path={`/banks/${bank.slug}`} current={current} horizon={horizon} />
         </div>
-        <OverallFactorCard factor={factor} horizon={horizon} peers={peers} />
+        <OverallFactorCard factor={factor} horizon={horizon} />
       </div>
       <section className="mb-8 grid gap-4 lg:grid-cols-2">
         <div className="panel p-5">
@@ -79,9 +78,9 @@ export default async function BankPage({
                     {item.aggregate.graded}
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                <div className="h-1.5 overflow-hidden rounded-full bg-[#14171e] shadow-[inset_0_0_0_1px_rgba(154,154,163,0.35)]">
                   <div
-                    className="h-full bg-brass/80"
+                    className="h-full bg-orange"
                     style={{ width: `${(item.aggregate.graded / maxGraded) * 100}%` }}
                   />
                 </div>
@@ -89,7 +88,7 @@ export default async function BankPage({
             ))}
           </ul>
         </div>
-        <div className="panel overflow-hidden">
+        <div className="panel stack-table">
           <h2 className="border-b border-line px-5 py-4 font-serif text-2xl">Roster</h2>
           <table className="data-table">
             <thead>
@@ -98,21 +97,21 @@ export default async function BankPage({
                 <th>Hit</th>
                 <th>
                   Overall factor
-                  <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
+                  <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
                 </th>
               </tr>
             </thead>
             <tbody>
               {roster.map((row) => (
                 <tr key={row.slug}>
-                  <td>
+                  <td data-label="Analyst">
                     <Link href={row.href} className="hover:text-brass">
                       {row.name}
                     </Link>
                     <p className="text-xs text-faint">{row.subtitle}</p>
                   </td>
-                  <td className="num">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
-                  <td>
+                  <td className="num" data-label="Hit">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
+                  <td data-label="Overall factor">
                     <ScoreBar score={row.aggregate.avgScore} placement={row.placement} />
                   </td>
                 </tr>

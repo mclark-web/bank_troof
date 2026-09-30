@@ -7,7 +7,7 @@ import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { directionForGradingLabel } from "@/lib/labels";
 import { parseHorizon } from "@/lib/scoring";
-import { analystRowsForCalls, factorForCalls, getTicker, latestConsensus, rankedPeerScores } from "@/lib/queries";
+import { analystRowsForCalls, factorForCalls, getTicker, latestConsensus } from "@/lib/queries";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { symbol: string };
@@ -43,7 +43,6 @@ export default async function TickerPage({
   const { ticker, calls } = data;
   const consensus = latestConsensus(calls);
   const factor = factorForCalls(calls, horizon);
-  const peers = await rankedPeerScores("ticker", horizon);
   const byAnalyst = analystRowsForCalls(calls, horizon);
   const hitPct = factor.hitRate == null ? null : Math.round(factor.hitRate * 100);
   const current = {
@@ -62,7 +61,7 @@ export default async function TickerPage({
       </PageIntro>
       {SPLIT_ADJUSTED[ticker.symbol] ? (
         <p className="mb-6 max-w-3xl text-sm leading-6 text-muted">
-          Sample prices for {ticker.symbol} are split-adjusted for the {SPLIT_ADJUSTED[ticker.symbol].split}. Dates before the split use the same scale as dates after it.
+          Sample prices for {ticker.symbol} are adjusted for splits and dividends ({SPLIT_ADJUSTED[ticker.symbol].split}). Dates before the split use the same scale as dates after it.
         </p>
       ) : null}
 
@@ -84,7 +83,7 @@ export default async function TickerPage({
                     </Link>
                     <Link href={`/calls/${call.id}`} className="text-right hover:text-brass">
                       <RecommendationPill call={call} />
-                      <span className="mt-1 block text-[10px] normal-case tracking-normal text-faint">
+                      <span className="mt-1 block text-xs normal-case tracking-normal text-faint">
                         Direction for grading: {directionForGradingLabel(call.ratingTo)}
                       </span>
                     </Link>
@@ -98,7 +97,7 @@ export default async function TickerPage({
             <h2 className="font-serif text-2xl">Who was right</h2>
             <HorizonChips path={`/tickers/${ticker.symbol}`} current={current} horizon={horizon} />
           </div>
-          <OverallFactorCard factor={factor} horizon={horizon} peers={peers} />
+          <OverallFactorCard factor={factor} horizon={horizon} />
           <p className="mt-4 text-sm leading-6 text-muted">
             {hitPct == null
               ? "No active graded calls in this window yet."
@@ -112,7 +111,7 @@ export default async function TickerPage({
         {byAnalyst.length === 0 ? (
           <p className="panel px-4 py-8 text-center text-sm text-muted">No graded calls for this horizon.</p>
         ) : (
-          <div className="panel overflow-x-auto">
+          <div className="panel stack-table">
             <table className="data-table">
               <thead>
                 <tr>
@@ -122,22 +121,22 @@ export default async function TickerPage({
                   <th>Hit</th>
                   <th>
                     Overall factor
-                    <span className="mt-1 block font-sans text-[10px] font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
+                    <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {byAnalyst.map((row) => (
                   <tr key={row.slug}>
-                    <td>
+                    <td data-label="Analyst">
                       <Link href={row.href} className="hover:text-brass">
                         {row.name}
                       </Link>
                     </td>
-                    <td className="text-muted">{row.subtitle}</td>
-                    <td className="num">{row.aggregate.graded}</td>
-                    <td className="num">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
-                    <td>
+                    <td className="text-muted" data-label="Firm">{row.subtitle}</td>
+                    <td className="num" data-label="N">{row.aggregate.graded}</td>
+                    <td className="num" data-label="Hit">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
+                    <td data-label="Overall factor">
                       <ScoreBar score={row.aggregate.avgScore} placement={row.placement} />
                     </td>
                   </tr>

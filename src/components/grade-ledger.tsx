@@ -3,7 +3,7 @@ import { readCalibration } from "@/lib/gc-grade";
 import { directionForGradingLabel } from "@/lib/labels";
 import { formatPoints, HORIZONS, HORIZON_KEYS, outcomeField, placeChad, type CallGrade, type HorizonKey } from "@/lib/scoring";
 import type { ScoredCall } from "@/lib/queries";
-import { GcTube } from "./gc-tube";
+import { GcGradePill, GcTube, GcUngraded } from "./gc-tube";
 import { GradePill, SideNote } from "./ui";
 
 function expectation(grade: CallGrade, rating: string, horizon: HorizonKey) {
@@ -23,12 +23,12 @@ function priceFor(call: ScoredCall, horizon: HorizonKey) {
   return call[outcomeField(horizon)];
 }
 
-export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<HorizonKey, number[]> }) {
+export function GradeLedger({ call }: { call: ScoredCall }) {
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {HORIZON_KEYS.map((horizon) => {
         const grade = call.grades[horizon];
-        const placement = placeChad(grade.score, peers[horizon]);
+        const placement = placeChad(grade.gradeable ? grade.score : null);
         const reading = readCalibration(grade.score, grade.gradeable);
         const spec = HORIZONS[horizon];
         const after = priceFor(call, horizon);
@@ -39,7 +39,7 @@ export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<H
                 <p className="kicker">{spec.short}</p>
                 <p className="mt-1 text-sm text-muted">{spec.label} after the call</p>
               </div>
-              <GradePill result={grade.directionResult} />
+              {grade.directionResult ? <GradePill result={grade.directionResult} /> : null}
             </div>
             {grade.gradeable ? (
               <div className="mt-4">
@@ -47,10 +47,10 @@ export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<H
                   <span className="num text-6xl leading-none">{placement.chad ?? "—"}</span>
                   <span className="mb-1 text-sm text-muted">
                     / 10
-                    <span className="mt-0.5 block text-[11px]">
-                      <span className="text-miss">GC 1</span>
+                    <span className="mt-0.5 block text-xs">
+                      <span className="text-muted">GC 1</span>
                       <span className="text-faint"> → </span>
-                      <span className="text-hit">GC 10</span>
+                      <span className="text-muted">GC 10</span>
                     </span>
                   </span>
                 </p>
@@ -66,6 +66,9 @@ export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<H
                   variant="sidebar"
                   meta="none"
                 />
+                <div className="mt-2">
+                  <GcGradePill grade={reading.id} />
+                </div>
                 <SideNote placement={placement} className="mt-2" />
               </div>
             ) : null}
@@ -83,9 +86,12 @@ export function GradeLedger({ call, peers }: { call: ScoredCall; peers: Record<H
                 <Row k="If followed" v={grade.followedReturn == null ? "Hold excluded" : pct(grade.followedReturn)} />
               </dl>
             ) : (
-              <p className="mt-6 text-sm leading-6 text-muted">
-                This window has no recorded price in the sample, so the call stays ungraded. Open windows are left out of hit rate and score.
-              </p>
+              <div className="mt-4">
+                <GcUngraded />
+                <p className="mt-4 text-sm leading-6 text-muted">
+                  This window has no recorded price in the sample, so the call stays ungraded. Open windows are left out of hit rate and score.
+                </p>
+              </div>
             )}
             <p className="mt-4 border-t border-line pt-3 text-xs leading-5 text-faint">{expectation(grade, call.ratingTo, horizon)}</p>
           </article>
