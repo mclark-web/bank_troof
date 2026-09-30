@@ -6,7 +6,7 @@ import { PrismaClient } from "@prisma/client";
 const dbPath = path.join(process.cwd(), "prisma", "banktruth.db");
 
 function reset() {
-  execSync("npx prisma db push --skip-generate --accept-data-loss", { stdio: "inherit" });
+  execSync("sh scripts/with-demo-env.sh npx prisma db push --skip-generate --accept-data-loss", { stdio: "inherit" });
   execSync("npx tsx prisma/seed.ts", { stdio: "inherit" });
 }
 

@@ -141,7 +141,7 @@ Use these settings. The defaults already match; do not override the build comman
 
 `npm run build` runs `prebuild` first: Prisma generates the client, creates `prisma/banktruth.db`, and seeds it. That file is traced into the server bundle. On Vercel the filesystem is read-only except `/tmp`, so each instance copies the seed to `/tmp/banktruth.db` before reading it. Do not change the build command to bare `next build` — that skips the seed and the live routes will have no database.
 
-Do not set `DATABASE_URL` for the demo. Do not set `NODE_ENV` yourself. A `postgresql://` `DATABASE_URL` is only for a later hosted database, and it also requires changing the Prisma datasource provider to `postgresql`.
+Do not set `DATABASE_URL` for the demo. Do not commit a `.env`. When that variable is unset and no `.env` file is present, the build scripts pass Prisma the local SQLite path (`file:./banktruth.db`, resolved beside `schema.prisma`). Copy `.env.example` to `.env` only if you want a different path. Do not set `NODE_ENV` yourself. A `postgresql://` `DATABASE_URL` is only for a later hosted database, and it also requires changing the Prisma datasource provider to `postgresql`.
 
 This deploy is a read-only demo. A writable production feed should use Postgres rather than SQLite on serverless disk.
 
