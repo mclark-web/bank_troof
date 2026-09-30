@@ -140,7 +140,7 @@ export function CallTable({
                     <Link href={`/tickers/${call.ticker.symbol}`} className="num font-medium hover:text-brass">
                       {call.ticker.symbol}
                     </Link>
-                    <span className="block whitespace-nowrap text-xs text-faint">{call.ticker.name}</span>
+                    <span className="cell-wrap block text-xs text-faint">{call.ticker.name}</span>
                   </td>
                 ) : null}
                 {showAnalyst ? (
@@ -148,7 +148,7 @@ export function CallTable({
                     <Link href={`/analysts/${call.analyst.slug}`} className="hover:text-brass">
                       {call.analyst.name}
                     </Link>
-                    <span className="block whitespace-nowrap text-xs text-faint">{call.bank.shortName}</span>
+                    <span className="cell-wrap block text-xs text-faint">{call.bank.shortName}</span>
                   </td>
                 ) : null}
                 <td data-label="Recommendation">

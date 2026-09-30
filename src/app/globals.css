@@ -502,6 +502,15 @@ li a.text-sm.leading-5 {
   }
 }
 
+/* Mid-width tables stay inside the page. A wide row scrolls in the panel. */
+@media (min-width: 640px) {
+  .stack-table {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
 @media (min-width: 640px) and (max-width: 1279px) {
   .data-table th {
     white-space: normal;
@@ -510,6 +519,9 @@ li a.text-sm.leading-5 {
   .data-table td {
     padding-left: 8px;
     padding-right: 8px;
+  }
+  .data-table .cell-wrap {
+    white-space: normal;
   }
 }
 .hz-near,

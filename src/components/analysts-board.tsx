@@ -244,16 +244,16 @@ export function AnalystsBoard({
                         </div>
                       </td>
                       <td data-label="Call">
-                        <Link href={`/calls/${call.id}`} className="num whitespace-nowrap font-semibold tracking-wide hover:text-brass">
+                        <Link href={`/calls/${call.id}`} className="num font-semibold tracking-wide hover:text-brass">
                           {call.ticker.symbol}
                         </Link>
-                        <span className="whitespace-nowrap text-muted">{recommendationLabel(call)}</span>
-                        {target ? <span className="whitespace-nowrap text-muted">{target.replace(/^ · /, "")}</span> : null}
+                        <span className="cell-wrap text-muted">{recommendationLabel(call)}</span>
+                        {target ? <span className="cell-wrap text-muted">{target.replace(/^ · /, "")}</span> : null}
                         {call.controversial ? <span className="tag-note">Controversial</span> : null}
                       </td>
-                      <td className="num whitespace-nowrap" data-label="Entry">
-                        {usd(call.priceAtCall)}
-                        <span className="mt-0.5 block text-xs text-faint">{shortDate(call.callDate)}</span>
+                      <td className="num" data-label="Entry">
+                        <span className="whitespace-nowrap">{usd(call.priceAtCall)}</span>
+                        <span className="mt-0.5 block whitespace-nowrap text-xs text-faint">{shortDate(call.callDate)}</span>
                       </td>
                       <td data-label="Horizons">
                         <HorizonMarks call={call} />
