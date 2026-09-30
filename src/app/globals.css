@@ -123,6 +123,7 @@ body {
   flex-shrink: 0;
   display: block;
   object-fit: contain;
+  background-color: transparent;
 }
 
 .nav-link {

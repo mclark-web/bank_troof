@@ -23,4 +23,15 @@ test("the header logo links to the hub in the same tab", () => {
 
   const globalError = readFileSync(new URL("../app/global-error.tsx", import.meta.url), "utf8");
   assert.match(globalError, /<LogoLink\s*\/>/);
+  assert.match(html, /src="\/gradedcalls-mark-transparent\.png"/);
+  assert.match(html, /width="44"/);
+  assert.match(html, /height="44"/);
+  assert.match(html, /background-color:transparent/);
+  assert.doesNotMatch(html, /gradedcalls-mark\.png/);
+
+  const errorPage = readFileSync(new URL("../app/error.tsx", import.meta.url), "utf8");
+  assert.match(errorPage, /onClick=\{reset\}/);
+  assert.doesNotMatch(errorPage, /\bretry\b/);
+  assert.match(globalError, /onClick=\{reset\}/);
+  assert.doesNotMatch(globalError, /\bretry\b/);
 });
