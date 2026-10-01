@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BoardTable } from "@/components/tables";
 import { EmptyNote, HorizonChips, PageIntro, SectorForm, hrefWith } from "@/components/ui";
+import { leaderboardLede } from "@/lib/leaderboard-lede";
 import { loadSectors, leaderboard, type RankKey } from "@/lib/queries";
 import { HORIZONS, minimumSample, parseHorizon } from "@/lib/scoring";
 
@@ -48,8 +49,7 @@ export default async function LeaderboardsPage({
 
   const title =
     view === "offenders" ? "Worst offenders" : view === "banks" ? "Top banks" : "Top analysts";
-  const lede =
-    "Ranked by overall factor: the average 0–100 grade of active calls over 90 days. Superseded calls don't score.";
+  const lede = leaderboardLede(view, horizon, rank);
 
   return (
     <div>
