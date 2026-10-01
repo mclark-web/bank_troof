@@ -145,7 +145,7 @@ export default async function HomePage() {
               Why these are flagged
             </Link>
           </div>
-          <div className="panel stack-table">
+          <div className="panel stack-table" tabIndex={0} role="region" aria-label="Controversial moves, scrollable">
             <table className="data-table">
               <thead>
                 <tr>

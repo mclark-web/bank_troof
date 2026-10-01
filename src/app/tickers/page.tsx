@@ -23,7 +23,7 @@ export default async function TickersPage() {
         {sectors.map((sector) => (
           <section key={sector}>
             <h2 className="mb-3 font-serif text-2xl">{sector}</h2>
-            <div className="panel stack-table">
+            <div className="panel stack-table" tabIndex={0} role="region" aria-label={`${sector} tickers, scrollable`}>
               <table className="data-table">
                 <thead>
                   <tr>

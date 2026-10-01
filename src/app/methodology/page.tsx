@@ -58,7 +58,7 @@ export default function MethodologyPage() {
           <li>Down hits when the forward return is at most −T.</li>
           <li>Flat hits when the absolute return is at most T.</li>
         </ul>
-        <div className="panel stack-table">
+        <div className="panel stack-table" tabIndex={0} role="region" aria-label="Horizon thresholds, scrollable">
           <table className="data-table">
             <thead>
               <tr>
@@ -112,7 +112,7 @@ export default function MethodologyPage() {
         <p>
           <strong className="font-medium text-ink">The cut is {GC_STRONG_LINE} and {GC_PROVISIONAL_LINE}.</strong> At or above {GC_STRONG_LINE} the tube reads STRONG and the GC score is 8–{CHAD_MAX}. From {GC_WEAK_LINE} up to {GC_STRONG_LINE} the tube reads PROVISIONAL and the GC score is 5–7. A graded score above 0 and under {GC_WEAK_LINE} reads WEAK and the GC score is 1–4. A graded score of exactly 0 is an empty glass labeled EXIT LIQUIDITY, and the badge is a dash, not GC 1. Each ten points above 0 is one step. The top of a step is not included, except 100, which is GC {CHAD_MAX}:
         </p>
-        <div className="panel stack-table">
+        <div className="panel stack-table" tabIndex={0} role="region" aria-label="GC score bands, scrollable">
           <table className="data-table">
             <thead>
               <tr>

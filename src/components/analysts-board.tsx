@@ -188,7 +188,7 @@ export function AnalystsBoard({
       </div>
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="panel stack-table">
+        <div className="panel stack-table" tabIndex={0} role="region" aria-label="Latest graded calls, scrollable">
           <div className="flex items-end justify-between gap-3 border-b border-line px-4 py-3.5">
             <div>
               <h2 className="text-sm font-semibold">Latest graded calls</h2>

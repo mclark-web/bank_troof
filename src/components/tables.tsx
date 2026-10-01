@@ -13,8 +13,9 @@ export function parseBook(value: string | undefined): BookView {
 }
 
 export function BoardTable({ rows }: { rows: BoardRow[] }) {
+  const boardName = rows[0]?.kind === "bank" ? "Bank leaderboard" : "Analyst leaderboard";
   return (
-    <div className="panel stack-table">
+    <div className="panel stack-table" tabIndex={0} role="region" aria-label={`${boardName}, scrollable`}>
       <table className="data-table">
         <thead>
           <tr>
@@ -92,14 +93,16 @@ export function CallTable({
   horizon,
   showAnalyst = false,
   showTicker = true,
+  label = "Calls",
 }: {
   calls: ScoredCall[];
   horizon: HorizonKey;
   showAnalyst?: boolean;
   showTicker?: boolean;
+  label?: string;
 }) {
   return (
-    <div className="panel stack-table">
+    <div className="panel stack-table" tabIndex={0} role="region" aria-label={`${label}, scrollable`}>
       <table className="data-table">
         <thead>
           <tr>
@@ -273,7 +276,7 @@ function BookSection({
       {total === 0 ? (
         <p className="panel px-4 py-8 text-center text-sm text-muted">{empty}</p>
       ) : (
-        <CallTable calls={calls} horizon={horizon} showAnalyst={showAnalyst} showTicker={showTicker} />
+        <CallTable calls={calls} horizon={horizon} showAnalyst={showAnalyst} showTicker={showTicker} label={title} />
       )}
       {total > calls.length ? (
         <p className="mt-3 text-xs text-faint">

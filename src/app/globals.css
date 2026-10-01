@@ -442,16 +442,16 @@ header details[open] > div {
 .consensus-bar > * + * {
   box-shadow: inset 0 0 0 1px rgba(154, 154, 163, 0.35), inset 1px 0 0 #0a0b0d;
 }
-.consensus-buy {
-  background-color: #3a3a3a;
-}
 .consensus-hold {
   background-color: #14161c;
-  background-image: repeating-linear-gradient(90deg, #c9c9cf 0 2px, transparent 2px 5px);
+  background-image: repeating-linear-gradient(90deg, #393939 0 3px, transparent 3px 6px);
 }
 .consensus-sell {
   background-color: #101216;
-  background-image: repeating-linear-gradient(135deg, transparent 0 3px, #c9c9cf 3px 4px);
+  background-image: repeating-linear-gradient(135deg, #393939 0 2px, transparent 2px 5px);
+}
+.consensus-buy {
+  background-color: #393939;
 }
 .consensus-swatch {
   width: 12px;
@@ -502,12 +502,29 @@ li a.text-sm.leading-5 {
   }
 }
 
-/* Mid-width tables stay inside the page. A wide row scrolls in the panel. */
+/* Mid-width tables stay inside the page. A wide row scrolls in the panel.
+   overflow-y stays hidden so overflow-x:auto does not grow a vertical scrollbar. */
 @media (min-width: 640px) {
   .stack-table {
     min-width: 0;
     max-width: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .data-table .rec-pill {
+    white-space: normal;
+    border-radius: 6px;
+  }
+}
+
+.stack-table:focus-visible {
+  outline: 2px solid #eb6505;
+  outline-offset: -2px;
+}
+
+@media (max-width: 359px) {
+  .stack-table td {
+    padding: 8px 16px;
   }
 }
 

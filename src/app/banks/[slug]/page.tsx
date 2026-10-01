@@ -96,7 +96,7 @@ export default async function BankPage({
             ))}
           </ul>
         </div>
-        <div className="panel stack-table">
+        <div className="panel stack-table" tabIndex={0} role="region" aria-label="Roster, scrollable">
           <h2 className="border-b border-line px-5 py-4 font-serif text-2xl">Roster</h2>
           <table className="data-table">
             <thead>

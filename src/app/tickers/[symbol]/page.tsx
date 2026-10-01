@@ -111,7 +111,7 @@ export default async function TickerPage({
         {byAnalyst.length === 0 ? (
           <p className="panel px-4 py-8 text-center text-sm text-muted">No graded calls for this horizon.</p>
         ) : (
-          <div className="panel stack-table">
+          <div className="panel stack-table" tabIndex={0} role="region" aria-label="Accuracy on this name, scrollable">
             <table className="data-table">
               <thead>
                 <tr>
