@@ -31,7 +31,7 @@ export default function AboutPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted">
         <h2 className="font-serif text-3xl text-ink">How to read a grade</h2>
         <p>
-          The overall factor is the average 0–100 grade of active calls. The GC score is that average on the GC Scale, from 1 to 10. Under 40 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. Superseded calls stay in the history and do not enter the factor.
+          The overall factor is the average 0–100 grade of active calls. The GC score is that average on the GC Scale, from 1 to 10. 70+ is STRONG, 40–69 PROVISIONAL, under 40 WEAK; a graded 0 is EXIT LIQUIDITY. Superseded calls stay in the history and do not enter the factor.
         </p>
         <p>
           The formula, the windows, and the band lines are written out on the{" "}

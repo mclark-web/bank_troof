@@ -33,7 +33,7 @@ export default async function AnalystsPage({
       <section className="mt-12">
         <h2 className="font-sans text-2xl tracking-tight">Analyst directory</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
-          The 90-day overall factor for each sample name. The tube is that same 0–100 average. Superseded calls stay out of it.
+          90-day overall factor; superseded calls excluded.
         </p>
         <ScaleLegend className="mb-3 mt-3" />
         <div className="panel stack-table" tabIndex={0} role="region" aria-label="Analyst directory, scrollable">
