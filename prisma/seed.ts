@@ -80,6 +80,11 @@ function pick<T>(rand: () => number, items: T[]): T {
   return items[Math.floor(rand() * items.length)];
 }
 
+function demoNote(rand: () => number, action: string): string {
+  const body = pick(rand, NOTES[action] ?? NOTES.reiterate);
+  return body.startsWith("Demo.") ? body : `Demo. ${body}`;
+}
+
 function otherDirection(direction: "up" | "flat" | "down", rand: () => number) {
   const options = (["up", "flat", "down"] as const).filter((item) => item !== direction);
   return options[Math.floor(rand() * options.length)];
@@ -306,7 +311,7 @@ async function main() {
         price60d: quote.recorded.price60d,
         price90d: quote.recorded.price90d,
         price1y: quote.recorded.price1y,
-        note: pick(callRand, NOTES[action] ?? NOTES.reiterate),
+        note: demoNote(callRand, action),
         controversial: reasons.length > 0,
         controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
         source: "demo",
@@ -395,7 +400,7 @@ async function main() {
       price60d: quote.recorded.price60d,
       price90d: quote.recorded.price90d,
       price1y: quote.recorded.price1y,
-      note: `Demo. ${pick(recentRand, NOTES[action] ?? NOTES.reiterate)}`,
+      note: demoNote(recentRand, action),
       controversial: reasons.length > 0,
       controversialReason: reasons.length > 0 ? reasons.join(". ") + "." : null,
       source: "demo",

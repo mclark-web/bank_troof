@@ -8,13 +8,13 @@
   "scripts": {
     "dev": "next dev",
     "predev": "tsx scripts/ensure-db.ts",
-    "prebuild": "prisma generate && prisma db push --skip-generate --accept-data-loss && tsx prisma/seed.ts",
+    "prebuild": "prisma generate && sh scripts/with-demo-env.sh prisma db push --skip-generate --accept-data-loss && tsx prisma/seed.ts",
     "build": "next build",
     "start": "next start",
     "postinstall": "prisma generate",
-    "db:push": "prisma db push --accept-data-loss",
+    "db:push": "sh scripts/with-demo-env.sh prisma db push --accept-data-loss",
     "db:seed": "tsx prisma/seed.ts",
-    "db:reset": "prisma db push --force-reset --accept-data-loss && tsx prisma/seed.ts",
+    "db:reset": "sh scripts/with-demo-env.sh prisma db push --force-reset --accept-data-loss && tsx prisma/seed.ts",
     "import:calls": "tsx scripts/import-calls.ts",
     "test": "tsx --test src/lib/scoring.test.ts src/lib/overall-factor.test.ts src/lib/gc-grade.test.ts src/lib/supersession.test.ts src/lib/splits.test.ts src/lib/quotes.test.ts src/lib/labels.test.ts src/lib/imports/csv-feed.test.ts src/lib/ungraded.test.ts src/lib/pill-contrast.test.ts src/lib/logo-link.test.ts"
   },

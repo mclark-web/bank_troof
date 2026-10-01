@@ -12,15 +12,10 @@ export function parseBook(value: string | undefined): BookView {
   return "all";
 }
 
-export function BoardTable({
-  rows,
-  emphasize = "score",
-}: {
-  rows: BoardRow[];
-  emphasize?: "score" | "miss";
-}) {
+export function BoardTable({ rows }: { rows: BoardRow[] }) {
+  const boardName = rows[0]?.kind === "bank" ? "Bank leaderboard" : "Analyst leaderboard";
   return (
-    <div className="panel stack-table">
+    <div className="panel stack-table" tabIndex={0} role="region" aria-label={`${boardName}, scrollable`}>
       <table className="data-table">
         <thead>
           <tr>
@@ -55,30 +50,32 @@ export function BoardTable({
             <tr key={row.href}>
               <td className="num text-faint" data-label="Rank">{index + 1}</td>
               <td data-label={row.kind === "bank" ? "Bank" : "Analyst"}>
-                <Link href={row.href} className="font-medium hover:text-brass">
+                <Link href={row.href} className="whitespace-nowrap font-medium hover:text-brass">
                   {row.name}
                 </Link>
-                <p className="text-xs text-faint sm:hidden">{row.subtitle}</p>
+                    <span className="block whitespace-nowrap text-xs text-faint sm:hidden">{row.subtitle}</span>
               </td>
               <td className="hidden text-muted sm:table-cell" data-label="Desk">{row.subtitle}</td>
               <td className="num" data-label="Active">
                 {row.aggregate.graded}
                 {row.superseded > 0 ? (
-                  <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">
+                  <span className="mt-1 block whitespace-nowrap font-sans text-xs font-normal normal-case tracking-normal text-faint">
                     {row.superseded} superseded
                   </span>
                 ) : null}
               </td>
               <td className="num" data-label="Hit">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
-              <td className={emphasize === "miss" ? "num text-miss" : "num text-muted"} data-label="Miss">
+              <td className="num text-muted" data-label="Miss">
                 {row.aggregate.missRate == null ? "—" : `${Math.round(row.aggregate.missRate * 100)}%`}
               </td>
               <td className="num hidden text-ink md:table-cell show-on-card" data-label="If followed">
                 {pct(row.aggregate.avgFollowedReturn)}
               </td>
               <td data-label="GC score">
-                <span className="num text-2xl leading-none">{row.placement.chad ?? "—"}</span>
-                <span className="num text-xs text-faint">/10</span>
+                <span className="whitespace-nowrap">
+                  <span className="num text-2xl leading-none">{row.placement.chad ?? "—"}</span>
+                  <span className="num text-xs text-faint">/10</span>
+                </span>
               </td>
               <td data-label="Overall factor">
                 <PointsCell score={row.aggregate.avgScore} />
@@ -96,14 +93,16 @@ export function CallTable({
   horizon,
   showAnalyst = false,
   showTicker = true,
+  label = "Calls",
 }: {
   calls: ScoredCall[];
   horizon: HorizonKey;
   showAnalyst?: boolean;
   showTicker?: boolean;
+  label?: string;
 }) {
   return (
-    <div className="panel stack-table">
+    <div className="panel stack-table" tabIndex={0} role="region" aria-label={`${label}, scrollable`}>
       <table className="data-table">
         <thead>
           <tr>
@@ -144,7 +143,7 @@ export function CallTable({
                     <Link href={`/tickers/${call.ticker.symbol}`} className="num font-medium hover:text-brass">
                       {call.ticker.symbol}
                     </Link>
-                    <p className="text-xs text-faint">{call.ticker.name}</p>
+                    <span className="cell-wrap block text-xs text-faint">{call.ticker.name}</span>
                   </td>
                 ) : null}
                 {showAnalyst ? (
@@ -152,7 +151,7 @@ export function CallTable({
                     <Link href={`/analysts/${call.analyst.slug}`} className="hover:text-brass">
                       {call.analyst.name}
                     </Link>
-                    <p className="text-xs text-faint">{call.bank.shortName}</p>
+                    <span className="cell-wrap block text-xs text-faint">{call.bank.shortName}</span>
                   </td>
                 ) : null}
                 <td data-label="Recommendation">
@@ -277,7 +276,7 @@ function BookSection({
       {total === 0 ? (
         <p className="panel px-4 py-8 text-center text-sm text-muted">{empty}</p>
       ) : (
-        <CallTable calls={calls} horizon={horizon} showAnalyst={showAnalyst} showTicker={showTicker} />
+        <CallTable calls={calls} horizon={horizon} showAnalyst={showAnalyst} showTicker={showTicker} label={title} />
       )}
       {total > calls.length ? (
         <p className="mt-3 text-xs text-faint">

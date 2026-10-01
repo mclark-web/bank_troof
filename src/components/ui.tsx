@@ -166,7 +166,7 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
   const reading = readCalibration(score, true);
   return (
     <div title={title}>
-      <div className="flex items-baseline gap-2">
+      <div className="flex flex-nowrap items-baseline gap-2 whitespace-nowrap">
         <span className="num text-2xl leading-none text-ink">{formatPoints(score)}</span>
         <span className="num text-xs text-faint">/100</span>
         <span className="num text-sm text-muted">
@@ -192,7 +192,7 @@ export function PointsCell({ score }: { score: number | null }) {
   const reading = readCalibration(score, true);
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="num min-w-14 text-ink">
+      <span className="num whitespace-nowrap text-ink">
         {formatPoints(score)}
         <span className="text-faint">/100</span>
       </span>
@@ -259,7 +259,7 @@ export function GradePill({ result }: { result: "hit" | "near" | "miss" | null }
 }
 
 export function RecommendationPill({ call }: { call: RecommendationCall }) {
-  return <span className="num text-sm font-medium uppercase tracking-wide text-ink">{recommendationLabel(call)}</span>;
+  return <span className="rec-pill">{recommendationLabel(call)}</span>;
 }
 
 export function Avatar({ name }: { name: string; seed?: string }) {
@@ -332,7 +332,7 @@ export function OverallFactorCard({
       <SideNote placement={placement} className="mt-2" />
       <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
         {OVERALL_FACTOR_FORMULA}{" "}
-        <Link href="/methodology#overall-factor" className="text-brass hover:text-ink">
+        <Link href="/methodology#overall-factor" className="compute-link text-brass hover:text-ink">
           How this is computed
         </Link>
       </p>
@@ -364,7 +364,7 @@ export function MiniLeaderboard({
   rows: { name: string; href: string; subtitle: string; score: number | null; hitRate: number | null; placement: ChadPlacement }[];
 }) {
   return (
-    <section className="panel">
+    <section className="panel min-w-0">
       <div className="flex items-baseline justify-between border-b border-line px-4 py-3">
         <h2 className="font-serif text-xl">{title}</h2>
         <Link href={href} className="text-xs uppercase tracking-wider text-brass hover:text-ink">

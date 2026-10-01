@@ -5,6 +5,8 @@ tsconfig.tsbuildinfo
 .vercel
 *.log
 .env*.local
+.env
+!.env.example
 prisma/banktruth.db
 prisma/banktruth.db-journal
 prisma/*.db

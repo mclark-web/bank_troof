@@ -19,7 +19,7 @@ export default async function BanksPage() {
         lede="Firm names are labels on the sample so you can search the way a reader would. The overall factor is the average 0–100 grade of that desk's active calls, with the GC score beside it. GC 1 is a poor track record. GC 10 is an excellent one. It is not the firm's actual research record."
       />
       <ScaleLegend className="mb-3" />
-      <div className="panel stack-table">
+      <div className="panel stack-table" tabIndex={0} role="region" aria-label="Banks, scrollable">
         <table className="data-table">
           <thead>
             <tr>

@@ -65,7 +65,7 @@ export default async function TickerPage({
         </p>
       ) : null}
 
-      <div className="mb-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <section className="panel p-5">
           <h2 className="font-serif text-2xl">Latest recommendations</h2>
           <div className="mt-4">
@@ -111,7 +111,7 @@ export default async function TickerPage({
         {byAnalyst.length === 0 ? (
           <p className="panel px-4 py-8 text-center text-sm text-muted">No graded calls for this horizon.</p>
         ) : (
-          <div className="panel stack-table">
+          <div className="panel stack-table" tabIndex={0} role="region" aria-label="Accuracy on this name, scrollable">
             <table className="data-table">
               <thead>
                 <tr>

@@ -33,7 +33,7 @@ export default async function SearchPage({
       {!q ? null : total === 0 ? (
         <p className="text-sm text-muted">Nothing in the demo matched that query.</p>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <ResultGroup title="Analysts">
             {results.analysts.map((analyst) => (
               <li key={analyst.id}>
