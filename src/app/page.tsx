@@ -94,7 +94,7 @@ export default async function HomePage() {
       <section className="mt-10">
         <p className="mb-3 text-sm text-muted">
           Every card leads with the overall factor, the average 0–100 grade of active calls. The GC score sits beside it on the GC Scale, from{" "}
-          <span className="text-ink">1</span> to <span className="text-ink">10</span>. Superseded calls do not enter the factor. Under 40 the GC score is 1–4 (WEAK). From 40 up to 70 it is 5–7 (PROVISIONAL). At or above 70 it is 8–10 (STRONG). Hit rate is underneath, on the active book only.
+          <span className="text-ink">1</span> to <span className="text-ink">10</span>. Superseded calls do not enter the factor. 70+ is STRONG, 40–69 PROVISIONAL, under 40 WEAK; a graded 0 is EXIT LIQUIDITY. Hit rate is underneath, on the active book only.
         </p>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <MiniLeaderboard title="Top analysts" href="/leaderboards?view=analysts" rows={home.analysts.map(toRow)} />
@@ -113,7 +113,7 @@ export default async function HomePage() {
           <p className="kicker">No black box</p>
           <h2 className="mt-2 font-serif text-3xl tracking-tight">The grade is the product.</h2>
           <p className="mt-3 text-sm leading-6 text-muted">
-            A call leads with the recommendation: an upgrade, a target raise, a reiteration. The grade uses a separate direction bucket, plus an optional target. Those pieces add up to a score from 0 to 100, shown in full. Under 40 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. Near-misses get half credit and do not count as hits.
+            A call leads with the recommendation: an upgrade, a target raise, a reiteration. The grade uses a separate direction bucket, plus an optional target. Those pieces add up to a score from 0 to 100, shown in full. 70+ is STRONG, 40–69 PROVISIONAL, under 40 WEAK; a graded 0 is EXIT LIQUIDITY. Near-misses get half credit and do not count as hits.
           </p>
         </div>
         <ol className="grid grid-cols-1 gap-3 sm:grid-cols-3">

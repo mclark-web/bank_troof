@@ -138,9 +138,6 @@ export function AnalystsBoard({
     .filter((score): score is number => score != null);
   const boardMean = readBoardMean(factorScores);
   const health = boardHealth(active.map((call) => call.grades["30"]));
-  const openOnBoard = active.filter((call) => !isGraded(call, horizon)).length;
-
-  const windowLabel = horizon === "all" ? "every closed horizon" : HORIZONS[horizon].label;
 
   return (
     <div>
@@ -349,10 +346,7 @@ export function AnalystsBoard({
               />
             )}
             <p className="text-xs leading-5 text-muted">
-              The tube is the mean 0–100 grade of active calls over {windowLabel}.{" "}
-              <strong className="font-medium text-ink">STRONG</strong> — at or above 70, GC 8–10.{" "}
-              <strong className="font-medium text-ink">PROVISIONAL</strong> — from 40 up to 70, GC 5–7.{" "}
-              <strong className="font-medium text-ink">WEAK</strong> — graded under 40, GC 1–4. The badge uses those same lines. Rank only orders the directory.
+              Fill = average 0–100 grade of active calls. A graded 0 is EXIT LIQUIDITY. Open horizons read Not graded yet.
             </p>
             <p className="mt-2.5 text-xs">
               <Link href="/methodology#gc-scale" className="text-brass hover:text-ink">
@@ -364,12 +358,6 @@ export function AnalystsBoard({
           <section className="panel p-4">
             <h2 className="text-sm font-semibold">EXIT LIQUIDITY</h2>
             <GcTube percent={0} tube={0} grade="exit" meta="row" className="my-3" />
-            <p className="text-xs leading-5 text-muted">
-              0% fill is an empty glass labeled <strong className="font-medium text-ink">EXIT LIQUIDITY</strong>. That is a graded score of exactly 0. The badge is a dash, not GC 1. An open horizon stays ungraded and is not this glass.{" "}
-              {openOnBoard === 0
-                ? `Every active call in this cut has a print for ${windowLabel}.`
-                : `${openOnBoard} active ${openOnBoard === 1 ? "call has" : "calls have"} no print for ${windowLabel} and stay ungraded.`}
-            </p>
           </section>
         </div>
       </div>

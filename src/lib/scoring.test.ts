@@ -150,6 +150,13 @@ describe("placeChad", () => {
     assert.equal(placeChad(null).chad, null);
     assert.equal(placeChad(-5).chad, null);
     assert.equal(placeChad(140).chad, 10);
+    assert.deepEqual(readCalibration(-5, true), readCalibration(0, true));
+    assert.deepEqual(readCalibration(0, true), { id: "exit", percent: 0, tube: 0 });
+    assert.equal(readCalibration(0.1, true).id, "weak");
+    assert.equal(readCalibration(39.9, true).id, "weak");
+    assert.equal(readCalibration(40, true).id, "provisional");
+    assert.equal(readCalibration(69.9, true).id, "provisional");
+    assert.equal(readCalibration(70, true).id, "strong");
   });
 
   it("puts WEAK, PROVISIONAL, and STRONG on the same badge bands as the tube", () => {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BoardTable } from "@/components/tables";
 import { EmptyNote, HorizonChips, PageIntro, SectorForm, hrefWith } from "@/components/ui";
+import { leaderboardLede } from "@/lib/leaderboard-lede";
 import { loadSectors, leaderboard, type RankKey } from "@/lib/queries";
 import { HORIZONS, minimumSample, parseHorizon } from "@/lib/scoring";
 
@@ -48,14 +49,7 @@ export default async function LeaderboardsPage({
 
   const title =
     view === "offenders" ? "Worst offenders" : view === "banks" ? "Top banks" : "Top analysts";
-  const rankLine =
-    rank === "gc"
-      ? "Sorted by the GC score of that factor. Names in the same bucket keep the higher overall factor ahead."
-      : "Sorted by the overall factor, the average 0–100 grade of active calls. Superseded calls do not score. Under 40 the GC score is 1–4. From 40 up to 70 it is 5–7. At or above 70 it is 8–10.";
-  const lede =
-    view === "offenders"
-      ? `Lowest overall factor first over ${HORIZONS[horizon].label}. ${rankLine} GC 1 is a poor track record. GC 10 is an excellent one. Open a name to see each call labeled by its recommendation. Buy, Hold, and Sell stay inside the grade.`
-      : `Ranked by overall factor over ${HORIZONS[horizon].label}. ${rankLine} GC 1 is a poor track record. GC 10 is an excellent one. Firms are weighted by active calls, not by headcount. Open a name to see each call labeled by its recommendation. Buy, Hold, and Sell stay inside the grade.`;
+  const lede = leaderboardLede(view, horizon, rank);
 
   return (
     <div>

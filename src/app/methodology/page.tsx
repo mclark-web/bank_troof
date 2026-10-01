@@ -6,7 +6,6 @@ import { SPLIT_ADJUSTED } from "@/lib/splits";
 import {
   CHAD_MAX,
   CHAD_MIN,
-  GC_BANDS,
   GC_WEAK_LINE,
   DIRECTION_WEIGHT,
   FLAT_NEAR_MULTIPLIER,
@@ -110,38 +109,33 @@ export default function MethodologyPage() {
           The engine scores a call from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. That 0–100 score is always visible. The GC score is the same number placed on the GC Scale. It is not a second formula, and it does not look at anyone else’s score.
         </p>
         <p>
-          <strong className="font-medium text-ink">The cut is {GC_STRONG_LINE} and {GC_PROVISIONAL_LINE}.</strong> At or above {GC_STRONG_LINE} the tube reads STRONG and the GC score is 8–{CHAD_MAX}. From {GC_WEAK_LINE} up to {GC_STRONG_LINE} the tube reads PROVISIONAL and the GC score is 5–7. A graded score above 0 and under {GC_WEAK_LINE} reads WEAK and the GC score is 1–4. A graded score of exactly 0 is an empty glass labeled EXIT LIQUIDITY, and the badge is a dash, not GC 1. Each ten points above 0 is one step. The top of a step is not included, except 100, which is GC {CHAD_MAX}:
+          70+ is STRONG, 40–69 PROVISIONAL, under 40 WEAK; a graded 0 is EXIT LIQUIDITY.
         </p>
         <div className="panel stack-table" tabIndex={0} role="region" aria-label="GC score bands, scrollable">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Score /100</th>
-                <th>GC</th>
                 <th>Tube</th>
+                <th>Score</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="num" data-label="Score /100">0</td>
-                <td className="num" data-label="GC">—</td>
-                <td data-label="Tube">EXIT LIQUIDITY</td>
+                <td data-label="Tube">STRONG</td>
+                <td data-label="Score">70+</td>
               </tr>
-              {GC_BANDS.map((band) => (
-                <tr key={band.gc}>
-                  <td className="num" data-label="Score /100">
-                    {band.min === 0 ? `above 0 up to ${band.max}` : band.max > 100 ? `${band.min}–100` : `${band.min} up to ${band.max}`}
-                  </td>
-                  <td className="num" data-label="GC">{band.gc}</td>
-                  <td data-label="Tube">{band.grade}</td>
-                </tr>
-              ))}
+              <tr>
+                <td data-label="Tube">PROVISIONAL</td>
+                <td data-label="Score">40–69</td>
+              </tr>
+              <tr>
+                <td data-label="Tube">WEAK</td>
+                <td data-label="Score">under 40</td>
+              </tr>
             </tbody>
           </table>
         </div>
-        <p>
-          A graded 0 is a dash. A 0.1 is GC 1. A 39.9 is GC 4. A 40 is GC 5. A 69.9 is GC 7. A 70 is GC 8. Values outside 0–100 are clamped first, so a negative score is the same empty glass as 0. The same lines apply to one call, an analyst, a bank, and a ticker. Who else is on the board does not move the badge or the tube.
-        </p>
+        <p>A graded 0 is EXIT LIQUIDITY.</p>
         <p>
           Order is separate. A board can sort names by the overall factor, or by the GC score. Names that share a GC score keep the higher overall factor ahead. That sort is the only use of rank.
         </p>
@@ -163,12 +157,6 @@ export default function MethodologyPage() {
 
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="gc-scale">
         <h2 className="font-serif text-3xl text-ink">GC Scale</h2>
-        <p>
-          The horizontal tube is the same 0–100 grade, drawn as a fill. It does not rescore the call. STRONG is a grade at or above {GC_STRONG_LINE}, and that is GC 8–10. PROVISIONAL is a grade from {GC_PROVISIONAL_LINE} up to that line, and that is GC 5–7. WEAK is a graded score above 0 and under {GC_PROVISIONAL_LINE}, and that is GC 1–4. Those words sit on the tube. The GC score is the 1–10 GC Scale placement of the same number, and it stays on the directory and the leaderboards.
-        </p>
-        <p>
-          EXIT LIQUIDITY is an empty glass at 0%, and only for a graded score of exactly 0. The badge on that glass is a dash, not GC 1. An open horizon has no print yet, so it stays ungraded and is not drawn as that glass. A score above 0 that still earned almost nothing stays WEAK, with a hair of liquid, so a finished miss and an empty glass do not look like the same thing.
-        </p>
         <p>
           On the analysts board, “all horizons” fills the tube with the mean of the windows that already have a print. Picking 2W, 30D, 60D, 90D, or 1Y uses that window only. The board tube averages active calls. A superseded call can still show its own tube. It does not move the board average, the hit rate, or the GC score.
         </p>
