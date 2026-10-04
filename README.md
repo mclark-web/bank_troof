@@ -33,6 +33,8 @@ Other commands:
 | `npm start` | Serve the production build |
 | `npm run import:calls -- data/your-feed.csv` | Upsert a CSV feed |
 | `npm run import:calls -- data/your-feed.csv --replace` | Replace the database contents with that CSV |
+| `npm run calls:validate` | Check the call ledger against the grade rules |
+| `npm run calls:export` | Rewrite `data/calls/calls.json` from the CSV |
 | `npx tsx scripts/scan-supersession-report.ts` | Recount 90-day same-ticker pairs in the current database |
 
 `npm install && npm run build` is enough for a production build. The `prebuild` step creates `prisma/banktruth.db` (gitignored) before `next build`.
@@ -87,6 +89,23 @@ SQLite via Prisma, file at `prisma/banktruth.db`.
 The demo generator (`prisma/seed.ts`) places fictional calls on Yahoo Finance adjusted closes (adjusted for splits and dividends). Two recent calls use the raw close on the call date. The later prices, and every other price at the call, are that adjusted close. A missing quote aborts the seed. A horizon that runs past 21 Sep 2026 is stored blank and left ungraded. Each fictional analyst is “right” on the real move (the longest window that has closed, or 90 days when that print exists) with a fixed probability, which is why the board has a spread. Calls run from February 2024 through 21 Sep 2026. From July 2026 the book is denser, so upgrades, downgrades, and target changes cluster in the last quarter instead of stopping in June. Analysts, notes, ratings, and targets are sample data. Targets stay in a band around the real price at the call.
 
 Firm names are recognizable labels so search behaves the way a reader expects. The people and the notes are not a research record. Hit rates are the grader applied to the real later prices.
+
+## Weekly call ledger
+
+`data/calls/calls.csv` is the source of truth for analyst calls. `npm run calls:export` rewrites `data/calls/calls.json`, and the seed loads that file into SQLite. Pages still compute each grade at render time, so the JSON carries the call, the rating, the target, and the prices, not a stored GC score.
+
+Every row shipped today has `data_source` set to `demo`. The validator rejects a demo row whose `status` is `verified`. A later row you have the rights to uses `data_source=licensed`. Only that row may be labelled `verified`, and it needs a `source_url`. Do not scrape TipRanks, Bloomberg, or X, and do not call a paid market-data or rankings API.
+
+Grades use the same rules as the board. 70 and above is STRONG, 40 up to 70 is PROVISIONAL (69.9 stays PROVISIONAL), under 40 is WEAK, and a graded 0 is EXIT LIQUIDITY. A horizon with no price reads "Not graded yet". The label is exactly GC Scale.
+
+Each week:
+
+1. Edit `data/calls/calls.csv`. One row per call. Leave a horizon price blank until that window has closed. Demo prices must match the adjusted closes already in the repo, including the two raw entry prints. Do not invent a price.
+2. Run `npm run calls:validate`. A failure stops the export.
+3. Run `npm run calls:export`. An unchanged CSV produces a byte-identical JSON file.
+4. Open a pull request with the CSV and the generated JSON. Tests assert invariants (unique ids, demo rows are not verified, grades match `gradeCall`) and do not hard-code a row count.
+
+`npm run import:calls` remains a separate adapter for a one-off feed. It is not the ledger the site seeds.
 
 ## Replace the demo with a real feed
 
