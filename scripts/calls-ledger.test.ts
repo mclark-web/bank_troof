@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { GC_SCALE_LABEL } from "../src/lib/gc-grade";
+import { QUOTE_AS_OF } from "../src/lib/quotes";
 import { gradeCall } from "../src/lib/scoring";
 import {
   CALLS_CSV_PATH,
@@ -101,8 +102,34 @@ describe("call ledger", () => {
     assert.deepEqual(issues.errors, []);
   });
 
-  it("rejects a source URL that is not http(s) or is localhost", () => {
-    for (const sourceUrl of ["garbage", "javascript:alert(1)", "htp:/x", "http://localhost"]) {
+  it("rejects a source URL that is not http(s) or is not routable", () => {
+    const blocked = [
+      "garbage",
+      "javascript:alert(1)",
+      "htp:/x",
+      "http://localhost",
+      "http://localhost.",
+      "http://LOCALHOST",
+      "http://127.0.0.1",
+      "http://[::1]",
+      "http://127.1",
+      "http://2130706433",
+      "http://0x7f.0.0.1",
+      "http://user@localhost",
+      "http://0.0.0.0",
+      "http://0",
+      "http://127.0.0.2",
+      "http://[::]",
+      "http://[::ffff:127.0.0.1]",
+      "http://foo.localhost",
+      "http://localhost.localdomain",
+      "http://10.1.2.3",
+      "http://172.16.0.1",
+      "http://172.31.255.255",
+      "http://192.168.1.1",
+      "http://169.254.1.1",
+    ];
+    for (const sourceUrl of blocked) {
       const issues = collectIssues([licensedRow({ source_url: sourceUrl })]);
       assert.ok(
         issues.errors.some((error) => error.includes("source_url must be an http(s) URL that is not localhost")),
@@ -111,6 +138,10 @@ describe("call ledger", () => {
     }
     const alt = collectIssues([licensedRow({ alt_source_url: "http://localhost" })]);
     assert.ok(alt.errors.some((error) => error.includes("alt_source_url must be an http(s) URL that is not localhost")));
+    for (const sourceUrl of ["https://example.com/research-note", "http://8.8.8.8/note", "http://172.15.0.1/note"]) {
+      const issues = collectIssues([licensedRow({ source_url: sourceUrl })]);
+      assert.deepEqual(issues.errors, [], sourceUrl);
+    }
   });
 
   it("rejects Demo copy on a licensed or verified row", () => {
@@ -120,6 +151,14 @@ describe("call ledger", () => {
         issues.errors.some((error) => error.includes(`cannot contain Demo in ${column}`)),
         column,
       );
+    }
+    for (const marker of ["demo", "DEMO", "DeMo", "Demo."]) {
+      const issues = collectIssues([licensedRow({ note: marker })]);
+      assert.ok(issues.errors.some((error) => error.includes("cannot contain Demo in note")), marker);
+    }
+    for (const note of ["Demonstrated results", "Democrat view"]) {
+      const issues = collectIssues([licensedRow({ note })]);
+      assert.deepEqual(issues.errors, [], note);
     }
   });
 
@@ -137,6 +176,11 @@ describe("call ledger", () => {
   it("rejects a call date after the price history on a licensed row", () => {
     const issues = collectIssues([licensedRow({ call_date: "2099-01-01" })]);
     assert.ok(issues.errors.some((error) => error.includes("call_date is after the price history")));
+  });
+
+  it("allows a call date equal to the price-history as-of date", () => {
+    const issues = collectIssues([licensedRow({ call_date: QUOTE_AS_OF })]);
+    assert.deepEqual(issues.errors, []);
   });
 
   it("rebuilds coverage from call order without a second ledger", () => {

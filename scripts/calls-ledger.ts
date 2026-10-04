@@ -107,6 +107,9 @@ const HORIZON_GRADE: Record<HorizonKey, CsvColumn> = {
 
 const BANNED_COPY = /chad|chud|charoof/i;
 const BANNED_SOURCE = /tipranks|bloomberg|(?:^|\/\/|\.)x\.com|twitter\.com/i;
+/** Whole word, any case. "Demonstrated" and "Democrat" are not the demo marker. */
+const DEMO_WORD = /\bdemo\b/i;
+const SOURCE_URL_PROBLEM = "must be an http(s) URL that is not localhost";
 
 export type CsvColumn = (typeof CSV_COLUMNS)[number];
 export type CallRow = Record<CsvColumn, string>;
@@ -341,22 +344,58 @@ function rowLabel(row: CallRow, index: number): string {
   return row.call_id || `row ${index + 2}`;
 }
 
-/** Non-empty source fields must be a real http(s) URL. Localhost is not a source. */
+function ipv4Octets(host: string): [number, number, number, number] | null {
+  const parts = host.split(".");
+  if (parts.length !== 4 || parts.some((part) => !/^\d{1,3}$/.test(part))) return null;
+  const octets = parts.map((part) => Number(part));
+  if (octets.some((octet) => octet > 255)) return null;
+  return octets as [number, number, number, number];
+}
+
+/** Normalized IPv4-mapped form is `[::ffff:HHHH:HHHH]`, e.g. `[::ffff:7f00:1]` for 127.0.0.1. */
+function mappedIpv4Octets(host: string): [number, number, number, number] | null {
+  const match = /^\[::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})\]$/.exec(host);
+  if (!match) return null;
+  const hi = Number.parseInt(match[1] ?? "", 16);
+  const lo = Number.parseInt(match[2] ?? "", 16);
+  const value = hi * 0x10000 + lo;
+  return [(value >>> 24) & 255, (value >>> 16) & 255, (value >>> 8) & 255, value & 255];
+}
+
+/** Loopback, this-host, private, and link-local. Public addresses stay usable. */
+function nonRoutableIpv4(octets: [number, number, number, number]): boolean {
+  const [a, b] = octets;
+  if (a === 0 || a === 10 || a === 127) return true;
+  if (a === 169 && b === 254) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 192 && b === 168) return true;
+  return false;
+}
+
+/** Non-empty source fields must be a routable http(s) URL. Localhost is not a source. */
 function sourceUrlProblem(value: string): string | null {
   if (value.trim() === "") return null;
   let parsed: URL;
   try {
     parsed = new URL(value);
   } catch {
-    return "must be an http(s) URL that is not localhost";
+    return SOURCE_URL_PROBLEM;
   }
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    return "must be an http(s) URL that is not localhost";
-  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return SOURCE_URL_PROBLEM;
   const host = parsed.hostname.replace(/\.$/, "").toLowerCase();
-  if (host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host === "::1") {
-    return "must be an http(s) URL that is not localhost";
+  if (
+    host === "localhost" ||
+    host === "localhost.localdomain" ||
+    host.endsWith(".localhost") ||
+    host === "[::]" ||
+    host === "[::1]" ||
+    host === "::" ||
+    host === "::1"
+  ) {
+    return SOURCE_URL_PROBLEM;
   }
+  const octets = ipv4Octets(host) ?? mappedIpv4Octets(host);
+  if (octets && nonRoutableIpv4(octets)) return SOURCE_URL_PROBLEM;
   return null;
 }
 
@@ -520,7 +559,7 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
     }
     if (row.data_source === "licensed" || row.status === "verified") {
       for (const column of ["note", "controversial_reason", "ledger_notes"] as const) {
-        if (row[column].includes("Demo")) {
+        if (DEMO_WORD.test(row[column])) {
           errors.push(`${label}: a licensed or verified row cannot contain Demo in ${column}`);
         }
       }
