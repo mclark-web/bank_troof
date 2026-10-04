@@ -73,23 +73,70 @@ describe("call ledger", () => {
     assert.ok(issues.errors.some((error) => error.includes("demo rows cannot be labelled verified")));
   });
 
-  it("allows a licensed row to be verified when it has a source URL", () => {
+  function licensedRow(patch: Partial<CallRow> = {}): CallRow {
     const demo = rows[0];
     assert.ok(demo);
-    const licensed: CallRow = {
+    const row: CallRow = {
       ...demo,
       data_source: "licensed",
       status: "verified",
       source_url: "https://example.com/research-note",
+      note: "Filed from the research note.",
+      controversial_reason: "",
+      ledger_notes: "",
       export_index: "0",
+      ...patch,
     };
-    licensed.flags = expectedFlags(licensed);
-    const issues = collectIssues([licensed]);
+    row.flags = expectedFlags(row);
+    return row;
+  }
+
+  it("allows a licensed row to be verified when it has a source URL", () => {
+    const issues = collectIssues([licensedRow()]);
     assert.equal(
       issues.errors.some((error) => error.includes("cannot be labelled verified")),
       false,
     );
+    assert.equal(issues.errors.some((error) => error.includes("Demo")), false);
     assert.deepEqual(issues.errors, []);
+  });
+
+  it("rejects a source URL that is not http(s) or is localhost", () => {
+    for (const sourceUrl of ["garbage", "javascript:alert(1)", "htp:/x", "http://localhost"]) {
+      const issues = collectIssues([licensedRow({ source_url: sourceUrl })]);
+      assert.ok(
+        issues.errors.some((error) => error.includes("source_url must be an http(s) URL that is not localhost")),
+        sourceUrl,
+      );
+    }
+    const alt = collectIssues([licensedRow({ alt_source_url: "http://localhost" })]);
+    assert.ok(alt.errors.some((error) => error.includes("alt_source_url must be an http(s) URL that is not localhost")));
+  });
+
+  it("rejects Demo copy on a licensed or verified row", () => {
+    for (const column of ["note", "controversial_reason", "ledger_notes"] as const) {
+      const issues = collectIssues([licensedRow({ [column]: "Demo. This was copied from the sample book." })]);
+      assert.ok(
+        issues.errors.some((error) => error.includes(`cannot contain Demo in ${column}`)),
+        column,
+      );
+    }
+  });
+
+  it("requires the analyst, firm, and ticker to exist on every row", () => {
+    const missingAnalyst = collectIssues([licensedRow({ analyst_slug: "nobody" })]);
+    assert.ok(missingAnalyst.errors.some((error) => error.includes("analyst_slug is not in the universe")));
+    const missingFirm = collectIssues([licensedRow({ firm_slug: "not-a-firm" })]);
+    assert.ok(missingFirm.errors.some((error) => error.includes("firm_slug is not in the universe")));
+    const missingTicker = collectIssues([licensedRow({ ticker: "NOTREAL" })]);
+    assert.ok(missingTicker.errors.some((error) => error.includes("ticker is not in the universe")));
+    const renamed = collectIssues([licensedRow({ company: "Not the universe name" })]);
+    assert.deepEqual(renamed.errors, []);
+  });
+
+  it("rejects a call date after the price history on a licensed row", () => {
+    const issues = collectIssues([licensedRow({ call_date: "2099-01-01" })]);
+    assert.ok(issues.errors.some((error) => error.includes("call_date is after the price history")));
   });
 
   it("rebuilds coverage from call order without a second ledger", () => {

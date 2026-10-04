@@ -341,6 +341,25 @@ function rowLabel(row: CallRow, index: number): string {
   return row.call_id || `row ${index + 2}`;
 }
 
+/** Non-empty source fields must be a real http(s) URL. Localhost is not a source. */
+function sourceUrlProblem(value: string): string | null {
+  if (value.trim() === "") return null;
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return "must be an http(s) URL that is not localhost";
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    return "must be an http(s) URL that is not localhost";
+  }
+  const host = parsed.hostname.replace(/\.$/, "").toLowerCase();
+  if (host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host === "::1") {
+    return "must be an http(s) URL that is not localhost";
+  }
+  return null;
+}
+
 function demoPriceError(row: CallRow, label: string): string | null {
   if (!validCalendarDate(row.call_date)) return null;
   const callDate = new Date(`${row.call_date}T00:00:00.000Z`);
@@ -440,8 +459,8 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
     else if (row.call_id) seenIds.add(row.call_id);
 
     if (!validCalendarDate(row.call_date)) errors.push(`${label}: call_date must be YYYY-MM-DD`);
-    else if (row.data_source === "demo" && row.call_date > QUOTE_AS_OF) {
-      errors.push(`${label}: demo call_date is after the price history (${QUOTE_AS_OF})`);
+    else if (row.call_date > QUOTE_AS_OF) {
+      errors.push(`${label}: call_date is after the price history (${QUOTE_AS_OF})`);
     }
     if (!ACTION_LABELS[row.action]) errors.push(`${label}: unknown action ${row.action}`);
     if (!RATING_LABELS[row.rating_to]) errors.push(`${label}: unknown rating_to ${row.rating_to}`);
@@ -488,26 +507,36 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
     for (const text of copy) {
       if (BANNED_COPY.test(text)) errors.push(`${label}: user-facing text contains a banned word`);
     }
-    for (const url of [row.source_url, row.alt_source_url]) {
-      if (url && BANNED_SOURCE.test(url)) {
+    for (const column of ["source_url", "alt_source_url"] as const) {
+      const url = row[column];
+      const problem = sourceUrlProblem(url);
+      if (problem) errors.push(`${label}: ${column} ${problem}`);
+      else if (url && BANNED_SOURCE.test(url)) {
         errors.push(`${label}: source URL is a rankings site, a wire, or X. Those are not collected.`);
       }
     }
     if (row.data_source === "licensed" && row.source_url.trim() === "") {
       errors.push(`${label}: a licensed row needs a source_url`);
     }
+    if (row.data_source === "licensed" || row.status === "verified") {
+      for (const column of ["note", "controversial_reason", "ledger_notes"] as const) {
+        if (row[column].includes("Demo")) {
+          errors.push(`${label}: a licensed or verified row cannot contain Demo in ${column}`);
+        }
+      }
+    }
 
+    const analyst = analystBySlug.get(row.analyst_slug);
+    const bank = bankBySlug.get(row.firm_slug);
+    const ticker = tickerBySymbol.get(row.ticker);
+    if (!analyst) errors.push(`${label}: analyst_slug is not in the universe`);
+    if (!bank) errors.push(`${label}: firm_slug is not in the universe`);
+    if (!ticker) errors.push(`${label}: ticker is not in the universe`);
     if (row.data_source === "demo") {
-      const analyst = analystBySlug.get(row.analyst_slug);
-      const bank = bankBySlug.get(row.firm_slug);
-      const ticker = tickerBySymbol.get(row.ticker);
-      if (!analyst) errors.push(`${label}: demo analyst_slug is not in the universe`);
-      else if (analyst.name !== row.analyst_name) errors.push(`${label}: analyst_name does not match the universe`);
-      else if (analyst.bankSlug !== row.firm_slug) errors.push(`${label}: firm_slug does not match the analyst's firm`);
-      if (!bank) errors.push(`${label}: demo firm_slug is not in the universe`);
-      else if (bank.name !== row.firm_name) errors.push(`${label}: firm_name does not match the universe`);
-      if (!ticker) errors.push(`${label}: demo ticker is not in the universe`);
-      else if (ticker.name !== row.company) errors.push(`${label}: company does not match the universe`);
+      if (analyst && analyst.name !== row.analyst_name) errors.push(`${label}: analyst_name does not match the universe`);
+      if (analyst && analyst.bankSlug !== row.firm_slug) errors.push(`${label}: firm_slug does not match the analyst's firm`);
+      if (bank && bank.name !== row.firm_name) errors.push(`${label}: firm_name does not match the universe`);
+      if (ticker && ticker.name !== row.company) errors.push(`${label}: company does not match the universe`);
       const priceError = demoPriceError(row, label);
       if (priceError) errors.push(priceError);
       const target = parseNumber(row.price_target_to);
