@@ -16,7 +16,9 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "sh scripts/with-demo-env.sh prisma db push --force-reset --accept-data-loss && tsx prisma/seed.ts",
     "import:calls": "tsx scripts/import-calls.ts",
-    "test": "tsx --test src/lib/scoring.test.ts src/lib/overall-factor.test.ts src/lib/gc-grade.test.ts src/lib/supersession.test.ts src/lib/splits.test.ts src/lib/quotes.test.ts src/lib/labels.test.ts src/lib/imports/csv-feed.test.ts src/lib/ungraded.test.ts src/lib/pill-contrast.test.ts src/lib/logo-link.test.ts src/lib/leaderboard-lede.test.ts"
+    "calls:export": "tsx scripts/calls-export.ts",
+    "calls:validate": "tsx scripts/calls-validate.ts",
+    "test": "tsx --test src/lib/scoring.test.ts src/lib/overall-factor.test.ts src/lib/gc-grade.test.ts src/lib/supersession.test.ts src/lib/splits.test.ts src/lib/quotes.test.ts src/lib/labels.test.ts src/lib/imports/csv-feed.test.ts src/lib/ungraded.test.ts src/lib/pill-contrast.test.ts src/lib/logo-link.test.ts src/lib/leaderboard-lede.test.ts scripts/calls-ledger.test.ts && tsx scripts/calls-validate.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

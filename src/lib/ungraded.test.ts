@@ -32,8 +32,9 @@ test("board health copy includes graded-zero calls and the price line names divi
   const calls = await loadCalls();
   const active = calls.filter((call) => call.supersession.countsForScoring);
   const health = boardHealth(active.map((call) => call.grades["30"]));
-  const withPrint = active.filter((call) => call.grades["30"].gradeable && call.grades["30"].score != null).length;
-  assert.equal(health.graded, withPrint);
+  const withPrint = active.filter((call) => call.grades["30"].gradeable && call.grades["30"].score != null);
+  assert.equal(health.graded, withPrint.length);
+  assert.equal(health.counts.exit, withPrint.filter((call) => call.grades["30"].score === 0).length);
   assert.ok(health.counts.exit > 0);
   const html = renderToStaticMarkup(await AnalystsPage({ searchParams: Promise.resolve({}) }));
   assert.match(html, new RegExp(`Shares of the ${health.graded} active calls that already have a 30-day print`));
