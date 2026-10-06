@@ -3,7 +3,7 @@ import { OVERALL_FACTOR_FORMULA, type OverallFactor } from "@/lib/overall-factor
 import { HORIZONS, HORIZON_KEYS, formatPoints, placeChad, type ChadPlacement, type HorizonKey } from "@/lib/scoring";
 import { readCalibration } from "@/lib/gc-grade";
 import { cx, initials, pct } from "@/lib/format";
-import { actionLabel, recommendationLabel, type RecommendationCall } from "@/lib/labels";
+import { actionLabel, recommendationLabel, sourceLinkLabel, type RecommendationCall } from "@/lib/labels";
 import type { SupersessionMark } from "@/lib/supersession";
 import { GcGradePill, GcTube, GcUngraded } from "@/components/gc-tube";
 
@@ -260,6 +260,32 @@ export function GradePill({ result }: { result: "hit" | "near" | "miss" | null }
 
 export function RecommendationPill({ call }: { call: RecommendationCall }) {
   return <span className="rec-pill">{recommendationLabel(call)}</span>;
+}
+
+export function CallSourceLinks({
+  sourceUrl,
+  altSourceUrl,
+  className = "",
+}: {
+  sourceUrl?: string | null;
+  altSourceUrl?: string | null;
+  className?: string;
+}) {
+  if (!sourceUrl && !altSourceUrl) return null;
+  return (
+    <p className={cx("mt-1 flex flex-wrap gap-x-4 text-xs", className)}>
+      {sourceUrl ? (
+        <a href={sourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-brass hover:text-ink">
+          {sourceLinkLabel(sourceUrl)}
+        </a>
+      ) : null}
+      {altSourceUrl ? (
+        <a href={altSourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-brass hover:text-ink">
+          Alt source
+        </a>
+      ) : null}
+    </p>
+  );
 }
 
 export function Avatar({ name }: { name: string; seed?: string }) {

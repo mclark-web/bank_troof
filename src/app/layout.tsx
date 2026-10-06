@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
-import { DemoBanner, SiteFooter, SiteHeader } from "@/components/chrome";
+import { LedgerBanner, SiteFooter, SiteHeader } from "@/components/chrome";
 import "./globals.css";
 import "./gc-scale.css";
 
@@ -83,7 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <a className="skip-link" href="#content">
             Skip to content
           </a>
-          <DemoBanner />
+          <LedgerBanner />
           <SiteHeader />
           <main id="content" className="mx-auto max-w-page px-4 py-8 md:px-6 md:py-10">
             {children}

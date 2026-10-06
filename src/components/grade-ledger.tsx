@@ -89,7 +89,7 @@ export function GradeLedger({ call }: { call: ScoredCall }) {
               <div className="mt-4">
                 <GcUngraded />
                 <p className="mt-4 text-sm leading-6 text-muted">
-                  This window has no recorded price in the sample, so the call stays ungraded. Open windows are left out of hit rate and score.
+                  This window has no recorded price yet, so the call stays ungraded. Open windows are left out of hit rate and score.
                 </p>
               </div>
             )}

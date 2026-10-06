@@ -78,7 +78,9 @@ model Call {
   note                String
   controversial       Boolean  @default(false)
   controversialReason String?
-  source              String   @default("demo")
+  source              String   @default("public")
+  sourceUrl           String   @default("")
+  altSourceUrl        String?
 
   @@index([analystId])
   @@index([bankId])

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { GcGradePill, GcTube, GcUngraded } from "@/components/gc-tube";
-import { hrefWith, SupersessionNotes } from "@/components/ui";
+import { CallSourceLinks, hrefWith, SupersessionNotes } from "@/components/ui";
 import { initials, usd } from "@/lib/format";
 import { boardHealth, readBoardMean, readCallCalibration, type GcReading } from "@/lib/gc-grade";
 import { recommendationLabel } from "@/lib/labels";
@@ -57,8 +57,7 @@ function readingFor(call: ScoredCall, horizon: BoardHorizon): GcReading {
 }
 
 function shortDate(value: Date): string {
-  const day = value.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
-  return `Demo · ${day}`;
+  return value.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
 function FilterLink({
@@ -146,7 +145,7 @@ export function AnalystsBoard({
           <p className="chip-live">Sector · Analysts</p>
           <h1 className="mt-3 font-sans text-[2rem] tracking-tight">Street calls, graded vs real prices</h1>
           <p className="mt-2 max-w-[52ch] text-sm leading-6 text-muted">
-            Upgrades, downgrades, and targets from the sample book. Every grade uses closes adjusted for splits and dividends — never a stale print. Two recent calls use the raw close on the call date.
+            Upgrades, downgrades, and targets from this ledger. Every grade uses closes adjusted for splits and dividends.
           </p>
         </div>
         <div className="w-full max-w-[340px] rounded-xl border border-line bg-white/[0.03] px-4 py-3.5">
@@ -159,7 +158,7 @@ export function AnalystsBoard({
       </div>
 
       <div className="sim-banner mb-4">
-        Sample names on this board. Firms stay marked <strong className="font-semibold">sample</strong> until a live research feed replaces them. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. Not a simulated path.
+        Each row links to a public news source. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). An open window reads Not graded yet. A graded 0 reads EXIT LIQUIDITY.
       </div>
 
       <div className="mb-4 flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Horizon and call type">
@@ -233,9 +232,10 @@ export function AnalystsBoard({
                               {call.analyst.name}
                             </Link>
                             <p className="text-xs text-faint">
-                              {call.bank.shortName} · sample
+                              {call.bank.shortName}
                               {call.supersession.status === "nullified" ? " · superseded" : ""}
                             </p>
+                            <CallSourceLinks sourceUrl={call.sourceUrl} altSourceUrl={call.altSourceUrl} />
                             <SupersessionNotes mark={call.supersession} verbose={false} />
                           </div>
                         </div>
@@ -314,19 +314,19 @@ export function AnalystsBoard({
               {health.graded === 0
                 ? "No active call has a 30-day print in this cut yet."
                 : `Shares of the ${health.graded} active calls that already have a 30-day print. Open windows are not in the bar.`}{" "}
-              Grades never use intraday spikes. Close-to-close only, adjusted for splits and dividends. Two recent calls use the raw close on the call date.
+              Grades never use intraday spikes. Close-to-close only, adjusted for splits and dividends.
             </p>
           </section>
 
           <section className="panel p-4">
             <h2 className="text-sm font-semibold">Price integrity</h2>
             <ul className="mt-2 space-y-1 text-[13px] leading-6 text-muted">
-              <li>✓ Adjusted for splits and dividends; two recent calls use the raw close on the call date</li>
+              <li>✓ Adjusted for splits and dividends</li>
               <li>✓ Close-to-close prints only</li>
               <li>✓ A missing quote stops the seed</li>
               <li>
                 ✓{" "}
-                <Link href="/methodology#demo" className="text-brass hover:text-ink">
+                <Link href="/methodology#sources" className="text-brass hover:text-ink">
                   Appeal path on Method
                 </Link>
               </li>

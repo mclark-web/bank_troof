@@ -45,7 +45,7 @@ export default function TermsPage() {
 
       <LegalSection id="ip" title="Intellectual property">
         <p>
-          The GradedCalls Analysts name, the design, the methodology text, and the compilation of sample calls are owned by the operator of GradedCalls Analysts. Market prices remain the property of their sources. Firm names and ticker symbols belong to their owners and are used here as labels, not as a claim of affiliation. Sample notes are not quotations of published research.
+          The GradedCalls Analysts name, the design, the methodology text, and the compilation of calls are owned by the operator of GradedCalls Analysts. Market prices remain the property of their sources. Firm names and ticker symbols belong to their owners and are used here as labels, not as a claim of affiliation. Notes on a call restate the rating and target. They are not quotations of published research.
         </p>
         <p>
           The GC score, as used on this site, is the GC Scale described in the methodology. It is an opinion produced by the formula. It is not a certification of any person.
@@ -83,7 +83,7 @@ export default function TermsPage() {
 
       <LegalSection id="warranty" title="No warranty">
         <p>
-          The site is provided as-is and as-available. GradedCalls Analysts disclaims warranties of accuracy, completeness, merchantability, fitness for a particular purpose, and non-infringement, to the fullest extent the law allows. Prices, grades, and sample text can be wrong, delayed, revised, or removed. A demo vintage is labeled. It is not a live track record.
+          The site is provided as-is and as-available. GradedCalls Analysts disclaims warranties of accuracy, completeness, merchantability, fitness for a particular purpose, and non-infringement, to the fullest extent the law allows. Prices, grades, and notes can be wrong, delayed, revised, or removed. This ledger is not a live tip service.
         </p>
       </LegalSection>
 

@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!data) return { title: "Analyst" };
   return {
     title: data.analyst.name,
-    description: `${data.analyst.name}, fictional ${data.analyst.title} at ${data.analyst.bank.name} in the GradedCalls Analysts demo.`,
+    description: `${data.analyst.name}, ${data.analyst.title} at ${data.analyst.bank.name}, in the GradedCalls Analysts ledger.`,
   };
 }
 
@@ -52,7 +52,7 @@ export default async function AnalystPage({
 
   return (
     <div>
-      <PageIntro kicker="Analyst scorecard" title={analyst.name} lede={analyst.bio}>
+      <PageIntro kicker="Analyst scorecard" title={analyst.name} lede={analyst.bio || undefined}>
         <WatchButton kind="analyst" slug={analyst.slug} label={analyst.name} meta={`${analyst.bank.shortName} · ${analyst.sector}`} />
       </PageIntro>
       <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center">
@@ -65,7 +65,7 @@ export default async function AnalystPage({
             </Link>
           </p>
           <p className="mt-1">
-            {analyst.sector} · sample coverage since {analyst.startedYear}
+            {analyst.sector} · in this ledger since {analyst.startedYear}
           </p>
           <p className="mt-1 text-faint">{analyst.bank.headquarters}</p>
         </div>

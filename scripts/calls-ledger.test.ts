@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { GC_SCALE_LABEL } from "../src/lib/gc-grade";
-import { QUOTE_AS_OF } from "../src/lib/quotes";
+import { pricesForCall, QUOTE_AS_OF } from "../src/lib/quotes";
 import { gradeCall } from "../src/lib/scoring";
 import {
   CALLS_CSV_PATH,
@@ -11,6 +11,9 @@ import {
   collectIssues,
   coverageFromCalls,
   expectedFlags,
+  expectedGrade,
+  expectedStatus,
+  formatNumber,
   gradeLabelForScore,
   gradeRuleErrors,
   parseCallLedger,
@@ -51,10 +54,11 @@ describe("call ledger", () => {
     const issues = collectIssues(rows);
     assert.deepEqual(issues.errors, []);
     for (const row of rows) {
-      assert.equal(row.data_source, "demo");
+      assert.equal(row.data_source, "public");
       assert.notEqual(row.status, "verified");
-      assert.equal(row.source_url, "");
-      assert.equal(toExportedCall(row).source, "demo");
+      assert.notEqual(row.source_url, "");
+      assert.equal(toExportedCall(row).source, "public");
+      assert.equal(toExportedCall(row).sourceUrl, row.source_url);
     }
     const json = renderCallsJson(rows);
     assert.equal(json, readFileSync(CALLS_JSON_PATH, "utf8"));
@@ -66,12 +70,23 @@ describe("call ledger", () => {
     }
   });
 
-  it("refuses to label a demo row verified", () => {
-    const demo = rows[0];
-    assert.ok(demo);
-    const labelled = { ...demo, status: "verified" };
+  it("rejects any demo row, including one labelled verified", () => {
+    const base = rows[0];
+    assert.ok(base);
+    const labelled = { ...base, data_source: "demo", status: "verified" };
     const issues = collectIssues([labelled]);
+    assert.ok(issues.errors.some((error) => error.includes("data_source=demo is rejected")));
     assert.ok(issues.errors.some((error) => error.includes("demo rows cannot be labelled verified")));
+    const plain = collectIssues([{ ...base, data_source: "demo" }]);
+    assert.ok(plain.errors.some((error) => error.includes("data_source=demo is rejected")));
+  });
+
+  it("refuses to label a public row verified", () => {
+    const base = rows[0];
+    assert.ok(base);
+    const issues = collectIssues([{ ...base, status: "verified" }]);
+    assert.ok(issues.errors.some((error) => error.includes("a public row cannot be labelled verified")));
+    assert.ok(issues.errors.some((error) => error.includes("only a licensed row can be labelled verified")));
   });
 
   function licensedRow(patch: Partial<CallRow> = {}): CallRow {
@@ -170,7 +185,13 @@ describe("call ledger", () => {
     const missingTicker = collectIssues([licensedRow({ ticker: "NOTREAL" })]);
     assert.ok(missingTicker.errors.some((error) => error.includes("ticker is not in the universe")));
     const renamed = collectIssues([licensedRow({ company: "Not the universe name" })]);
-    assert.deepEqual(renamed.errors, []);
+    assert.ok(renamed.errors.some((error) => error.includes("company does not match the registry")));
+    const renamedAnalyst = collectIssues([licensedRow({ analyst_name: "Not the registry name" })]);
+    assert.ok(renamedAnalyst.errors.some((error) => error.includes("analyst_name does not match the registry")));
+    const renamedFirm = collectIssues([licensedRow({ firm_name: "Not the registry name" })]);
+    assert.ok(renamedFirm.errors.some((error) => error.includes("firm_name does not match the registry")));
+    const wrongPrice = collectIssues([licensedRow({ price_at_call: "1" })]);
+    assert.ok(wrongPrice.errors.some((error) => error.includes("price_at_call is 1 and the series has")));
   });
 
   it("rejects a call date after the price history on a licensed row", () => {
@@ -179,7 +200,26 @@ describe("call ledger", () => {
   });
 
   it("allows a call date equal to the price-history as-of date", () => {
-    const issues = collectIssues([licensedRow({ call_date: QUOTE_AS_OF })]);
+    const base = licensedRow();
+    const prices = pricesForCall(base.ticker, new Date(`${QUOTE_AS_OF}T00:00:00.000Z`));
+    const dated: CallRow = {
+      ...base,
+      call_date: QUOTE_AS_OF,
+      price_at_call: formatNumber(prices.priceAtCall),
+      price_14d: prices.price14d == null ? "" : formatNumber(prices.price14d),
+      price_30d: prices.price30d == null ? "" : formatNumber(prices.price30d),
+      price_60d: prices.price60d == null ? "" : formatNumber(prices.price60d),
+      price_90d: prices.price90d == null ? "" : formatNumber(prices.price90d),
+      price_1y: prices.price1y == null ? "" : formatNumber(prices.price1y),
+    };
+    dated.grade_14 = expectedGrade(dated, "14");
+    dated.grade_30 = expectedGrade(dated, "30");
+    dated.grade_60 = expectedGrade(dated, "60");
+    dated.grade_90 = expectedGrade(dated, "90");
+    dated.grade_365 = expectedGrade(dated, "365");
+    if (dated.status !== "verified") dated.status = expectedStatus(dated);
+    dated.flags = expectedFlags(dated);
+    const issues = collectIssues([dated]);
     assert.deepEqual(issues.errors, []);
   });
 

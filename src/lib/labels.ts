@@ -125,7 +125,7 @@ export function deskRatingNote(call: RecommendationCall): string {
   const glue = (label: string) => label.replaceAll(" ", "\u00a0");
   const toLabel = glue(to);
   const fromLabel = from ? glue(from) : null;
-  if (!fromLabel) return "First desk rating in the sample";
+  if (!fromLabel) return "First desk rating in this ledger";
   if (fromLabel === toLabel) return `Desk rating stays ${toLabel}`;
   return `Desk rating ${fromLabel} → ${toLabel}`;
 }
@@ -134,8 +134,23 @@ export function callPageTitle(symbol: string, call: RecommendationCall): string 
   return `${symbol} ${recommendationLabel(call)}`;
 }
 
+/** German-language dpa-AFX pages on t-online.de are labelled as such. */
+export function sourceLinkLabel(url: string): "Source" | "Source (German)" {
+  try {
+    const host = new URL(url).hostname.replace(/\.$/, "").toLowerCase();
+    if (host === "t-online.de" || host.endsWith(".t-online.de")) return "Source (German)";
+  } catch {
+    return "Source";
+  }
+  return "Source";
+}
+
+/**
+ * Live ledger kind. `public` means the calls come from public news sources.
+ * `asOf` is the last day in the adjusted-close file.
+ */
 export const DATASET = {
-  vintageIso: "2026-09-21",
-  vintageLabel: "21 Sep 2026",
-  kind: "demo" as const,
+  asOfIso: "2026-09-21",
+  asOfLabel: "21 Sep 2026",
+  kind: "public" as const,
 };

@@ -41,7 +41,7 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
         <main id="content" className="mx-auto max-w-page px-4 py-16 text-center md:px-6">
           <p className="kicker">Error</p>
           <h1 className="mt-3 font-serif text-4xl">This page failed to load.</h1>
-          <p className="mt-3 text-sm text-muted">The sample database did not answer. Retry, or restart the app after seeding.</p>
+          <p className="mt-3 text-sm text-muted">The database did not answer. Retry, or restart the app after seeding.</p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <button type="button" className="btn" onClick={reset}>
               Try again

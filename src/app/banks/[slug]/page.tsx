@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!data) return { title: "Bank" };
   return {
     title: data.bank.name,
-    description: `Sample scorecard for the ${data.bank.name} desk in the GradedCalls Analysts demo.`,
+    description: `Scorecard for the ${data.bank.name} calls in the GradedCalls Analysts ledger.`,
   };
 }
 
@@ -53,7 +53,7 @@ export default async function BankPage({
         <WatchButton kind="bank" slug={bank.slug} label={bank.name} meta={bank.headquarters} />
       </PageIntro>
       <p className="mb-6 text-sm text-muted">
-        {bank.headquarters} · {bank.analysts.length} fictional analysts in the sample
+        {bank.headquarters} · {bank.analysts.length === 0 ? "No analysts in this ledger" : `${bank.analysts.length} ${bank.analysts.length === 1 ? "analyst" : "analysts"} in this ledger`}
       </p>
       <div className="panel mb-8 p-5">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -110,6 +110,13 @@ export default async function BankPage({
               </tr>
             </thead>
             <tbody>
+              {roster.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="py-8 text-center text-sm text-muted">
+                    No graded calls at this horizon.
+                  </td>
+                </tr>
+              ) : null}
               {roster.map((row) => (
                 <tr key={row.slug}>
                   <td data-label="Analyst">

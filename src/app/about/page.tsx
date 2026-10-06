@@ -6,7 +6,7 @@ import { DATASET } from "@/lib/labels";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "GradedCalls Analysts is a demo that grades sample sell-side calls against historical prices. Not investment advice.",
+    "GradedCalls Analysts grades sourced sell-side calls against historical prices. Not investment advice.",
 };
 
 export default function AboutPage() {
@@ -15,16 +15,16 @@ export default function AboutPage() {
       <PageIntro
         kicker="About"
         title="Banks make the calls. We grade them."
-        lede="GradedCalls Analysts scores a demo sample of recommendations against the prices that followed. The names are sample. The closes are historical. The grade is a formula, not advice."
+        lede="GradedCalls Analysts scores sourced recommendations against the prices that followed. The calls come from public news pages. The closes are historical. The grade is a formula, not advice."
       />
 
       <section className="space-y-4 text-sm leading-7 text-muted">
-        <h2 className="font-serif text-3xl text-ink">What this vintage is</h2>
+        <h2 className="font-serif text-3xl text-ink">What this ledger is</h2>
         <p>
-          This build is the demo vintage dated {DATASET.vintageLabel}. Analysts, biographies, notes, ratings, and price targets are a sample. Firm names are labels for that sample. They are not those firms’ research, and they are not a description of any person who works there. The banner on every page says so.
+          Calls in this build come from public news sources. Each call page links to that page. Notes restate the rating and target. They are not a quotation of a research report, and they are not a biography. Firm names are the firms named in those sources. GradedCalls Analysts is not those firms, and it does not speak for anyone who works there. Price history runs through {DATASET.asOfLabel}.
         </p>
         <p>
-          Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. The windows are 14 calendar days, 30 days, 60 days, 90 days, and 1 year. A window that has not elapsed stays ungraded. A graded score of exactly 0 is an empty glass and reads EXIT LIQUIDITY. The badge is a dash, not GC 1.
+          Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). The windows are 14 calendar days, 30 days, 60 days, 90 days, and 1 year. A window that has not elapsed stays ungraded and reads Not graded yet. A graded score of exactly 0 is an empty glass and reads EXIT LIQUIDITY. The badge is a dash, not GC 1.
         </p>
       </section>
 
@@ -42,7 +42,7 @@ export default function AboutPage() {
           <Link href="/calls" className="text-brass hover:text-ink">
             call book
           </Link>{" "}
-          is the sample those grades are computed from. Leaderboards, analyst scorecards, banks, and tickers all read the same book.
+          is the book those grades are computed from. Leaderboards, analyst scorecards, banks, and tickers all read the same book.
         </p>
       </section>
 

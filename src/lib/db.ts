@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { PrismaClient } from "@prisma/client";
 
-function findDemoDatabase(): string | null {
+function findSeededDatabase(): string | null {
   const candidates = [
     path.join(process.cwd(), "prisma", "banktruth.db"),
     path.join(process.cwd(), "banktruth.db"),
@@ -14,7 +14,7 @@ function findDemoDatabase(): string | null {
 }
 
 /**
- * Demo deploys ship a seeded SQLite file. Vercel serverless can read the
+ * Deploys ship a seeded SQLite file. Vercel serverless can read the
  * deployment bundle and can write only under /tmp, so the file is copied
  * there before Prisma opens it. A postgres DATABASE_URL bypasses the file.
  */
@@ -24,10 +24,10 @@ function resolveDatabaseUrl(): string {
     return configured;
   }
 
-  const source = findDemoDatabase();
+  const source = findSeededDatabase();
   if (!source) {
     throw new Error(
-      "GradedCalls Analysts demo database is missing. The build must run `npm run build` so prisma/banktruth.db is seeded and traced into the server bundle.",
+      "GradedCalls Analysts database is missing. The build must run `npm run build` so prisma/banktruth.db is seeded and traced into the server bundle.",
     );
   }
 

@@ -1,7 +1,6 @@
 /**
- * Names whose demo path is stored on the post-split scale for every date,
- * including sessions before the split. The seed already generates that
- * scale, so nothing here divides a price again.
+ * Names stored on the post-split scale for every date, including sessions
+ * before the split. Prices already use that scale, so nothing here divides again.
  */
 export const SPLIT_ADJUSTED: Record<string, { split: string }> = {
   WMT: { split: "3-for-1 on 26 Feb 2024" },
