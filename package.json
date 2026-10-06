@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "next dev",
     "predev": "tsx scripts/ensure-db.ts",
-    "prebuild": "node -e \"process.exit(0)\"",
-    "build": "node scripts/show-build-failure.mjs",
+    "prebuild": "prisma generate && sh scripts/with-demo-env.sh prisma db push --skip-generate --accept-data-loss && tsx prisma/seed.ts",
+    "build": "next build",
     "start": "next start",
     "postinstall": "prisma generate",
     "db:push": "sh scripts/with-demo-env.sh prisma db push --accept-data-loss",
