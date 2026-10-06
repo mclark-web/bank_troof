@@ -63,6 +63,7 @@ export default async function BankPage({
         <OverallFactorCard factor={factor} horizon={horizon} />
       </div>
       <section className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {sectors.length > 0 ? (
         <div className="panel p-5">
           <h2 className="font-serif text-2xl">By sector</h2>
           <ul className="mt-4 space-y-3">
@@ -96,6 +97,7 @@ export default async function BankPage({
             ))}
           </ul>
         </div>
+        ) : null}
         <div className="panel stack-table" tabIndex={0} role="region" aria-label="Roster, scrollable">
           <h2 className="border-b border-line px-5 py-4 font-serif text-2xl">Roster</h2>
           <table className="data-table">
