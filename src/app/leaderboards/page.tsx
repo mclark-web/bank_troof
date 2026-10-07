@@ -7,7 +7,7 @@ import { HORIZONS, minimumSample, parseHorizon } from "@/lib/scoring";
 
 export const metadata: Metadata = {
   title: "Leaderboards",
-  description: "Analysts and banks ranked by historical call accuracy in the GradedCalls Analysts sample.",
+  description: "Analysts and banks ranked by historical call accuracy in the GradedCalls Analysts ledger.",
 };
 
 type View = "analysts" | "banks" | "offenders";
@@ -112,7 +112,7 @@ export default async function LeaderboardsPage({
       </div>
       {board.rows.length === 0 ? (
         <EmptyNote>
-          Not enough graded calls in this cut. The minimum sample is {board.minimum}. Try {HORIZONS["90"].short} or all sectors.
+          Not enough graded calls in this cut. The minimum number of graded calls is {board.minimum}. Try {HORIZONS["90"].short} or all sectors.
         </EmptyNote>
       ) : (
         <BoardTable rows={board.rows} />

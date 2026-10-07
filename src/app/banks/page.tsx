@@ -5,7 +5,7 @@ import { listBanks } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Banks",
-  description: "Sample research desks ranked inside the GradedCalls Analysts demo.",
+  description: "Research desks in the GradedCalls Analysts ledger, ranked by the grades of their calls.",
 };
 
 export default async function BanksPage() {
@@ -16,7 +16,7 @@ export default async function BanksPage() {
       <PageIntro
         kicker="Directory"
         title="Banks"
-        lede="Firm names are labels on the sample so you can search the way a reader would. The overall factor is the average 0–100 grade of that desk's active calls, with the GC score beside it. It is not the firm's actual research record."
+        lede="The overall factor is the average 0–100 grade of that desk's active calls, with the GC score beside it. A firm with no calls in this ledger reads Not graded yet. The grade is not that firm's published research."
       />
       <ScaleLegend className="mb-3" />
       <div className="panel stack-table" tabIndex={0} role="region" aria-label="Banks, scrollable">

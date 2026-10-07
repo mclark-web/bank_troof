@@ -5,7 +5,7 @@ import { listTickers } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Tickers",
-  description: "How the GradedCalls Analysts sample rated each name, and who was right.",
+  description: "How GradedCalls Analysts graded each name in this ledger, and who was right.",
 };
 
 export default async function TickersPage() {
@@ -16,7 +16,7 @@ export default async function TickersPage() {
       <PageIntro
         kicker="Directory"
         title="Tickers"
-        lede="The overall factor is the average 0–100 grade of active 90-day calls on the name, with the GC score beside it. Buy, Hold, and Sell here are the direction for grading, collapsed from each analyst’s latest desk rating. They are not the recommendation on the call. Hit rate is on the active book only."
+        lede="The overall factor is the average 0–100 grade of active 90-day calls on the name, with the GC score beside it. A name with no calls in this ledger reads Not graded yet. Buy, Hold, and Sell here are the direction for grading, collapsed from each analyst’s latest desk rating. They are not the recommendation on the call. Hit rate is on the active book only."
       />
       <ScaleLegend className="mb-6" />
       <div className="space-y-8">

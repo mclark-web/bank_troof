@@ -24,8 +24,6 @@ function wipeBookkeeping(row: CallRow): CallRow {
     firm_name: "",
     company: "",
     status: "open",
-    source_url: "https://example.com/wiped",
-    alt_source_url: "https://example.com/alt",
     grade_14: "",
     grade_30: "",
     grade_60: "",
@@ -67,6 +65,7 @@ function main() {
 
   const demo = rows.filter((row) => row.data_source === "demo").length;
   const licensed = rows.filter((row) => row.data_source === "licensed").length;
+  const publicRows = rows.filter((row) => row.data_source === "public").length;
   const open = rows.filter((row) => row.status === "open").length;
   const graded = rows.filter((row) => row.status === "graded").length;
   const verified = rows.filter((row) => row.status === "verified").length;
@@ -82,6 +81,7 @@ function main() {
   console.log(`rows: ${rows.length}`);
   console.log(`data_source demo: ${demo}`);
   console.log(`data_source licensed: ${licensed}`);
+  console.log(`data_source public: ${publicRows}`);
   console.log(`status open: ${open}`);
   console.log(`status graded: ${graded}`);
   console.log(`status verified: ${verified}`);

@@ -5,7 +5,7 @@ import history from "./adjusted-closes.json";
  * Adjusted closes include splits and dividends. Nothing in the seed invents a session.
  */
 export const PRICE_SOURCE =
-  "Yahoo Finance adjusted close, adjusted for splits and dividends, rounded to the cent. Two recent calls use the raw close on the call date.";
+  "Yahoo Finance adjusted close, adjusted for splits and dividends, rounded to the cent. History ends 21 Sep 2026.";
 
 /** A closed market may use the prior session only this many calendar days back. */
 export const MAX_CLOSED_GAP_DAYS = 4;
@@ -95,13 +95,10 @@ export function pricesForCall(symbol: string, callDate: Date) {
 }
 
 /**
- * Labor Day filings that keep a real close instead of the adjusted series.
- * NVDA is the unadjusted 4 Sep 2026 close. UNH is the actual close, not 394.71.
+ * Optional raw-close exceptions. Empty: every entry price is the adjusted close.
+ * A future row can be listed here only when the raw print is already known.
  */
-export const FILED_ENTRY_PRINTS: { analystId: string; symbol: string; date: string; priceAtCall: number }[] = [
-  { analystId: "alice-chen", symbol: "NVDA", date: "2026-09-04", priceAtCall: 230.36 },
-  { analystId: "anika-desai", symbol: "UNH", date: "2026-09-04", priceAtCall: 397.14 },
-];
+export const FILED_ENTRY_PRINTS: { analystId: string; symbol: string; date: string; priceAtCall: number }[] = [];
 
 export function filedEntryPrint(analystId: string, symbol: string, callDate: Date): number | null {
   const iso = isoDate(callDate);

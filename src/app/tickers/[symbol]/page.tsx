@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CallBook, ConsensusBar, parseBook } from "@/components/tables";
-import { HorizonChips, OverallFactorCard, PageIntro, RecommendationPill, ScoreBar } from "@/components/ui";
+import { CallSourceLinks, HorizonChips, OverallFactorCard, PageIntro, RecommendationPill, ScoreBar } from "@/components/ui";
 import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { directionForGradingLabel } from "@/lib/labels";
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!data) return { title: "Ticker" };
   return {
     title: data.ticker.symbol,
-    description: `Sample consensus and historical call grades for ${data.ticker.name}.`,
+    description: `Latest recommendations and historical call grades for ${data.ticker.name}.`,
   };
 }
 
@@ -55,13 +55,13 @@ export default async function TickerPage({
       <PageIntro
         kicker={`${ticker.exchange} · ${ticker.sector}`}
         title={ticker.symbol}
-        lede={`${ticker.name} · ${ticker.industry}. Historical grades below use the sample calls only. The list is each analyst’s latest recommendation. The bar under it is the direction for grading, not a live street tally.`}
+        lede={`${ticker.name} · ${ticker.industry}. Historical grades below use the calls in this ledger. The list is each analyst’s latest recommendation. The bar under it is the direction for grading, not a live street tally.`}
       >
         <WatchButton kind="ticker" slug={ticker.symbol} label={ticker.symbol} meta={ticker.name} />
       </PageIntro>
       {SPLIT_ADJUSTED[ticker.symbol] ? (
         <p className="mb-6 max-w-3xl text-sm leading-6 text-muted">
-          Sample prices for {ticker.symbol} are adjusted for splits and dividends ({SPLIT_ADJUSTED[ticker.symbol].split}). Dates before the split use the same scale as dates after it.
+          Prices for {ticker.symbol} are adjusted for splits and dividends ({SPLIT_ADJUSTED[ticker.symbol].split}). Dates before the split use the same scale as dates after it.
         </p>
       ) : null}
 
@@ -77,10 +77,13 @@ export default async function TickerPage({
                 .sort((a, b) => b.callDate.getTime() - a.callDate.getTime())
                 .map((call) => (
                   <li key={call.id} className="flex items-center justify-between gap-3 py-2 text-sm">
-                    <Link href={`/analysts/${call.analyst.slug}`} className="hover:text-brass">
-                      {call.analyst.name}
-                      <span className="text-faint"> · {call.bank.shortName}</span>
-                    </Link>
+                    <div>
+                      <Link href={`/analysts/${call.analyst.slug}`} className="hover:text-brass">
+                        {call.analyst.name}
+                        <span className="text-faint"> · {call.bank.shortName}</span>
+                      </Link>
+                      <CallSourceLinks sourceUrl={call.sourceUrl} altSourceUrl={call.altSourceUrl} />
+                    </div>
                     <Link href={`/calls/${call.id}`} className="text-right hover:text-brass">
                       <RecommendationPill call={call} />
                       <span className="mt-1 block text-xs normal-case tracking-normal text-faint">

@@ -35,7 +35,7 @@ export function formatDate(value: Date | string): string {
     year: "numeric",
     timeZone: "UTC",
   });
-  return `Demo · ${formatted}`;
+  return formatted;
 }
 
 export function cx(...parts: Array<string | false | null | undefined>): string {

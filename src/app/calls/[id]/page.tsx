@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GradeLedger } from "@/components/grade-ledger";
-import { RecommendationPill, SupersessionNotes } from "@/components/ui";
+import { CallSourceLinks, RecommendationPill, SupersessionNotes } from "@/components/ui";
 import { callHeadline, formatDate, usd } from "@/lib/format";
 import { callPageTitle, deskRatingNote, directionForGradingLabel, recommendationLabel } from "@/lib/labels";
 import { getCall } from "@/lib/queries";
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!call) return { title: "Call" };
   return {
     title: callPageTitle(call.ticker.symbol, call),
-    description: `${call.analyst.name}: ${recommendationLabel(call)} on ${call.ticker.symbol}. Sample grade from GradedCalls Analysts.`,
+    description: `${call.analyst.name}: ${recommendationLabel(call)} on ${call.ticker.symbol}. Grade from GradedCalls Analysts.`,
   };
 }
 
@@ -105,7 +105,8 @@ export default async function CallPage({ params }: { params: Promise<Params> }) 
       <blockquote className="mt-6 max-w-3xl border-l-2 border-brass/70 pl-4 text-lg leading-8 text-ink/90">
         {call.note}
       </blockquote>
-      <p className="mt-2 text-xs text-faint">Sample note. Not a published research excerpt.</p>
+      <CallSourceLinks sourceUrl={call.sourceUrl} altSourceUrl={call.altSourceUrl} />
+      <p className="mt-2 text-xs text-faint">Note restates the rating and target from the source. It is not a quotation of a research report.</p>
 
       <h2 className="mb-3 mt-10 font-serif text-3xl">The grade</h2>
       <p className="mb-4 max-w-2xl text-sm leading-6 text-muted">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GradePill, MiniLeaderboard, RecommendationPill, SupersessionNotes } from "@/components/ui";
+import { CallSourceLinks, GradePill, MiniLeaderboard, RecommendationPill, SupersessionNotes } from "@/components/ui";
 import { callHeadline, formatDate, pct } from "@/lib/format";
 import { recommendationLabel } from "@/lib/labels";
 import { getHome, longestClosed } from "@/lib/queries";
@@ -28,7 +28,7 @@ export default async function HomePage() {
             </span>
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-muted">
-            Every upgrade, downgrade, and price target in the sample is checked against the price that followed. Hit rates are public. The formula fits on one page.
+            Every upgrade, downgrade, and price target in this ledger is checked against the price that followed. Hit rates are public. The formula fits on one page.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/leaderboards" className="btn">
@@ -48,7 +48,7 @@ export default async function HomePage() {
         <aside className="panel">
           <div className="border-b border-line px-4 py-3">
             <h2 className="font-serif text-xl">Latest calls</h2>
-            <p className="text-xs text-faint">Newest demo calls. Grade is the longest window that has closed.</p>
+            <p className="text-xs text-faint">Newest calls. Grade is the longest window that has closed.</p>
           </div>
           <ul>
             {home.tape.map((call) => {
@@ -76,6 +76,7 @@ export default async function HomePage() {
                       </span>
                     </p>
                     <SupersessionNotes mark={call.supersession} verbose={false} />
+                    <CallSourceLinks sourceUrl={call.sourceUrl} altSourceUrl={call.altSourceUrl} />
                   </div>
                   <div className="text-right">
                     <GradePill result={closed?.grade.directionResult ?? null} />
@@ -138,7 +139,7 @@ export default async function HomePage() {
               <p className="kicker">Accountability</p>
               <h2 className="mt-2 font-serif text-3xl">Controversial moves</h2>
               <p className="mt-2 max-w-2xl text-sm text-muted">
-                Two-notch rating changes, or price targets that jumped more than 25%. The grade is the longest window that has closed. Demo calls only.
+                Two-notch rating changes, or price targets that jumped more than 25%. The grade is the longest window that has closed.
               </p>
             </div>
             <Link href="/methodology#controversial" className="hidden text-sm text-brass sm:inline">
@@ -175,6 +176,7 @@ export default async function HomePage() {
                         </span>
                       </p>
                       <SupersessionNotes mark={call.supersession} />
+                      <CallSourceLinks sourceUrl={call.sourceUrl} altSourceUrl={call.altSourceUrl} />
                     </td>
                     <td className="max-w-xs text-sm text-muted" data-label="Why">{call.controversialReason}</td>
                     <td data-label="Grade">
@@ -233,6 +235,7 @@ function Featured({
         <span className="whitespace-nowrap">{formatDate(call.callDate)}</span>
         <span className="whitespace-nowrap">target {call.priceTargetTo ? `$${Math.round(call.priceTargetTo)}` : "—"}</span>
       </p>
+      <CallSourceLinks sourceUrl={call.sourceUrl} altSourceUrl={call.altSourceUrl} />
       <p className="num mt-4 text-4xl text-ink">{pct(followed)}</p>
       <p className="mt-1 text-xs text-faint">Return if the directional call was followed for 90 days. Holds are excluded from this cut.</p>
     </article>

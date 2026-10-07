@@ -3,7 +3,7 @@ import { cx, formatDate, pct, usd } from "@/lib/format";
 import { deskRatingNote, directionForGradingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
 import { outcomeField, type HorizonKey } from "@/lib/scoring";
-import { GradePill, hrefWith, PointsCell, RecommendationPill, SupersessionNotes } from "./ui";
+import { CallSourceLinks, GradePill, hrefWith, PointsCell, RecommendationPill, SupersessionNotes } from "./ui";
 
 export type BookView = "all" | "active" | "superseded";
 
@@ -137,6 +137,7 @@ export function CallTable({
                     <span className="tag-note">Controversial</span>
                   ) : null}
                   <SupersessionNotes mark={call.supersession} />
+                  <CallSourceLinks sourceUrl={call.sourceUrl} altSourceUrl={call.altSourceUrl} />
                 </td>
                 {showTicker ? (
                   <td data-label="Ticker">
@@ -288,7 +289,7 @@ function BookSection({
 }
 
 export function ConsensusBar({ buckets, total }: { buckets: { buy: number; hold: number; sell: number }; total: number }) {
-  if (total === 0) return <p className="text-sm text-muted">No current ratings in the sample.</p>;
+  if (total === 0) return <p className="text-sm text-muted">No current ratings in this ledger.</p>;
   const parts = [
     { key: "buy", label: "Buy", count: buckets.buy, className: "consensus-buy" },
     { key: "hold", label: "Hold", count: buckets.hold, className: "consensus-hold" },

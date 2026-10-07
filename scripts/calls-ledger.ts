@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { ANALYSTS, BANKS, TICKERS } from "../prisma/universe";
 import { GC_GRADE_LABEL, GC_PROVISIONAL_LINE, GC_SCALE_LABEL, GC_STRONG_LINE, readCalibration } from "../src/lib/gc-grade";
 import { ACTION_LABELS, RATING_LABELS } from "../src/lib/labels";
-import { filedEntryPrint, pricesForStoredCall, QUOTE_AS_OF } from "../src/lib/quotes";
+import { filedEntryPrint, pricesForCall, QUOTE_AS_OF } from "../src/lib/quotes";
 import { gradeCall, HORIZON_KEYS, type HorizonKey } from "../src/lib/scoring";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -19,9 +19,6 @@ export const CALLS_CSV_PATH = join(ROOT, "data/calls/calls.csv");
 export const CALLS_JSON_PATH = join(ROOT, "data/calls/calls.json");
 
 export const UNGRADED_LABEL = "Not graded yet";
-
-/** Same plausible band the demo generator enforced before the ledger took over. */
-export const DEMO_TARGET_BAND = { min: 0.5, max: 1.6 };
 
 export const CSV_COLUMNS = [
   "call_id",
@@ -71,8 +68,6 @@ export const CSV_ONLY_COLUMNS = [
   "firm_name",
   "company",
   "status",
-  "source_url",
-  "alt_source_url",
   "grade_14",
   "grade_30",
   "grade_60",
@@ -85,7 +80,12 @@ export const CSV_ONLY_COLUMNS = [
   "export_index",
 ] as const;
 
-export const DATA_SOURCES = ["demo", "licensed"] as const;
+/**
+ * `public` is a public news source (a free page, not a licensed feed).
+ * `licensed` stays available for a later feed the operator has rights to.
+ * `demo` is rejected wherever it appears in calls.csv.
+ */
+export const DATA_SOURCES = ["licensed", "public"] as const;
 export const STATUSES = ["open", "graded", "verified"] as const;
 export const KNOWN_FLAGS = ["raw-close", "horizon-open", "controversial", "no-source-url"] as const;
 
@@ -135,6 +135,8 @@ export type ExportedCall = {
   controversial: boolean;
   controversialReason: string | null;
   source: string;
+  sourceUrl: string;
+  altSourceUrl: string | null;
 };
 
 export type LedgerIssues = {
@@ -219,6 +221,8 @@ export function toExportedCall(row: CallRow): ExportedCall {
     controversial: row.controversial === "true",
     controversialReason: row.controversial_reason === "" ? null : row.controversial_reason,
     source: row.data_source,
+    sourceUrl: row.source_url,
+    altSourceUrl: row.alt_source_url === "" ? null : row.alt_source_url,
   };
 }
 
@@ -399,15 +403,16 @@ function sourceUrlProblem(value: string): string | null {
   return null;
 }
 
-function demoPriceError(row: CallRow, label: string): string | null {
+/** Prices must be the adjusted-close series. A mismatch is refused, not rewritten. */
+function seriesPriceError(row: CallRow, label: string): string | null {
   if (!validCalendarDate(row.call_date)) return null;
   const callDate = new Date(`${row.call_date}T00:00:00.000Z`);
-  let expected: ReturnType<typeof pricesForStoredCall>;
+  let expected: ReturnType<typeof pricesForCall>;
   try {
-    expected = pricesForStoredCall(row.analyst_slug, row.ticker, callDate);
+    expected = pricesForCall(row.ticker, callDate);
   } catch (error) {
     const message = error instanceof Error ? error.message : "no price";
-    return `${label}: demo price is not in the adjusted-close series (${message})`;
+    return `${label}: price is not in the adjusted-close series (${message})`;
   }
   const pairs: Array<[CsvColumn, number | null]> = [
     ["price_at_call", expected.priceAtCall],
@@ -480,11 +485,16 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
 
   rows.forEach((row, index) => {
     const label = rowLabel(row, index);
-    if (!DATA_SOURCES.includes(row.data_source as (typeof DATA_SOURCES)[number])) {
+    if (row.data_source === "demo") {
+      errors.push(`${label}: data_source=demo is rejected`);
+    } else if (!DATA_SOURCES.includes(row.data_source as (typeof DATA_SOURCES)[number])) {
       errors.push(`${label}: data_source must be ${DATA_SOURCES.join(" or ")}`);
     }
     if (row.data_source === "demo" && row.status === "verified") {
       errors.push(`${label}: demo rows cannot be labelled verified`);
+    }
+    if (row.data_source === "public" && row.status === "verified") {
+      errors.push(`${label}: a public row cannot be labelled verified`);
     }
     if (!STATUSES.includes(row.status as (typeof STATUSES)[number])) {
       errors.push(`${label}: status must be ${STATUSES.join(", ")}`);
@@ -554,13 +564,14 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
         errors.push(`${label}: source URL is a rankings site, a wire, or X. Those are not collected.`);
       }
     }
-    if (row.data_source === "licensed" && row.source_url.trim() === "") {
-      errors.push(`${label}: a licensed row needs a source_url`);
+    const sourced = row.data_source === "licensed" || row.data_source === "public";
+    if (sourced && row.source_url.trim() === "") {
+      errors.push(`${label}: a ${row.data_source} row needs a source_url`);
     }
-    if (row.data_source === "licensed" || row.status === "verified") {
+    if (sourced || row.status === "verified") {
       for (const column of ["note", "controversial_reason", "ledger_notes"] as const) {
         if (DEMO_WORD.test(row[column])) {
-          errors.push(`${label}: a licensed or verified row cannot contain Demo in ${column}`);
+          errors.push(`${label}: a licensed, public, or verified row cannot contain Demo in ${column}`);
         }
       }
     }
@@ -571,20 +582,13 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
     if (!analyst) errors.push(`${label}: analyst_slug is not in the universe`);
     if (!bank) errors.push(`${label}: firm_slug is not in the universe`);
     if (!ticker) errors.push(`${label}: ticker is not in the universe`);
-    if (row.data_source === "demo") {
-      if (analyst && analyst.name !== row.analyst_name) errors.push(`${label}: analyst_name does not match the universe`);
+    if (sourced) {
+      if (analyst && analyst.name !== row.analyst_name) errors.push(`${label}: analyst_name does not match the registry`);
       if (analyst && analyst.bankSlug !== row.firm_slug) errors.push(`${label}: firm_slug does not match the analyst's firm`);
-      if (bank && bank.name !== row.firm_name) errors.push(`${label}: firm_name does not match the universe`);
-      if (ticker && ticker.name !== row.company) errors.push(`${label}: company does not match the universe`);
-      const priceError = demoPriceError(row, label);
+      if (bank && bank.name !== row.firm_name) errors.push(`${label}: firm_name does not match the registry`);
+      if (ticker && ticker.name !== row.company) errors.push(`${label}: company does not match the registry`);
+      const priceError = seriesPriceError(row, label);
       if (priceError) errors.push(priceError);
-      const target = parseNumber(row.price_target_to);
-      if (priceAtCall != null && priceAtCall > 0 && target != null) {
-        const multiple = target / priceAtCall;
-        if (multiple < DEMO_TARGET_BAND.min || multiple > DEMO_TARGET_BAND.max) {
-          errors.push(`${label}: demo target ${target} is outside the plausible band around ${priceAtCall}`);
-        }
-      }
     }
   });
 

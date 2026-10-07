@@ -7,7 +7,7 @@ import { parseHorizon } from "@/lib/scoring";
 export const metadata: Metadata = {
   title: "Calls",
   description:
-    "The most recent calls in the GradedCalls Analysts sample: 40 of the active book and 40 of the superseded book.",
+    "The most recent calls in the GradedCalls Analysts ledger: 40 of the active book and 40 of the superseded book.",
 };
 
 const SHOWN_PER_SECTION = 40;
@@ -42,8 +42,8 @@ export default async function CallsPage({
     <div>
       <PageIntro
         kicker="Calls"
-        title="The sample book"
-        lede="The most recent calls in this vintage. Pick a horizon to read the grade that window already has. An open window stays ungraded. A graded score of exactly 0 reads EXIT LIQUIDITY, with an empty glass and a dash, not GC 1."
+        title="The call book"
+        lede="The most recent calls in this ledger. Pick a horizon to read the grade that window already has. An open window stays ungraded and reads Not graded yet. A graded score of exactly 0 reads EXIT LIQUIDITY, with an empty glass and a dash, not GC 1."
       />
       <p className="mb-6 text-sm leading-6 text-muted">{counts}</p>
       <div className="mb-6">

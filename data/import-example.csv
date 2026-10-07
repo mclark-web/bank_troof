@@ -1,0 +1,3 @@
+call_id,date,bank_slug,bank_name,bank_short,headquarters,analyst_slug,analyst_name,analyst_title,ticker,company,sector,industry,exchange,action,rating_from,rating_to,price_target_from,price_target_to,price_at_call,price_30d,price_90d,price_1y,note
+import_example_1,2025-04-02,example-desk,Example Desk,Example,New York,jordan-lee,Jordan Lee,Analyst,AAPL,Apple,Technology,Consumer electronics,NASDAQ,initiate,,buy,,120,100,104,112,118,"Starter row for the CSV adapter. Not loaded by the seed."
+import_example_2,2025-05-02,example-desk,Example Desk,Example,New York,jordan-lee,Jordan Lee,Analyst,MSFT,Microsoft,Technology,Software,NASDAQ,reiterate,buy,buy,120,125,400,410,420,430,"Second starter row for the CSV adapter. Not loaded by the seed."

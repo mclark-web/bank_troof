@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!data) return { title: "Bank" };
   return {
     title: data.bank.name,
-    description: `Sample scorecard for the ${data.bank.name} desk in the GradedCalls Analysts demo.`,
+    description: `Scorecard for the ${data.bank.name} calls in the GradedCalls Analysts ledger.`,
   };
 }
 
@@ -53,7 +53,7 @@ export default async function BankPage({
         <WatchButton kind="bank" slug={bank.slug} label={bank.name} meta={bank.headquarters} />
       </PageIntro>
       <p className="mb-6 text-sm text-muted">
-        {bank.headquarters} · {bank.analysts.length} fictional analysts in the sample
+        {bank.headquarters} · {bank.analysts.length === 0 ? "No analysts in this ledger" : `${bank.analysts.length} ${bank.analysts.length === 1 ? "analyst" : "analysts"} in this ledger`}
       </p>
       <div className="panel mb-8 p-5">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -63,6 +63,7 @@ export default async function BankPage({
         <OverallFactorCard factor={factor} horizon={horizon} />
       </div>
       <section className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {sectors.length > 0 ? (
         <div className="panel p-5">
           <h2 className="font-serif text-2xl">By sector</h2>
           <ul className="mt-4 space-y-3">
@@ -96,6 +97,7 @@ export default async function BankPage({
             ))}
           </ul>
         </div>
+        ) : null}
         <div className="panel stack-table" tabIndex={0} role="region" aria-label="Roster, scrollable">
           <h2 className="border-b border-line px-5 py-4 font-serif text-2xl">Roster</h2>
           <table className="data-table">
@@ -110,6 +112,13 @@ export default async function BankPage({
               </tr>
             </thead>
             <tbody>
+              {roster.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="py-8 text-center text-sm text-muted">
+                    No graded calls at this horizon.
+                  </td>
+                </tr>
+              ) : null}
               {roster.map((row) => (
                 <tr key={row.slug}>
                   <td data-label="Analyst">

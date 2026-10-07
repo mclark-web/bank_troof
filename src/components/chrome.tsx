@@ -3,10 +3,10 @@ import { DATASET } from "@/lib/labels";
 import { LogoLink } from "@/components/logo-link";
 import { PrimaryNav } from "@/components/primary-nav";
 
-export function DemoBanner() {
+export function LedgerBanner() {
   return (
-    <div className="border-b border-warn/40 bg-warn/6 px-4 py-2 text-center text-xs text-warn sm:text-[13px]">
-      Demo vintage {DATASET.vintageLabel}. Analysts and notes are sample. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. Not a live track record, and not investment advice.
+    <div className="border-b border-line bg-[#14171e] px-4 py-2 text-center text-xs text-muted sm:text-[13px]">
+      Public news sources, graded against Yahoo Finance adjusted closes (adjusted for splits and dividends) through {DATASET.asOfLabel}. Not investment advice.
     </div>
   );
 }
@@ -62,7 +62,7 @@ export function SiteFooter() {
             Graded<span className="text-brass">Calls</span> <span className="text-muted">Analysts</span>
           </p>
           <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
-            GradedCalls Analysts grades calls against historical prices. Analysts and notes in this build are a demo. It is not investment advice, not a tip service, and not for sale. Donations, if any, do not change a score.
+            GradedCalls Analysts grades sourced sell-side calls against historical prices. It is not investment advice, not a tip service, and not for sale. Donations, if any, do not change a score.
           </p>
           <p className="mt-3 max-w-xl text-sm leading-6 text-faint">
             Past accuracy does not predict future results. Not a broker. Not affiliated with any bank or ratings publisher.

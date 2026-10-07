@@ -6,7 +6,7 @@ import { LEGAL } from "@/lib/legal";
 export const metadata: Metadata = {
   title: "Disclaimer",
   description:
-    "GradedCalls Analysts is a donation-supported demo. It is not investment advice, not a broker, and not affiliated with any bank.",
+    "GradedCalls Analysts is donation-supported. It is not investment advice, not a broker, and not affiliated with any bank.",
 };
 
 export default function DisclaimerPage() {
@@ -14,7 +14,7 @@ export default function DisclaimerPage() {
     <LegalShell
       kicker="Disclaimer"
       title="Read this before you treat a grade as a fact"
-      lede="GradedCalls Analysts scores sample calls against historical prices. The grades are a methodology, not a recommendation, a forecast, or a product you can buy."
+      lede="GradedCalls Analysts scores sourced calls against historical prices. The grades are a methodology, not a recommendation, a forecast, or a product you can buy."
     >
       <LegalSection id="not-advice" title="Not investment advice">
         <p>
@@ -33,16 +33,16 @@ export default function DisclaimerPage() {
 
       <LegalSection id="past" title="Past accuracy is not future results">
         <p>
-          A grade looks backward. It asks whether a rating pointed the right way over a fixed window, and how close a price target landed. That is a description of a completed window. It is not a forecast of the next one. A high score can be luck, a rising tape, or a short sample. A low score can be the same things in reverse. Do not trade on it.
+          A grade looks backward. It asks whether a rating pointed the right way over a fixed window, and how close a price target landed. That is a description of a completed window. It is not a forecast of the next one. A high score can be luck, a rising tape, or a short record. A low score can be the same things in reverse. Do not trade on it.
         </p>
       </LegalSection>
 
-      <LegalSection id="prices" title="How the prices are real, and how the rest is a demo">
+      <LegalSection id="prices" title="How the prices and the calls are sourced">
         <p>
-          Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. The windows are 14 calendar days (2 weeks), 30 days, 60 days, 90 days, and 1 year. If the calendar date is not a trading session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote is an error. The site does not invent a price to fill a gap. A window that has not elapsed is left ungraded.
+          Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). The windows are 14 calendar days (2 weeks), 30 days, 60 days, 90 days, and 1 year. If the calendar date is not a trading session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote is an error. The site does not invent a price to fill a gap. A window that has not elapsed is left ungraded and reads Not graded yet.
         </p>
         <p>
-          Analysts, biographies, notes, ratings, and price targets in this vintage are a demo sample. Firm names are labels for that sample. They are not those firms’ research, and they are not a description of any person who works there. Targets are fictional numbers kept in a band around the real price at the call so the arithmetic has something to grade. The banner on every page marks this vintage as a demo.
+          Calls come from public news sources. Each call links to that page. Notes restate the rating and the target. They are not a quotation of a research report. Firm names are the firms named in those sources. They are not those firms’ research, and they are not a description of anyone who works there. GradedCalls Analysts does not invent a call, a date, a rating, or a target.
         </p>
         <p>
           Prices can be revised by the source, rounded to the cent, and restated after a split. The series is not adjusted for the market, the sector, or beta. Coverage is incomplete. A buy in a rising tape can “hit” without insight. The <Link href="/methodology" className="text-brass hover:text-ink">methodology</Link> is the formula. If a page and that write-up disagree, the scoring code is the source of truth.
@@ -51,13 +51,13 @@ export default function DisclaimerPage() {
 
       <LegalSection id="affiliation" title="No affiliation">
         <p>
-          GradedCalls Analysts is not affiliated with, endorsed by, or sponsored by any bank, broker, analyst, exchange, data vendor, or ratings publisher. Names of firms and tickers are used as labels so a sample call can be filed. They remain the property of their owners. GradedCalls Analysts does not scrape rankings sites. It does not present itself as those firms’ published research.
+          GradedCalls Analysts is not affiliated with, endorsed by, or sponsored by any bank, broker, analyst, exchange, data vendor, or ratings publisher. Names of firms and tickers are used so a sourced call can be filed. They remain the property of their owners. GradedCalls Analysts does not scrape rankings sites. It does not present itself as those firms’ published research.
         </p>
       </LegalSection>
 
       <LegalSection id="opinions" title="GC scores are opinions">
         <p>
-          The GC score is the GC Scale in the published methodology, not a regulated rating and not a statement about a person. Under 40 out of 100 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. A graded score of exactly 0 is an empty glass at 0% and reads EXIT LIQUIDITY. The badge is a dash, not GC 1. An open horizon stays ungraded. The full grade out of 100 is always the score. The 1–10 number is that score on the GC Scale. Both are opinions produced by a formula applied to a sample. They are not for sale.
+          The GC score is the GC Scale in the published methodology, not a regulated rating and not a statement about a person. Under 40 out of 100 the GC score is 1–4 and the tube reads WEAK. From 40 up to 70 it is 5–7 and the tube reads PROVISIONAL. At or above 70 it is 8–10 and the tube reads STRONG. A graded score of exactly 0 is an empty glass at 0% and reads EXIT LIQUIDITY. The badge is a dash, not GC 1. An open horizon stays ungraded. The full grade out of 100 is always the score. The 1–10 number is that score on the GC Scale. Both are opinions produced by a formula applied to the calls in this ledger. They are not for sale.
         </p>
       </LegalSection>
 

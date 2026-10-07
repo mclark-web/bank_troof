@@ -6,7 +6,7 @@ import { searchAll } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Search",
-  description: "Search the GradedCalls Analysts sample for an analyst, a bank, or a ticker.",
+  description: "Search the GradedCalls Analysts ledger for an analyst, a bank, or a ticker.",
 };
 
 export default async function SearchPage({
@@ -24,14 +24,14 @@ export default async function SearchPage({
     <div>
       <PageIntro
         kicker="Search"
-        title={q ? `Results for “${q}”` : "Search the sample"}
-        lede="Analysts, banks, and tickers. Firm names are searchable. The people are fictional."
+        title={q ? `Results for “${q}”` : "Search the ledger"}
+        lede="Analysts, banks, and tickers in this ledger. Firm names are searchable."
       />
       <div className="mb-8 max-w-md">
         <SearchForm initial={q} compact />
       </div>
       {!q ? null : total === 0 ? (
-        <p className="text-sm text-muted">Nothing in the demo matched that query.</p>
+        <p className="text-sm text-muted">Nothing in this ledger matched that query.</p>
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <ResultGroup title="Analysts">

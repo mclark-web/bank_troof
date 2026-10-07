@@ -22,7 +22,6 @@ async function main() {
     ...call,
     callDate: new Date(call.callDate),
   }));
-  const bankBySlug = new Map(BANKS.map((bank) => [bank.slug, bank]));
 
   await prisma.call.deleteMany();
   await prisma.coverage.deleteMany();
@@ -59,7 +58,7 @@ async function main() {
       bankId: analyst.bankSlug,
       sector: analyst.sector,
       startedYear: analyst.startedYear,
-      bio: `${analyst.name} is a fictional ${analyst.title.toLowerCase()} on the sample ${bankBySlug.get(analyst.bankSlug)?.shortName} desk, focused on ${analyst.sector.toLowerCase()}. Calls, targets, and this biography are demonstration data.`,
+      bio: "",
     })),
   });
 
@@ -101,7 +100,7 @@ async function main() {
     .sort((a, b) => (b.avgScore ?? 0) - (a.avgScore ?? 0));
 
   console.log(`Seeded ${BANKS.length} banks, ${ANALYSTS.length} analysts, ${TICKERS.length} tickers, ${calls.length} calls.`);
-  console.log("90D bank scores (demo, nullified calls excluded):");
+  console.log("90D bank scores (public ledger, nullified calls excluded):");
   for (const row of board) {
     const hit = row.hitRate == null ? "—" : `${Math.round(row.hitRate * 100)}%`;
     console.log(`  ${row.slug.padEnd(16)} score ${String(Math.round(row.avgScore ?? 0)).padStart(3)}  hit ${hit.padStart(4)}  n=${row.graded}`);

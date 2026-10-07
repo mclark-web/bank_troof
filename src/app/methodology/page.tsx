@@ -39,7 +39,7 @@ export default function MethodologyPage() {
           The label on a call, in a book, and on the home tape is the recommendation: what the analyst did. Initiate Buy. Upgrade to Overweight. Downgrade to Neutral. Reiterate Outperform. Maintain Hold, Maintain Neutral, or Maintain Equal-Weight when the desk word is in the hold family and the rating did not change. Target raise. Target cut.
         </p>
         <p>
-          A target raise or a target cut is that action. It is not rewritten as Buy or Sell. The desk rating — the house word on the note — sits under the recommendation. When the action is only a target change, that word does not become the headline. Owen Briggs raising the CAT target while the desk stays at Sell is labeled <strong className="font-medium text-ink">Target raise</strong>. Sell is not the title of that page.
+          A target raise or a target cut is that action. It is not rewritten as Buy or Sell. The desk rating — the house word on the note — sits under the recommendation. When the action is only a target change, that word does not become the headline. David Chiaverini raising the JPM target while the desk stays at Hold is labeled <strong className="font-medium text-ink">Target raise</strong>. Hold is not the title of that page.
         </p>
         <p>
           Direction for grading is a coarser bucket, used only by the score. Strong Buy, Buy, Overweight, and Outperform are Buy. Hold, Neutral, and Equal-Weight are Hold. Underperform, Underweight, and Sell are Sell. Screens that still show Buy, Hold, or Sell mark that column “direction for grading.” The same call can be headlined Target raise and graded as Sell, because the desk did not change the rating. The grade asks whether the shares moved the way that bucket required. The target is scored on its own.
@@ -83,7 +83,7 @@ export default function MethodologyPage() {
           </table>
         </div>
         <p>
-          Forward return is the price at the horizon divided by the price on the call date, minus one. Windows are calendar days: 14 (2 weeks), 30, 60, 90, and 365. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. A window that runs past the history is ungraded. A date with no quote is an error, not a blank.
+          Forward return is the price at the horizon divided by the price on the call date, minus one. Windows are calendar days: 14 (2 weeks), 30, 60, 90, and 365. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). A window that runs past the history is ungraded and reads Not graded yet. A date with no quote is an error, not a blank.
         </p>
         <p>
           A near-miss is not a hit. For up calls it is a return from half of T up to, but not including, T. Down calls mirror that. Flat calls are a near-miss when the absolute return is outside T but inside {FLAT_NEAR_MULTIPLIER}×T. Hit rate uses full hits only. Miss rate is one minus the hit rate, so near-misses count as misses.
@@ -103,7 +103,7 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="score">
         <h2 className="font-serif text-3xl text-ink">GC score</h2>
         <p>
-          A report card shows two grades. The integer is the GC (Grade Calibration) score, from {CHAD_MIN} to {CHAD_MAX}. <strong className="font-medium text-ink">GC {CHAD_MIN} is a poor track record</strong>. <strong className="font-medium text-ink">GC {CHAD_MAX} is an excellent one</strong>. Beside it, every card shows the full score out of 100. Hit rate, return if followed, and sample size stay underneath. They do not set the rank.
+          A report card shows two grades. The integer is the GC (Grade Calibration) score, from {CHAD_MIN} to {CHAD_MAX}. <strong className="font-medium text-ink">GC {CHAD_MIN} is a poor track record</strong>. <strong className="font-medium text-ink">GC {CHAD_MAX} is an excellent one</strong>. Beside it, every card shows the full score out of 100. Hit rate, return if followed, and the number of graded calls stay underneath. They do not set the rank.
         </p>
         <p>
           The engine scores a call from 0 to 100. Direction is worth {DIRECTION_WEIGHT}: all {DIRECTION_WEIGHT} on a hit, {DIRECTION_WEIGHT * NEAR_MISS_FACTOR} on a near-miss, and zero on a miss. The target adds up to {TARGET_WEIGHT}. That 0–100 score is always visible. The GC score is the same number placed on the GC Scale. It is not a second formula, and it does not look at anyone else’s score.
@@ -168,7 +168,7 @@ export default function MethodologyPage() {
           An analyst’s overall factor is the average of that person’s active graded calls at the selected horizon, on the 0–100 scale. The GC score is that same factor on the GC Scale, using the {GC_STRONG_LINE} and {GC_PROVISIONAL_LINE} lines. A bank uses the average of the bank’s active calls, not the average of its analysts. Boards then order those names. One analyst with forty active calls outweighs one analyst with eight. That is deliberate: the firm published the calls.
         </p>
         <p>
-          Boards hide thin samples. Analysts need {MIN_SAMPLE.analyst} active graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. Both the GC score and the overall factor are columns. The default order is the overall factor. Sorting by the GC score is on the page; names that share a GC score keep the higher overall factor ahead. Worst offenders reverse whichever key is selected. Under {GC_WEAK_LINE} the GC score is 1–4. From {GC_WEAK_LINE} up to {GC_STRONG_LINE} it is 5–7. At or above {GC_STRONG_LINE} it is 8–10.
+          Boards hide thin books. Analysts need {MIN_SAMPLE.analyst} active graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. A name with fewer graded calls stays off the leaderboard. Its page still shows the calls that exist. An open horizon reads Not graded yet. A graded 0 reads EXIT LIQUIDITY. Scores from {GC_WEAK_LINE} up to {GC_STRONG_LINE} read PROVISIONAL. Both the GC score and the overall factor are columns. The default order is the overall factor. Sorting by the GC score is on the page; names that share a GC score keep the higher overall factor ahead. Worst offenders reverse whichever key is selected. Under {GC_WEAK_LINE} the GC score is 1–4. From {GC_WEAK_LINE} up to {GC_STRONG_LINE} it is 5–7. At or above {GC_STRONG_LINE} it is 8–10.
         </p>
         <p>
           Sector filters keep calls whose ticker is in that sector. An analyst who only covers technology is unchanged. A generalist would be scored only on the names in the filter.
@@ -178,13 +178,13 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="supersession">
         <h2 className="font-serif text-3xl text-ink">Same ticker within {SUPERSESSION_WINDOW_DAYS} days</h2>
         <p>
-          When the same analyst publishes another call on the same ticker, and the new call’s date is within {SUPERSESSION_WINDOW_DAYS} calendar days of the previous call on that pair, the older call is nullified for scoring. It does not enter the overall factor, the GC score, the hit rate, or the sample size. The newer call is the one that counts. Profiles and call lists keep the active book and the superseded history in separate sections.
+          When the same analyst publishes another call on the same ticker, and the new call’s date is within {SUPERSESSION_WINDOW_DAYS} calendar days of the previous call on that pair, the older call is nullified for scoring. It does not enter the overall factor, the GC score, the hit rate, or the count of graded calls. The newer call is the one that counts. Profiles and call lists keep the active book and the superseded history in separate sections.
         </p>
         <p>
           A run of calls stays one streak while each step is {SUPERSESSION_WINDOW_DAYS} days or closer. Only the latest call in that streak is active. Every earlier call is nullified, and each one points at the call that replaced it. A gap longer than {SUPERSESSION_WINDOW_DAYS} days starts a new streak. Both sides of that gap stay active, and neither gets a nullify note.
         </p>
         <p>
-          The older row reads “Nullified — superseded by later call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” The newer row reads “Supersedes prior call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” A call in the middle of a streak carries both sentences. The date, recommendation, desk rating, target, entry price, and 2W / 30D / 60D / 90D / 1Y outcomes stay on the page. The horizon math does not change. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date.
+          The older row reads “Nullified — superseded by later call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” The newer row reads “Supersedes prior call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” A call in the middle of a streak carries both sentences. The date, recommendation, desk rating, target, entry price, and 2W / 30D / 60D / 90D / 1Y outcomes stay on the page. The horizon math does not change. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends).
         </p>
         <p>
           Tickers match after dots and slashes are folded to hyphens, so BRK.B and BRK-B are one name. Two calls on the same calendar day are inside the window. The later timestamp wins, and if the timestamps match, the higher call id is treated as later. That same-day order is reported as ambiguous because the calendar date alone does not say which note came first. A call with no date is left active and is not chained.
@@ -198,26 +198,26 @@ export default function MethodologyPage() {
         </p>
       </section>
 
-      <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="demo">
-        <h2 className="font-serif text-3xl text-ink">What this vintage is</h2>
+      <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="sources">
+        <h2 className="font-serif text-3xl text-ink">Where the calls come from</h2>
         <p>
-          Grades use real historical prices. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends); two recent calls use the raw close on the call date. If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no simulated price path. The sample runs through 21 Sep 2026, with more upgrades, downgrades, and target changes from July onward. A window that has not elapsed is left blank.
+          Grades use historical prices. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no invented price. History ends 21 Sep 2026. A window that has not elapsed is left blank and reads Not graded yet.
         </p>
         <p>
-          Analysts, notes, ratings, and price targets are a demo sample. Targets are fictional, and each one is kept in a band around the real price at the call. Firm names are labels for that sample. Each fictional analyst is given a skill level so the leaderboard has a spread. None of it is a track record, a forecast, or a description of anyone’s research.
+          Each call is taken from a public news source and links to that page. A German-language page on t-online.de is labelled Source (German). Notes restate the rating and the target in English. They are not a quotation of a research report. <code className="text-ink">data_source=public</code> means a public news source. <code className="text-ink">licensed</code> remains available for a later feed the operator has rights to. A public row is never labelled verified. The validator rejects every row that is not public or licensed.
         </p>
         <p>
           The names with a split in this window —{" "}
           {Object.entries(SPLIT_ADJUSTED)
             .map(([symbol, info]) => `${symbol} (${info.split})`)
             .join(", ")}
-          {" "}— use that Yahoo Finance adjusted close, already on the post-split scale and adjusted for dividends, for every date, including sessions before the split, so a window that crosses the split does not print a fake crash.
+          {" "}— use that Yahoo Finance adjusted close, already on the post-split scale and adjusted for dividends, for every date, including sessions before the split, so a window that crosses the split does not print a false crash.
         </p>
         <p>
-          GradedCalls Analysts is not affiliated with any bank, broker-dealer, or third-party ratings site. It does not scrape rankings sites. Prices are adjusted closes, not a firm’s published targets.
+          GradedCalls Analysts is not affiliated with any bank, broker-dealer, or third-party ratings site. It does not scrape rankings sites, and it does not call a paid market-data API. Prices are adjusted closes, not a firm’s published targets.
         </p>
         <p>
-          The grader reads a rating, a price at the call, an optional target, and prices 14, 30, 60, 90, and 365 calendar days later. This vintage already fills those prices from adjusted closes. Replacing the sample analysts is a call archive in the CSV shape documented in the README. Every screen still carries a demo banner, because the people and the notes are not a live track record.
+          The grader reads a rating, a price at the call, an optional target, and prices 14, 30, 60, 90, and 365 calendar days later. Those prices come from the adjusted-close file. An analyst with few graded calls stays off the leaderboard and still shows PROVISIONAL when the score is from 40 up to 70. A graded 0 is the only score that reads EXIT LIQUIDITY.
         </p>
       </section>
 
@@ -227,7 +227,7 @@ export default function MethodologyPage() {
           <li>Not investment advice. Past accuracy does not predict future results.</li>
           <li>Not adjusted for the market, the sector, or beta. A buy in a roaring tape can “hit” without any insight. A later version can add a benchmark; this one does not hide that choice.</li>
           <li>Not a judgment of report quality, management access, or timing inside the window. The only input is the rating, the target, and the later print.</li>
-          <li>Not comparable to a live ranking product. The people are not real analysts and the numbers are not their numbers.</li>
+          <li>Not a live ranking product, and not those firms’ published research. The grade is this formula applied to the sourced calls.</li>
         </ul>
         <p>
           The worked numbers on each <Link href="/leaderboards" className="text-brass hover:text-ink">call page</Link> use this same module. If the page and this write-up ever disagree, the code in the scoring module is the source of truth — and this page reads its thresholds directly from that module.

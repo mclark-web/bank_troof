@@ -29,7 +29,7 @@ export default function DonatePage() {
         <p>A gift does not buy any of the following:</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>A grade, a GC score, or a place on a leaderboard.</li>
-          <li>A change to a score, a rank, or a sample note.</li>
+          <li>A change to a score, a rank, or a note.</li>
           <li>Access that other readers do not have. The pages stay public.</li>
           <li>A correction. Errors are fixed from the source, or they are not fixed. They are not for sale.</li>
           <li>Investment advice, a client relationship, or a duty to you.</li>
@@ -42,7 +42,7 @@ export default function DonatePage() {
 
       <LegalSection id="not-advice" title="Still not advice">
         <p>
-          Supporting the site does not make GradedCalls Analysts your adviser, your broker, or your agent. The <Link href="/disclaimer" className="text-brass hover:text-ink">disclaimer</Link> applies to donors the same way it applies to everyone else. Past grades do not predict future results. Analysts and notes in this vintage are a demo. Prices used for grades are historical adjusted closes, documented in the <Link href="/methodology" className="text-brass hover:text-ink">methodology</Link>.
+          Supporting the site does not make GradedCalls Analysts your adviser, your broker, or your agent. The <Link href="/disclaimer" className="text-brass hover:text-ink">disclaimer</Link> applies to donors the same way it applies to everyone else. Past grades do not predict future results. Calls in this ledger come from public news sources. Prices used for grades are historical adjusted closes, documented in the <Link href="/methodology" className="text-brass hover:text-ink">methodology</Link>.
         </p>
       </LegalSection>
 
