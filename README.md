@@ -86,7 +86,7 @@ SQLite via Prisma, file at `prisma/banktruth.db`.
 - Grades are computed when pages render (`src/lib/scoring.ts`). They are not baked into the row, so a formula change does not require a reseed
 - The 90-day same-ticker rule is computed the same way (`src/lib/supersession.ts`) for every call in the database, including the seeded ledger and CSV imports. Nullified rows are not stored as a separate flag
 
-`prisma/seed.ts` loads `data/calls/calls.json`. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). A missing quote aborts the seed. A horizon that runs past 21 Sep 2026 is stored blank and left ungraded. Notes restate the rating and target from the public source. They are not a quotation of a research report.
+`prisma/seed.ts` loads `data/calls/calls.json`. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). A missing quote aborts the seed. A horizon that runs past 9 Oct 2026 is stored blank and left ungraded. Notes restate the rating and target from the public source. They are not a quotation of a research report.
 
 ## Call ledger
 

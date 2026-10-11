@@ -5,7 +5,7 @@ import history from "./adjusted-closes.json";
  * Adjusted closes include splits and dividends. Nothing in the seed invents a session.
  */
 export const PRICE_SOURCE =
-  "Yahoo Finance adjusted close, adjusted for splits and dividends, rounded to the cent. History ends 21 Sep 2026.";
+  "Yahoo Finance adjusted close, adjusted for splits and dividends, rounded to the cent. History ends 9 Oct 2026.";
 
 /** A closed market may use the prior session only this many calendar days back. */
 export const MAX_CLOSED_GAP_DAYS = 4;
