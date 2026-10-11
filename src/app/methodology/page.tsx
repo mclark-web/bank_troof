@@ -201,7 +201,7 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="sources">
         <h2 className="font-serif text-3xl text-ink">Where the calls come from</h2>
         <p>
-          Grades use historical prices. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no invented price. History ends 21 Sep 2026. A window that has not elapsed is left blank and reads Not graded yet.
+          Grades use historical prices. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no invented price. History ends 9 Oct 2026. A window that has not elapsed is left blank and reads Not graded yet.
         </p>
         <p>
           Each call is taken from a public news source and links to that page. A German-language page on t-online.de is labelled Source (German). Notes restate the rating and the target in English. They are not a quotation of a research report. <code className="text-ink">data_source=public</code> means a public news source. <code className="text-ink">licensed</code> remains available for a later feed the operator has rights to. A public row is never labelled verified. The validator rejects every row that is not public or licensed.

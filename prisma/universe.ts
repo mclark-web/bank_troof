@@ -148,12 +148,15 @@ const ANALYST_TITLE = "Equity research analyst";
  * Bios are left blank on purpose: nothing here invents a title, a sector history, or a career year.
  */
 export const ANALYSTS: AnalystSeed[] = [
+  { slug: "akash-tewari", name: "Akash Tewari", title: ANALYST_TITLE, bankSlug: "jefferies", sector: "Healthcare", startedYear: 2026 },
   { slug: "aneesha-sherman", name: "Aneesha Sherman", title: ANALYST_TITLE, bankSlug: "bernstein", sector: "Consumer", startedYear: 2026 },
   { slug: "atif-malik", name: "Atif Malik", title: ANALYST_TITLE, bankSlug: "citi", sector: "Technology", startedYear: 2026 },
   { slug: "blayne-curtis", name: "Blayne Curtis", title: ANALYST_TITLE, bankSlug: "jefferies", sector: "Technology", startedYear: 2026 },
   { slug: "brad-erickson", name: "Brad Erickson", title: ANALYST_TITLE, bankSlug: "rbc", sector: "Technology", startedYear: 2026 },
   { slug: "brent-thill", name: "Brent Thill", title: ANALYST_TITLE, bankSlug: "jefferies", sector: "Technology", startedYear: 2026 },
   { slug: "brian-nowak", name: "Brian Nowak", title: ANALYST_TITLE, bankSlug: "morgan-stanley", sector: "Technology", startedYear: 2026 },
+  { slug: "brooke-roach", name: "Brooke Roach", title: ANALYST_TITLE, bankSlug: "goldman", sector: "Consumer", startedYear: 2026 },
+  { slug: "chris-schott", name: "Chris Schott", title: ANALYST_TITLE, bankSlug: "jpmorgan", sector: "Healthcare", startedYear: 2026 },
   { slug: "dan-ives", name: "Dan Ives", title: ANALYST_TITLE, bankSlug: "wedbush", sector: "Technology", startedYear: 2025 },
   { slug: "david-chiaverini", name: "David Chiaverini", title: ANALYST_TITLE, bankSlug: "jefferies", sector: "Financials", startedYear: 2026 },
   { slug: "david-vogt", name: "David Vogt", title: ANALYST_TITLE, bankSlug: "ubs", sector: "Technology", startedYear: 2026 },
@@ -224,5 +227,5 @@ export const TICKERS: TickerSeed[] = [
   { symbol: "TMUS", name: "T-Mobile", sector: "Media", industry: "Telecom", exchange: "NASDAQ" },
 ];
 
-export const AS_OF = new Date("2026-09-21T00:00:00.000Z");
+export const AS_OF = new Date("2026-10-09T00:00:00.000Z");
 export const PATH_START = new Date("2024-01-02T00:00:00.000Z");
