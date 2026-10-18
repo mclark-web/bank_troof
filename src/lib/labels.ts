@@ -6,6 +6,7 @@ export const RATING_LABELS: Record<string, string> = {
   hold: "Hold",
   neutral: "Neutral",
   equal_weight: "Equal-Weight",
+  peer_perform: "Peer Perform",
   underperform: "Underperform",
   underweight: "Underweight",
   sell: "Sell",
@@ -28,6 +29,7 @@ export const RATING_NOTCH: Record<string, number> = {
   hold: 3,
   neutral: 3,
   equal_weight: 3,
+  peer_perform: 3,
   underperform: 2,
   underweight: 2,
   sell: 1,
@@ -57,7 +59,7 @@ export function ratingTone(rating: string): "up" | "flat" | "down" {
   return "flat";
 }
 
-const FLAT_DESK = new Set(["hold", "neutral", "equal_weight"]);
+const FLAT_DESK = new Set(["hold", "neutral", "equal_weight", "peer_perform"]);
 
 export type RecommendationCall = {
   action: string;
@@ -150,7 +152,7 @@ export function sourceLinkLabel(url: string): "Source" | "Source (German)" {
  * `asOf` is the last day in the adjusted-close file.
  */
 export const DATASET = {
-  asOfIso: "2026-10-14",
-  asOfLabel: "14 Oct 2026",
+  asOfIso: "2026-10-16",
+  asOfLabel: "16 Oct 2026",
   kind: "public" as const,
 };
