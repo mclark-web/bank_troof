@@ -617,18 +617,21 @@ li a.text-sm.leading-5 {
 .heat-provisional { border-style: dashed; }
 .heat-provisional .heat-v { color: #d9c3ae; }
 .heat-provisional .heat-bar { opacity: .5; }
-/* cold: dim cool tone on charcoal */
-.heat-weak { background: linear-gradient(rgba(138,160,200,.08), rgba(138,160,200,.08)), #14171e; border-color: rgba(138,160,200,.4); }
-.heat-weak .heat-v { color: #a9b8d6; }
+/* cold: dim in-palette grey. The ▼ glyph and a 30% orange bar stay. */
+.heat-weak { background: #14171e; border-color: rgba(201,201,207,.35); }
+.heat-weak .heat-v { color: #c9c9cf; }
 .heat-weak .heat-bar { opacity: .3; }
+.heat-exit,
 .heat-exit .heat-v { color: #9a9aa3; }
 .heat-open { background: transparent; border-style: dotted; }
 .heat-open .heat-v { color: #9a9aa3; font-weight: 400; }
 .heat-legend { display: flex; flex-wrap: wrap; gap: 6px 10px; padding: 10px 16px 4px; font-size: 12px; line-height: 18px; }
 .heat-key { padding: 0 6px; border: 1px solid rgba(154,154,163,.35); border-radius: 4px; color: #d9c3ae; background: #14171e; }
 .heat-key.heat-strong { color: #ffb36b; }
-.heat-key.heat-weak { color: #a9b8d6; }
+.heat-key.heat-weak { color: #c9c9cf; }
+.heat-key.heat-exit { color: #9a9aa3; }
 .heat-key.heat-open { color: #9a9aa3; border-style: dotted; }
+.heat-note { color: #9a9aa3; }
 
 @media (max-width: 639px) {
   /* Strip spans the full card instead of wrapping beside its label. */

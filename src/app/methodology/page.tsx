@@ -83,7 +83,7 @@ export default function MethodologyPage() {
           </table>
         </div>
         <p>
-          Forward return is the price at the horizon divided by the price on the call date, minus one. Windows are calendar days: 14 (2 weeks), 30, 60, 90, and 365. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). A window that runs past the history is ungraded and reads Not graded yet. A date with no quote is an error, not a blank.
+          Forward return is the price at the horizon divided by the price on the call date, minus one. Windows are calendar days: 14 (2W), 30 (1M), 60 (2M), 90 (3M), and 365 (1Y). 1M, 2M, and 3M are 30, 60, and 90 calendar days. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). A window that runs past the history is ungraded and reads Not graded yet. A date with no quote is an error, not a blank.
         </p>
         <p>
           A near-miss is not a hit. For up calls it is a return from half of T up to, but not including, T. Down calls mirror that. Flat calls are a near-miss when the absolute return is outside T but inside {FLAT_NEAR_MULTIPLIER}×T. Hit rate uses full hits only. Miss rate is one minus the hit rate, so near-misses count as misses.

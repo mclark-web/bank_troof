@@ -418,21 +418,53 @@ export function MiniLeaderboard({
   );
 }
 
-/** Heat step for one horizon. Same 70/40 lines as the GC Scale; a graded 0 is EXIT LIQUIDITY. */
+/** Heat step for one horizon. Same 70/40 lines as the GC Scale. EXIT is a graded score of exactly 0. */
 export type HeatStep = "strong" | "provisional" | "weak" | "exit" | "open";
 
+/**
+ * Band from the unrounded score, via the same calibration as the tube.
+ * A score that only rounds to 0 stays WEAK. Rounding the score first would
+ * call 0.193 EXIT and 39.912 PROVISIONAL.
+ */
 export function heatStep(score: number | null, gradeable: boolean): HeatStep {
-  if (!gradeable || score == null) return "open";
-  const r = Math.round(Math.min(100, Math.max(0, score)));
-  if (r === 0) return "exit";
-  return r >= GC_STRONG_LINE ? "strong" : r >= GC_PROVISIONAL_LINE ? "provisional" : "weak";
+  if (!gradeable || score == null || Number.isNaN(score)) return "open";
+  return readCalibration(score, true).id;
 }
 
 const HEAT_GLYPH: Record<HeatStep, string> = { strong: "▲", provisional: "◆", weak: "▼", exit: "", open: "" };
 
+const HEAT_BAND: Record<Exclude<HeatStep, "open">, string> = {
+  strong: "STRONG",
+  provisional: "PROVISIONAL",
+  weak: "WEAK",
+  exit: "EXIT LIQUIDITY",
+};
+
+/** Printed percent. The band still comes from the unrounded score. */
+export function heatPercent(score: number | null, gradeable: boolean): number | null {
+  if (heatStep(score, gradeable) === "open") return null;
+  return readCalibration(score, true).percent;
+}
+
+/** Pill face. A rounded 0 that is still WEAK reads "▼ 0%", not EXIT. */
+export function heatVisible(score: number | null, gradeable: boolean): string {
+  const step = heatStep(score, gradeable);
+  if (step === "open") return "Not graded yet";
+  if (step === "exit") return "EXIT";
+  return `${HEAT_GLYPH[step]} ${heatPercent(score, gradeable)}%`;
+}
+
+/** aria-label and title. Includes the glyph, the printed percent, and the band. */
+export function heatAccessibleName(horizonLabel: string, score: number | null, gradeable: boolean): string {
+  const step = heatStep(score, gradeable);
+  if (step === "open") return `${GC_SCALE_LABEL}, ${horizonLabel}: not graded yet`;
+  if (step === "exit") return `${GC_SCALE_LABEL}, ${horizonLabel}: ${HEAT_BAND.exit}`;
+  return `${GC_SCALE_LABEL}, ${horizonLabel}: ${heatVisible(score, gradeable)} ${HEAT_BAND[step]}`;
+}
+
 /**
  * Fixed five-slot horizon strip: 2W 1M 2M 3M 1Y, always in this order, same pill size.
- * Warm = fuller, brighter orange; cold = dim cool tone on charcoal. The % text and a glyph
+ * Warm = fuller, brighter orange; cold = dim grey on charcoal. The % text and a glyph
  * carry the reading so colour is never the only signal. Open windows read "Not graded yet".
  */
 export function HorizonHeatStrip({ grades }: { grades: Record<HorizonKey, { score: number | null; gradeable: boolean }> }) {
@@ -452,14 +484,12 @@ export function HorizonHeatStrip({ grades }: { grades: Record<HorizonKey, { scor
       {HORIZON_KEYS.map((key) => {
         const g = grades[key];
         const step = heatStep(g.score, g.gradeable);
-        const pct = step === "open" ? null : Math.round(Math.min(100, Math.max(0, g.score as number)));
-        const name = `${GC_SCALE_LABEL}, ${HORIZONS[key].label}: ${pct == null ? "not graded yet" : step === "exit" ? "EXIT LIQUIDITY" : `${pct}%`}`;
+        const name = heatAccessibleName(HORIZONS[key].label, g.score, g.gradeable);
+        const pct = heatPercent(g.score, g.gradeable);
         return (
           <li key={key} className={cx("heat-pill", `heat-${step}`)} aria-label={name} title={name}>
             <span className="heat-h" aria-hidden>{HORIZONS[key].short}</span>
-            <span className="heat-v" aria-hidden>
-              {pct == null ? "Not graded yet" : step === "exit" ? "EXIT" : `${HEAT_GLYPH[step]} ${pct}%`}
-            </span>
+            <span className="heat-v" aria-hidden>{heatVisible(g.score, g.gradeable)}</span>
             <span className="heat-bar" aria-hidden style={{ width: `${pct ?? 0}%` }} />
           </li>
         );
@@ -468,13 +498,18 @@ export function HorizonHeatStrip({ grades }: { grades: Record<HorizonKey, { scor
   );
 }
 
+export const HORIZON_MONTH_NOTE = "1M, 2M, and 3M are 30, 60, and 90 calendar days.";
+
 export function HeatLegend() {
   return (
     <p className="heat-legend">
-      <span className="heat-key heat-strong">▲ 70–100% warm</span>
-      <span className="heat-key heat-provisional">◆ 40–69%</span>
+      <span className="heat-key heat-strong">▲ {GC_STRONG_LINE}–100% warm</span>
+      <span className="heat-key heat-provisional">◆ {GC_PROVISIONAL_LINE}–{GC_STRONG_LINE - 1}%</span>
       <span className="heat-key heat-weak">▼ 1–39% cold</span>
+      <span className="heat-key heat-weak">▼ 0% WEAK</span>
+      <span className="heat-key heat-exit">EXIT</span>
       <span className="heat-key heat-open">Not graded yet</span>
+      <span className="heat-note">{HORIZON_MONTH_NOTE}</span>
     </p>
   );
 }
