@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro, ScaleLegend, ScoreBar } from "@/components/ui";
 import { listTickers } from "@/lib/queries";
+import { HORIZONS } from "@/lib/scoring";
 
 export const metadata: Metadata = {
   title: "Tickers",
@@ -52,7 +53,7 @@ export default async function TickersPage() {
                       Overall factor
                       <span className="mt-1 block font-sans text-xs font-normal normal-case tracking-normal text-faint">/100 · GC 1–10</span>
                     </th>
-                    <th>90D hit</th>
+                    <th>{HORIZONS["90"].short} hit</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -74,7 +75,7 @@ export default async function TickersPage() {
                         <td data-label="Overall factor">
                           <ScoreBar score={aggregate.avgScore} placement={placement} />
                         </td>
-                        <td className="num" data-label="90D hit">
+                        <td className="num" data-label={`${HORIZONS["90"].short} hit`}>
                           {aggregate.hitRate == null ? "—" : `${Math.round(aggregate.hitRate * 100)}%`}
                         </td>
                       </tr>

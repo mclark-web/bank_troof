@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { OVERALL_FACTOR_FORMULA, type OverallFactor } from "@/lib/overall-factor";
 import { HORIZONS, HORIZON_KEYS, formatPoints, placeChad, type ChadPlacement, type HorizonKey } from "@/lib/scoring";
-import { readCalibration } from "@/lib/gc-grade";
+import { GC_PROVISIONAL_LINE, GC_SCALE_LABEL, GC_STRONG_LINE, readCalibration } from "@/lib/gc-grade";
 import { cx, initials, pct } from "@/lib/format";
 import { actionLabel, recommendationLabel, sourceLinkLabel, type RecommendationCall } from "@/lib/labels";
 import type { SupersessionMark } from "@/lib/supersession";
@@ -220,7 +220,7 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
           {mark.supersededById ? (
             <>
               {" "}
-              <Link href={`/calls/${mark.supersededById}`} className="text-brass hover:text-ink">
+              <Link href={`/calls/${mark.supersededById}`} className="hit-44 text-brass hover:text-ink">
                 Later call
               </Link>
             </>
@@ -233,7 +233,7 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
           {mark.supersedesId ? (
             <>
               {" "}
-              <Link href={`/calls/${mark.supersedesId}`} className="text-brass hover:text-ink">
+              <Link href={`/calls/${mark.supersedesId}`} className="hit-44 text-brass hover:text-ink">
                 Prior call
               </Link>
             </>
@@ -247,15 +247,13 @@ export function SupersessionNotes({ mark, verbose = true }: { mark: Supersession
 export function GradePill({ result }: { result: "hit" | "near" | "miss" | null }) {
   if (!result) return <GcUngraded compact />;
   const label = result === "hit" ? "Hit" : result === "near" ? "Near" : "Miss";
-  if (result === "near") {
-    return (
-      <span className="inline-flex rounded-full border border-[rgba(154,154,163,0.35)] bg-transparent px-2 py-0.5 text-xs text-[#c9c9cf]">
-        {label}
-      </span>
-    );
-  }
-  const cls = result === "hit" ? "border-hit/40 bg-hit/10 text-hit" : "border-miss/40 bg-miss/10 text-miss";
-  return <span className={cx("inline-flex rounded-full border px-2 py-0.5 text-xs uppercase tracking-wider", cls)}>{label}</span>;
+  const cls =
+    result === "hit"
+      ? "border-hit/40 bg-hit/10 text-hit"
+      : result === "near"
+        ? "border-[rgba(154,154,163,0.35)] bg-transparent text-[#c9c9cf]"
+        : "border-miss/40 bg-miss/10 text-miss";
+  return <span className={cx("grade-pill inline-flex rounded-full border px-2 text-xs uppercase tracking-wider", cls)}>{label}</span>;
 }
 
 export function RecommendationPill({ call }: { call: RecommendationCall }) {
@@ -275,12 +273,12 @@ export function CallSourceLinks({
   return (
     <p className={cx("mt-1 flex flex-wrap gap-x-4 text-xs", className)}>
       {sourceUrl ? (
-        <a href={sourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-brass hover:text-ink">
+        <a href={sourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="hit-44 text-brass hover:text-ink">
           {sourceLinkLabel(sourceUrl)}
         </a>
       ) : null}
       {altSourceUrl ? (
-        <a href={altSourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-brass hover:text-ink">
+        <a href={altSourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="hit-44 text-brass hover:text-ink">
           Alt source
         </a>
       ) : null}
@@ -417,5 +415,66 @@ export function MiniLeaderboard({
         ))}
       </ol>
     </section>
+  );
+}
+
+/** Heat step for one horizon. Same 70/40 lines as the GC Scale; a graded 0 is EXIT LIQUIDITY. */
+export type HeatStep = "strong" | "provisional" | "weak" | "exit" | "open";
+
+export function heatStep(score: number | null, gradeable: boolean): HeatStep {
+  if (!gradeable || score == null) return "open";
+  const r = Math.round(Math.min(100, Math.max(0, score)));
+  if (r === 0) return "exit";
+  return r >= GC_STRONG_LINE ? "strong" : r >= GC_PROVISIONAL_LINE ? "provisional" : "weak";
+}
+
+const HEAT_GLYPH: Record<HeatStep, string> = { strong: "▲", provisional: "◆", weak: "▼", exit: "", open: "" };
+
+/**
+ * Fixed five-slot horizon strip: 2W 1M 2M 3M 1Y, always in this order, same pill size.
+ * Warm = fuller, brighter orange; cold = dim cool tone on charcoal. The % text and a glyph
+ * carry the reading so colour is never the only signal. Open windows read "Not graded yet".
+ */
+export function HorizonHeatStrip({ grades }: { grades: Record<HorizonKey, { score: number | null; gradeable: boolean }> }) {
+  if (HORIZON_KEYS.every((key) => heatStep(grades[key].score, grades[key].gradeable) === "open")) {
+    // Every window still open: one full-width neutral row instead of five wrapped slots.
+    return (
+      <ol className="heat-strip is-all-open" aria-label={`${GC_SCALE_LABEL} by horizon`}>
+        <li className="heat-pill heat-open" aria-label={`${GC_SCALE_LABEL}, all horizons: not graded yet`}>
+          <span className="heat-h" aria-hidden>{HORIZON_KEYS.map((key) => HORIZONS[key].short).join(" · ")}</span>
+          <span className="heat-v" aria-hidden>Not graded yet</span>
+        </li>
+      </ol>
+    );
+  }
+  return (
+    <ol className="heat-strip" aria-label={`${GC_SCALE_LABEL} by horizon`}>
+      {HORIZON_KEYS.map((key) => {
+        const g = grades[key];
+        const step = heatStep(g.score, g.gradeable);
+        const pct = step === "open" ? null : Math.round(Math.min(100, Math.max(0, g.score as number)));
+        const name = `${GC_SCALE_LABEL}, ${HORIZONS[key].label}: ${pct == null ? "not graded yet" : step === "exit" ? "EXIT LIQUIDITY" : `${pct}%`}`;
+        return (
+          <li key={key} className={cx("heat-pill", `heat-${step}`)} aria-label={name} title={name}>
+            <span className="heat-h" aria-hidden>{HORIZONS[key].short}</span>
+            <span className="heat-v" aria-hidden>
+              {pct == null ? "Not graded yet" : step === "exit" ? "EXIT" : `${HEAT_GLYPH[step]} ${pct}%`}
+            </span>
+            <span className="heat-bar" aria-hidden style={{ width: `${pct ?? 0}%` }} />
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+export function HeatLegend() {
+  return (
+    <p className="heat-legend">
+      <span className="heat-key heat-strong">▲ 70–100% warm</span>
+      <span className="heat-key heat-provisional">◆ 40–69%</span>
+      <span className="heat-key heat-weak">▼ 1–39% cold</span>
+      <span className="heat-key heat-open">Not graded yet</span>
+    </p>
   );
 }

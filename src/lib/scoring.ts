@@ -117,7 +117,7 @@ export const HORIZONS: Record<
   "30": {
     days: 30,
     label: "30 days",
-    short: "30D",
+    short: "1M",
     threshold: 0.02,
     ptFull: 0.04,
     ptZero: 0.12,
@@ -125,7 +125,7 @@ export const HORIZONS: Record<
   "60": {
     days: 60,
     label: "60 days",
-    short: "60D",
+    short: "2M",
     threshold: 0.04,
     ptFull: 0.06,
     ptZero: 0.16,
@@ -133,7 +133,7 @@ export const HORIZONS: Record<
   "90": {
     days: 90,
     label: "90 days",
-    short: "90D",
+    short: "3M",
     threshold: 0.05,
     ptFull: 0.08,
     ptZero: 0.22,

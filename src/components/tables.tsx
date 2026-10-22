@@ -1,9 +1,10 @@
+import { GC_SCALE_LABEL } from "@/lib/gc-grade";
 import Link from "next/link";
 import { cx, formatDate, pct, usd } from "@/lib/format";
 import { deskRatingNote, directionForGradingLabel } from "@/lib/labels";
 import type { BoardRow, ScoredCall } from "@/lib/queries";
 import { outcomeField, type HorizonKey } from "@/lib/scoring";
-import { CallSourceLinks, GradePill, hrefWith, PointsCell, RecommendationPill, SupersessionNotes } from "./ui";
+import { CallSourceLinks, GradePill, HeatLegend, HorizonHeatStrip, hrefWith, PointsCell, RecommendationPill, SupersessionNotes } from "./ui";
 
 export type BookView = "all" | "active" | "superseded";
 
@@ -102,7 +103,8 @@ export function CallTable({
   label?: string;
 }) {
   return (
-    <div className="panel stack-table" tabIndex={0} role="region" aria-label={`${label}, scrollable`}>
+    <div className="panel stack-table calls-table" tabIndex={0} role="region" aria-label={`${label}, scrollable`}>
+      <HeatLegend />
       <table className="data-table">
         <thead>
           <tr>
@@ -121,6 +123,7 @@ export function CallTable({
             <th>After</th>
             <th>Return</th>
             <th>Grade</th>
+            <th>{GC_SCALE_LABEL} by horizon</th>
           </tr>
         </thead>
         <tbody>
@@ -169,6 +172,9 @@ export function CallTable({
                   {call.supersession.status === "nullified" ? (
                     <p className="tag-note">Not scored</p>
                   ) : null}
+                </td>
+                <td className="heat-cell" data-label={`${GC_SCALE_LABEL} by horizon`}>
+                  <HorizonHeatStrip grades={call.grades} />
                 </td>
               </tr>
             );
