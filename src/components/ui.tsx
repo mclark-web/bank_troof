@@ -442,16 +442,23 @@ const HEAT_BAND: Record<Exclude<HeatStep, "open">, string> = {
 
 /** Printed percent. The band still comes from the unrounded score. */
 export function heatPercent(score: number | null, gradeable: boolean): number | null {
-  if (heatStep(score, gradeable) === "open") return null;
-  return readCalibration(score, true).percent;
+  const step = heatStep(score, gradeable);
+  if (step === "open") return null;
+  const percent = readCalibration(score, true).percent;
+  // Keep the printed number inside its band: a WEAK score never prints 0% or 40%,
+  // a PROVISIONAL score never prints 70%. The band itself is unchanged.
+  if (step === "weak") return Math.min(GC_PROVISIONAL_LINE - 1, percent);
+  if (step === "provisional") return Math.min(GC_STRONG_LINE - 1, percent);
+  return percent;
 }
 
 /** Pill face. A rounded 0 that is still WEAK reads "▼ 0%", not EXIT. */
 export function heatVisible(score: number | null, gradeable: boolean): string {
   const step = heatStep(score, gradeable);
   if (step === "open") return "Not graded yet";
-  if (step === "exit") return "EXIT";
-  return `${HEAT_GLYPH[step]} ${heatPercent(score, gradeable)}%`;
+  if (step === "exit") return "0%";
+  const percent = heatPercent(score, gradeable);
+  return `${HEAT_GLYPH[step]} ${step === "weak" && percent === 0 ? "<1" : percent}%`;
 }
 
 /** aria-label and title. Includes the glyph, the printed percent, and the band. */
@@ -505,9 +512,8 @@ export function HeatLegend() {
     <p className="heat-legend">
       <span className="heat-key heat-strong">▲ {GC_STRONG_LINE}–100% warm</span>
       <span className="heat-key heat-provisional">◆ {GC_PROVISIONAL_LINE}–{GC_STRONG_LINE - 1}%</span>
-      <span className="heat-key heat-weak">▼ 1–39% cold</span>
-      <span className="heat-key heat-weak">▼ 0% WEAK</span>
-      <span className="heat-key heat-exit">EXIT</span>
+      <span className="heat-key heat-weak">▼ under {GC_PROVISIONAL_LINE}% cold</span>
+      <span className="heat-key heat-exit">0% = EXIT LIQUIDITY</span>
       <span className="heat-key heat-open">Not graded yet</span>
       <span className="heat-note">{HORIZON_MONTH_NOTE}</span>
     </p>

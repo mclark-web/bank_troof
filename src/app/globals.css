@@ -612,23 +612,22 @@ li a.text-sm.leading-5 {
 .heat-bar { position: absolute; left: 0; bottom: 0; height: 3px; background: #eb6505; }
 /* warm: fuller, brighter orange */
 .heat-strong { background: linear-gradient(rgba(235,101,5,.18), rgba(235,101,5,.18)), #14171e; border-color: rgba(235,101,5,.6); }
-.heat-strong .heat-v { color: #ffb36b; }
+.heat-strong .heat-v { color: #ee9a44; }
 /* middle */
-.heat-provisional { border-style: dashed; }
-.heat-provisional .heat-v { color: #d9c3ae; }
+.heat-provisional .heat-v { color: #c9c9cf; }
 .heat-provisional .heat-bar { opacity: .5; }
-/* cold: dim in-palette grey. The ▼ glyph and a 30% orange bar stay. */
-.heat-weak { background: #14171e; border-color: rgba(201,201,207,.35); }
-.heat-weak .heat-v { color: #c9c9cf; }
-.heat-weak .heat-bar { opacity: .3; }
+/* cold: dim muted grey (not the WEAK grade pill's #c9c9cf), ▼ glyph, short solid orange bar. */
+.heat-weak { background: #14171e; border-color: rgba(154,154,163,.22); }
+.heat-weak .heat-v { color: #9a9aa3; }
+.heat-weak .heat-bar { opacity: 1; min-width: 4px; }
 .heat-exit,
 .heat-exit .heat-v { color: #9a9aa3; }
 .heat-open { background: transparent; border-style: dotted; }
 .heat-open .heat-v { color: #9a9aa3; font-weight: 400; }
 .heat-legend { display: flex; flex-wrap: wrap; gap: 6px 10px; padding: 10px 16px 4px; font-size: 12px; line-height: 18px; }
-.heat-key { padding: 0 6px; border: 1px solid rgba(154,154,163,.35); border-radius: 4px; color: #d9c3ae; background: #14171e; }
-.heat-key.heat-strong { color: #ffb36b; }
-.heat-key.heat-weak { color: #c9c9cf; }
+.heat-key { padding: 0 6px; border: 1px solid rgba(154,154,163,.35); border-radius: 4px; color: #c9c9cf; background: #14171e; }
+.heat-key.heat-strong { color: #ee9a44; }
+.heat-key.heat-weak { color: #9a9aa3; border-color: rgba(154,154,163,.22); }
 .heat-key.heat-exit { color: #9a9aa3; }
 .heat-key.heat-open { color: #9a9aa3; border-style: dotted; }
 .heat-note { color: #9a9aa3; }
@@ -686,4 +685,12 @@ li a.text-sm.leading-5 {
   .calls-table td .gc-ungraded > span[aria-hidden] {
     white-space: normal;
   }
+}
+
+/* design-gate r1: heat strip fits its slots at every width. */
+@media (max-width: 639px) {
+  .heat-strip.is-all-open .heat-pill { flex-direction: column; gap: 0; }
+}
+@media (min-width: 640px) and (max-width: 1279px) {
+  .data-table td.heat-cell { min-width: 268px; }
 }
