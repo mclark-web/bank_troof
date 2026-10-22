@@ -42,7 +42,7 @@ export default async function HomePage() {
             <Count label="Analysts" value={home.analystCount} />
             <Count label="Banks" value={home.bankCount} />
             <Count label="Tickers" value={home.tickerCount} />
-            <Count label="Active graded, 90D" value={home.graded90} />
+            <Count label={`Active graded, ${HORIZONS["90"].short}`} value={home.graded90} />
           </dl>
         </div>
         <aside className="panel">
@@ -105,8 +105,8 @@ export default async function HomePage() {
       </section>
 
       <section className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Featured eyebrow="Best followed, 90D" call={home.featuredHit} />
-        <Featured eyebrow="Worst followed, 90D" call={home.featuredMiss} />
+        <Featured eyebrow={`Best followed, ${HORIZONS["90"].short}`} call={home.featuredHit} />
+        <Featured eyebrow={`Worst followed, ${HORIZONS["90"].short}`} call={home.featuredMiss} />
       </section>
 
       <section className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">

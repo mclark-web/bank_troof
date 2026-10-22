@@ -275,7 +275,7 @@ export function AnalystsBoard({
         <div className="grid gap-3">
           <section className="panel p-4">
             <h2 className="text-sm font-semibold">Board health</h2>
-            <p className="mt-2 font-mono text-xs uppercase tracking-[0.08em] text-faint">30D outcomes</p>
+            <p className="mt-2 font-mono text-xs uppercase tracking-[0.08em] text-faint">{HORIZONS["30"].short} outcomes</p>
             {health.graded === 0 ? null : (
               <>
                 <div className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-[#14171e]" aria-hidden>

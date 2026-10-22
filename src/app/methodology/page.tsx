@@ -83,7 +83,7 @@ export default function MethodologyPage() {
           </table>
         </div>
         <p>
-          Forward return is the price at the horizon divided by the price on the call date, minus one. Windows are calendar days: 14 (2 weeks), 30, 60, 90, and 365. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). A window that runs past the history is ungraded and reads Not graded yet. A date with no quote is an error, not a blank.
+          Forward return is the price at the horizon divided by the price on the call date, minus one. Windows are calendar days: 14 (2W), 30 (1M), 60 (2M), 90 (3M), and 365 (1Y). 1M, 2M, and 3M are 30, 60, and 90 calendar days. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). A window that runs past the history is ungraded and reads Not graded yet. A date with no quote is an error, not a blank.
         </p>
         <p>
           A near-miss is not a hit. For up calls it is a return from half of T up to, but not including, T. Down calls mirror that. Flat calls are a near-miss when the absolute return is outside T but inside {FLAT_NEAR_MULTIPLIER}×T. Hit rate uses full hits only. Miss rate is one minus the hit rate, so near-misses count as misses.
@@ -148,7 +148,7 @@ export default function MethodologyPage() {
         <h2 className="font-serif text-3xl text-ink">Overall factor</h2>
         <p>{OVERALL_FACTOR_FORMULA}</p>
         <p>
-          That average is the same report-card rollup the leaderboards use. It is not a second formula and it is not a blend of horizons. Pick 2W, 30D, 60D, 90D, or 1Y, and the factor is the mean grade of the active calls at that window. An open window is not graded yet, so it waits. The GC score on the same card is this factor placed on the GC Scale with the {GC_STRONG_LINE} and {GC_PROVISIONAL_LINE} lines above. It is not a separate average.
+          That average is the same report-card rollup the leaderboards use. It is not a second formula and it is not a blend of horizons. Pick 2W, 1M, 2M, 3M, or 1Y, and the factor is the mean grade of the active calls at that window. An open window is not graded yet, so it waits. The GC score on the same card is this factor placed on the GC Scale with the {GC_STRONG_LINE} and {GC_PROVISIONAL_LINE} lines above. It is not a separate average.
         </p>
         <p>
           The card also shows how many active calls are graded, how many calls are superseded, and the hit rate on the active book only. Superseded calls stay in their own list, with the nullified and supersedes notes still attached.
@@ -158,7 +158,7 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="gc-scale">
         <h2 className="font-serif text-3xl text-ink">GC Scale</h2>
         <p>
-          On the analysts board, “all horizons” fills the tube with the mean of the windows that already have a print. Picking 2W, 30D, 60D, 90D, or 1Y uses that window only. The board tube averages active calls. A superseded call can still show its own tube. It does not move the board average, the hit rate, or the GC score.
+          On the analysts board, “all horizons” fills the tube with the mean of the windows that already have a print. Picking 2W, 1M, 2M, 3M, or 1Y uses that window only. The board tube averages active calls. A superseded call can still show its own tube. It does not move the board average, the hit rate, or the GC score.
         </p>
       </section>
 
@@ -184,7 +184,7 @@ export default function MethodologyPage() {
           A run of calls stays one streak while each step is {SUPERSESSION_WINDOW_DAYS} days or closer. Only the latest call in that streak is active. Every earlier call is nullified, and each one points at the call that replaced it. A gap longer than {SUPERSESSION_WINDOW_DAYS} days starts a new streak. Both sides of that gap stay active, and neither gets a nullify note.
         </p>
         <p>
-          The older row reads “Nullified — superseded by later call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” The newer row reads “Supersedes prior call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” A call in the middle of a streak carries both sentences. The date, recommendation, desk rating, target, entry price, and 2W / 30D / 60D / 90D / 1Y outcomes stay on the page. The horizon math does not change. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends).
+          The older row reads “Nullified — superseded by later call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” The newer row reads “Supersedes prior call on [date] (within {SUPERSESSION_WINDOW_DAYS} days).” A call in the middle of a streak carries both sentences. The date, recommendation, desk rating, target, entry price, and 2W / 1M / 2M / 3M / 1Y outcomes stay on the page. The horizon math does not change. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends).
         </p>
         <p>
           Tickers match after dots and slashes are folded to hyphens, so BRK.B and BRK-B are one name. Two calls on the same calendar day are inside the window. The later timestamp wins, and if the timestamps match, the higher call id is treated as later. That same-day order is reported as ambiguous because the calendar date alone does not say which note came first. A call with no date is left active and is not chained.
