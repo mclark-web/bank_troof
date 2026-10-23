@@ -125,10 +125,10 @@ export default async function LeaderboardsPage({
       {board.rows.length + board.below.length === 0 ? (
         <EmptyNote>No graded calls in this cut.</EmptyNote>
       ) : (
-        <BoardTable rows={board.rows} below={board.below} />
+        <BoardTable rows={board.rows} below={board.below} minimum={board.minimum} />
       )}
       <p className="mt-4 max-w-3xl text-xs leading-5 text-faint">
-        {board.rows.length} {noun} are at the minimum of {board.minimum}. {board.below.length} are below that minimum, marked PROVISIONAL, with n on the row. {board.considered} have a graded {HORIZONS[horizon].short} call
+        {board.rows.length} {noun} are at the minimum of {board.minimum}. {board.below.length} are below that minimum. Those rows are unranked and ungraded: n and the hit count only, no GC score. {board.considered} have a graded {HORIZONS[horizon].short} call
         {sector ? ` in ${sector}` : ""}. The overall factor is the average 0–100 grade of those active calls. Superseded calls stay off the average, the GC score, and the hit rate. Under 40 the GC score is 1–4 (WEAK). From 40 up to 70 it is 5–7 (PROVISIONAL). At or above 70 it is 8–10 (STRONG). A graded score of exactly 0 is an empty glass at 0% and reads EXIT LIQUIDITY. The badge is a dash, not GC 1. An open horizon stays ungraded and is left out of the average. Rank only sets the order. The default horizon is the one with the most names at the minimum. Default sort is the overall factor. “If followed” averages the stock return on active buys and the inverse return on active sells. Holds are left out of that column.
       </p>
     </div>

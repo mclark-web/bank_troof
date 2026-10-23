@@ -13,11 +13,19 @@ export function parseBook(value: string | undefined): BookView {
   return "all";
 }
 
-export function BoardTable({ rows, below = [] }: { rows: BoardRow[]; below?: BoardRow[] }) {
+export function BoardTable({
+  rows,
+  below = [],
+  minimum,
+}: {
+  rows: BoardRow[];
+  below?: BoardRow[];
+  minimum?: number;
+}) {
   const boardName = (rows[0] ?? below[0])?.kind === "bank" ? "Bank leaderboard" : "Analyst leaderboard";
-  const renderRow = (row: BoardRow, index: number, showN: boolean) => (
+  const renderRow = (row: BoardRow, index: number, ranked: boolean) => (
     <tr key={row.href}>
-      <td className="num text-faint" data-label="Rank">{index + 1}</td>
+      <td className="num text-faint" data-label="Rank">{ranked ? index + 1 : "—"}</td>
       <td data-label={row.kind === "bank" ? "Bank" : "Analyst"}>
         <Link href={row.href} className="whitespace-nowrap font-medium hover:text-brass">
           {row.name}
@@ -26,28 +34,34 @@ export function BoardTable({ rows, below = [] }: { rows: BoardRow[]; below?: Boa
       </td>
       <td className="hidden text-muted sm:table-cell" data-label="Desk">{row.subtitle}</td>
       <td className="num" data-label="Active">
-        {showN ? `n=${row.aggregate.graded}` : row.aggregate.graded}
-        {row.superseded > 0 ? (
+        {ranked ? row.aggregate.graded : `n=${row.aggregate.graded}`}
+        {ranked && row.superseded > 0 ? (
           <span className="mt-1 block whitespace-nowrap font-sans text-xs font-normal normal-case tracking-normal text-faint">
             {row.superseded} superseded
           </span>
         ) : null}
       </td>
-      <td className="num" data-label="Hit">{row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`}</td>
+      <td className="num" data-label="Hit">
+        {ranked ? (row.aggregate.hitRate == null ? "—" : `${Math.round(row.aggregate.hitRate * 100)}%`) : row.aggregate.hits}
+      </td>
       <td className="num text-muted" data-label="Miss">
-        {row.aggregate.missRate == null ? "—" : `${Math.round(row.aggregate.missRate * 100)}%`}
+        {ranked ? (row.aggregate.missRate == null ? "—" : `${Math.round(row.aggregate.missRate * 100)}%`) : "—"}
       </td>
       <td className="num hidden text-ink md:table-cell show-on-card" data-label="If followed">
-        {pct(row.aggregate.avgFollowedReturn)}
+        {ranked ? pct(row.aggregate.avgFollowedReturn) : "—"}
       </td>
       <td data-label="GC score">
-        <span className="whitespace-nowrap">
-          <span className="num text-2xl leading-none">{row.placement.chad ?? "—"}</span>
-          <span className="num text-xs text-faint">/10</span>
-        </span>
+        {ranked ? (
+          <span className="whitespace-nowrap">
+            <span className="num text-2xl leading-none">{row.placement.chad ?? "—"}</span>
+            <span className="num text-xs text-faint">/10</span>
+          </span>
+        ) : (
+          "—"
+        )}
       </td>
       <td data-label="Overall factor">
-        <PointsCell score={row.aggregate.avgScore} />
+        {ranked ? <PointsCell score={row.aggregate.avgScore} /> : "—"}
       </td>
     </tr>
   );
@@ -83,15 +97,15 @@ export function BoardTable({ rows, below = [] }: { rows: BoardRow[]; below?: Boa
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, index) => renderRow(row, index, false))}
+          {rows.map((row, index) => renderRow(row, index, true))}
           {below.length > 0 ? (
             <tr>
               <td colSpan={9} className="board-divider">
-                Below minimum, PROVISIONAL
+                Below minimum (n&lt;{minimum})
               </td>
             </tr>
           ) : null}
-          {below.map((row, index) => renderRow(row, rows.length + index, true))}
+          {below.map((row) => renderRow(row, 0, false))}
         </tbody>
       </table>
     </div>

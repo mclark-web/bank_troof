@@ -178,7 +178,11 @@ export async function leaderboard(options: {
       .map(({ row }) => ({ ...row, placement: placeChad(row.aggregate.avgScore) }))
       .sort((a, b) => compareBoard(a, b, options.order, rank));
   const qualified = place(drafted.filter((item) => item.graded >= minimum));
-  const below = place(drafted.filter((item) => item.graded < minimum));
+  const unranked: ChadPlacement = { chad: null, side: null, label: null };
+  const below = drafted
+    .filter((item) => item.graded < minimum)
+    .map(({ row }) => ({ ...row, placement: unranked }))
+    .sort((a, b) => b.aggregate.graded - a.aggregate.graded || a.name.localeCompare(b.name));
   return { rows: qualified, below, minimum, considered: drafted.length };
 }
 

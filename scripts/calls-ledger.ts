@@ -106,7 +106,8 @@ const HORIZON_GRADE: Record<HorizonKey, CsvColumn> = {
 };
 
 const BANNED_COPY = /chad|chud|charoof/i;
-const BANNED_SOURCE = /bloomberg/i;
+/** Brand copy and blocked wires. A real person's name is not brand copy. */
+const BANNED_SOURCE = /bloomberg|tipranks/i;
 const X_HOST = /(?:^|\/\/|\.)(?:x\.com|twitter\.com)/i;
 
 /** A status post can be the source. A profile, a search page, or a wire still cannot. */
@@ -565,7 +566,7 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
       }
     }
 
-    const copy = [row.note, row.controversial_reason, row.ledger_notes, row.analyst_name, row.firm_name, row.company];
+    const copy = [row.note, row.controversial_reason, row.ledger_notes, row.firm_name, row.company];
     for (const text of copy) {
       if (BANNED_COPY.test(text)) errors.push(`${label}: user-facing text contains a banned word`);
     }
@@ -575,9 +576,12 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
       if (problem) errors.push(`${label}: ${column} ${problem}`);
       else if (url && BANNED_SOURCE.test(url)) {
         errors.push(`${label}: source URL is a wire. Those are not collected.`);
-      } else if (url && X_HOST.test(url) && !isCollectedStatusPost(url)) {
+      }       else if (url && X_HOST.test(url) && !isCollectedStatusPost(url)) {
         errors.push(`${label}: source URL is an X page that is not a status post. Those are not collected.`);
       }
+    }
+    if (isCollectedStatusPost(row.source_url) && row.price_target_to.trim() === "") {
+      errors.push(`${label}: a headline post needs a target`);
     }
     const sourced = row.data_source === "licensed" || row.data_source === "public";
     if (sourced && row.source_url.trim() === "") {
@@ -599,7 +603,10 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
     if (!ticker) errors.push(`${label}: ticker is not in the universe`);
     if (sourced) {
       if (analyst && analyst.name !== row.analyst_name) errors.push(`${label}: analyst_name does not match the registry`);
-      if (analyst && analyst.bankSlug !== row.firm_slug) errors.push(`${label}: firm_slug does not match the analyst's firm`);
+      const firms = analyst ? new Set([analyst.bankSlug, ...(analyst.priorBankSlugs ?? [])]) : null;
+      if (analyst && firms && !firms.has(row.firm_slug)) {
+        errors.push(`${label}: firm_slug does not match the analyst's firm`);
+      }
       if (bank && bank.name !== row.firm_name) errors.push(`${label}: firm_name does not match the registry`);
       if (ticker && ticker.name !== row.company) errors.push(`${label}: company does not match the registry`);
       const priceError = seriesPriceError(row, label);

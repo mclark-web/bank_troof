@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { LogoLink } from "@/components/logo-link";
 import { PrimaryNav } from "@/components/primary-nav";
+import { AS_OF_LABEL } from "@/lib/quotes";
 
 export function LedgerBanner() {
   return (
     <div className="border-b border-line bg-[#14171e] px-4 py-2 text-center text-xs text-muted sm:text-[13px]">
-      Public news sources, graded against Yahoo Finance adjusted closes (adjusted for splits and dividends). Closes run through Oct 22, 2026. Not investment advice.
+      Public news sources, graded against Yahoo Finance adjusted closes (adjusted for splits and dividends). Closes run through {AS_OF_LABEL}. Not investment advice.
     </div>
   );
 }

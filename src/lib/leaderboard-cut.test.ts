@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import { fullestHorizon } from "./leaderboard-cut";
 import type { HorizonKey } from "./scoring";
 
-function counts(partial: Partial<Record<HorizonKey, number>>): Record<HorizonKey, number> {
+function counts(partial: Partial<Record<HorizonKey, number>> = {}): Record<HorizonKey, number> {
   return { "14": 0, "30": 0, "60": 0, "90": 0, "365": 0, ...partial };
 }
 

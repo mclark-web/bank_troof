@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { DATASET } from "./labels";
-import { adjustedClose, bindHistoricalPrices, entryCloseLabel, filedEntryPrint, forwardClose, isoDate, addUtcDays, PRICE_SOURCE, QUOTE_AS_OF, tradingSession } from "./quotes";
+import { adjustedClose, addUtcDays, AS_OF_LABEL, bindHistoricalPrices, entryCloseLabel, filedEntryPrint, formatAsOfLabel, forwardClose, isoDate, PRICE_SOURCE, QUOTE_AS_OF, tradingSession } from "./quotes";
 
 test("the published as-of date is the last session in the adjusted-close file", () => {
-  assert.equal(DATASET.asOfIso, QUOTE_AS_OF);
   assert.equal(QUOTE_AS_OF, "2026-10-22");
-  assert.ok(PRICE_SOURCE.includes(DATASET.asOfLabel));
+  assert.equal(AS_OF_LABEL, formatAsOfLabel(QUOTE_AS_OF));
+  assert.equal(AS_OF_LABEL, "22 Oct 2026");
+  assert.ok(PRICE_SOURCE.includes(AS_OF_LABEL));
+  assert.equal(PRICE_SOURCE.includes("Oct 22, 2026"), false);
   assert.equal(adjustedClose("AAPL", new Date("2026-10-21T00:00:00.000Z")), 343.99);
   assert.equal(adjustedClose("AAPL", new Date("2026-10-22T00:00:00.000Z")), 348.22);
   assert.equal(forwardClose("AAPL", new Date("2026-10-07T00:00:00.000Z"), 14), 343.99);
