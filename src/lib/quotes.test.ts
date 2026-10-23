@@ -70,7 +70,7 @@ test("each horizon is the adjusted close that many calendar days later", () => {
 });
 
 test("missing history throws instead of inventing a price", () => {
-  assert.throws(() => adjustedClose("TSLA", new Date("2026-04-21T00:00:00.000Z")), /Refusing to invent/);
+  assert.throws(() => adjustedClose("NOTRACKED", new Date("2026-04-21T00:00:00.000Z")), /Refusing to invent/);
   assert.throws(() => adjustedClose("NFLX", new Date("2020-01-02T00:00:00.000Z")), /Refusing to invent/);
   assert.throws(() => adjustedClose("NFLX", new Date("2027-01-04T00:00:00.000Z")), /Refusing to invent/);
 });

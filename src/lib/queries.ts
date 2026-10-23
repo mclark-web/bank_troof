@@ -14,6 +14,7 @@ import {
   type ChadPlacement,
   type HorizonKey,
 } from "./scoring";
+import { emptyHorizonCounts } from "./leaderboard-cut";
 import { overallFactor, type OverallFactor } from "./overall-factor";
 import { annotateSupersession, compareCallChronology, type SupersessionMark } from "./supersession";
 
@@ -132,7 +133,7 @@ export async function leaderboard(options: {
   entity: "analyst" | "bank";
   order: "score" | "low";
   rank?: RankKey;
-}): Promise<{ rows: BoardRow[]; minimum: number; considered: number }> {
+}): Promise<{ rows: BoardRow[]; below: BoardRow[]; minimum: number; considered: number }> {
   const calls = await loadCalls();
   const scoped = options.sector ? calls.filter((call) => call.ticker.sector === options.sector) : calls;
   const groups = new Map<string, ScoredCall[]>();
@@ -143,41 +144,70 @@ export async function leaderboard(options: {
     groups.set(key, list);
   }
   const minimum = minimumSample(options.entity, options.sector);
-  const rows: Omit<BoardRow, "placement">[] = [];
-  let considered = 0;
+  const drafted: { row: Omit<BoardRow, "placement">; graded: number }[] = [];
   for (const group of groups.values()) {
     const sample = group[0];
     const factor = factorForCalls(group, options.horizon);
     if (factor.activeGraded === 0) continue;
-    considered += 1;
-    if (factor.activeGraded < minimum) continue;
-    if (options.entity === "analyst") {
-      rows.push({
-        kind: "analyst",
-        slug: sample.analyst.slug,
-        name: sample.analyst.name,
-        subtitle: `${sample.bank.shortName} · ${sample.analyst.sector}`,
-        href: `/analysts/${sample.analyst.slug}`,
-        sector: sample.analyst.sector,
-        aggregate: factor.aggregate,
-        superseded: factor.superseded,
-      });
-    } else {
-      rows.push({
-        kind: "bank",
-        slug: sample.bank.slug,
-        name: sample.bank.name,
-        subtitle: sample.bank.headquarters,
-        href: `/banks/${sample.bank.slug}`,
-        aggregate: factor.aggregate,
-        superseded: factor.superseded,
-      });
+    const row: Omit<BoardRow, "placement"> =
+      options.entity === "analyst"
+        ? {
+            kind: "analyst",
+            slug: sample.analyst.slug,
+            name: sample.analyst.name,
+            subtitle: `${sample.bank.shortName} · ${sample.analyst.sector}`,
+            href: `/analysts/${sample.analyst.slug}`,
+            sector: sample.analyst.sector,
+            aggregate: factor.aggregate,
+            superseded: factor.superseded,
+          }
+        : {
+            kind: "bank",
+            slug: sample.bank.slug,
+            name: sample.bank.name,
+            subtitle: sample.bank.headquarters,
+            href: `/banks/${sample.bank.slug}`,
+            aggregate: factor.aggregate,
+            superseded: factor.superseded,
+          };
+    drafted.push({ row, graded: factor.activeGraded });
+  }
+  const rank = options.rank ?? "points";
+  const place = (items: typeof drafted) =>
+    items
+      .map(({ row }) => ({ ...row, placement: placeChad(row.aggregate.avgScore) }))
+      .sort((a, b) => compareBoard(a, b, options.order, rank));
+  const qualified = place(drafted.filter((item) => item.graded >= minimum));
+  const below = place(drafted.filter((item) => item.graded < minimum));
+  return { rows: qualified, below, minimum, considered: drafted.length };
+}
+
+/** How many names have a graded call at each horizon, and how many clear the sample minimum. */
+export async function horizonBoardCounts(options: {
+  sector?: string | null;
+  entity: "analyst" | "bank";
+}): Promise<{ qualifying: Record<HorizonKey, number>; considered: Record<HorizonKey, number> }> {
+  const qualifying = emptyHorizonCounts();
+  const considered = emptyHorizonCounts();
+  const calls = await loadCalls();
+  const scoped = options.sector ? calls.filter((call) => call.ticker.sector === options.sector) : calls;
+  const groups = new Map<string, ScoredCall[]>();
+  for (const call of scoped) {
+    const key = options.entity === "analyst" ? call.analystId : call.bankId;
+    const list = groups.get(key) ?? [];
+    list.push(call);
+    groups.set(key, list);
+  }
+  const minimum = minimumSample(options.entity, options.sector);
+  for (const horizon of HORIZON_KEYS) {
+    for (const group of groups.values()) {
+      const graded = factorForCalls(group, horizon).activeGraded;
+      if (graded === 0) continue;
+      considered[horizon] += 1;
+      if (graded >= minimum) qualifying[horizon] += 1;
     }
   }
-  const placed = rows.map((row) => ({ ...row, placement: placeChad(row.aggregate.avgScore) }));
-  const rank = options.rank ?? "points";
-  placed.sort((a, b) => compareBoard(a, b, options.order, rank));
-  return { rows: placed, minimum, considered };
+  return { qualifying, considered };
 }
 
 export async function getHome() {
