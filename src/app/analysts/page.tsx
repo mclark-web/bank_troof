@@ -44,7 +44,7 @@ export default async function AnalystsPage({
 
   return (
     <div>
-      <AnalystsBoard {...prepareAnalystsBoard(calls, horizon, kind, book)} horizon={horizon} kind={kind} book={book} page={page} />
+      <AnalystsBoard {...prepareAnalystsBoard(calls, horizon, kind, book)} horizon={horizon} kind={kind} book={book} />
 
       <section className="mt-12">
         <h2 className="font-sans text-2xl tracking-tight">Analyst directory</h2>

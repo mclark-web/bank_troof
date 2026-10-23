@@ -149,7 +149,7 @@ export const HORIZONS: Record<
 };
 
 const UP = new Set(["strong_buy", "buy", "overweight", "outperform"]);
-const FLAT = new Set(["hold", "neutral", "equal_weight", "peer_perform", "market_perform", "perform"]);
+const FLAT = new Set(["hold", "neutral", "equal_weight", "peer_perform", "market_perform", "sector_perform", "perform"]);
 const DOWN = new Set(["sell", "underperform", "underweight"]);
 
 export function ratingDirection(rating: string): Direction | null {

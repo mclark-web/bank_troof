@@ -41,6 +41,8 @@ describe("recommendation labels", () => {
     assert.equal(recommendationLabel({ action: "reiterate", ratingTo: "neutral" }), "Maintain Neutral");
     assert.equal(recommendationLabel({ action: "reiterate", ratingTo: "hold" }), "Maintain Hold");
     assert.equal(recommendationLabel({ action: "reiterate", ratingTo: "equal_weight" }), "Maintain Equal-Weight");
+    assert.equal(recommendationLabel({ action: "reiterate", ratingTo: "sector_perform" }), "Maintain Sector Perform");
+    assert.equal(directionForGradingLabel("sector_perform"), "Hold");
     assert.equal(directionForGradingLabel("overweight"), "Buy");
     assert.equal(directionForGradingLabel("underperform"), "Sell");
     assert.equal(directionForGradingLabel("equal_weight"), "Hold");

@@ -188,7 +188,13 @@ describe("call ledger", () => {
     ]) {
       const issues = collectIssues([licensedRow({ source_url: sourceUrl })]);
       assert.ok(issues.errors.some((error) => error.includes("Benzinga quote page")), sourceUrl);
+      const kept = collectIssues([licensedRow({ source_url: sourceUrl, exclusion: "benzinga-quote-page" })]);
+      assert.equal(kept.errors.some((error) => error.includes("Benzinga quote page")), false, sourceUrl);
     }
+    const dropped = JSON.parse(renderCallsJson([licensedRow({ exclusion: "benzinga-quote-page", source_url: "https://www.benzinga.com/quote/ORCL/price-targets" })])) as unknown[];
+    assert.equal(dropped.length, 0);
+    const unknown = collectIssues([licensedRow({ exclusion: "nope" })]);
+    assert.ok(unknown.errors.some((error) => error.includes("exclusion must be empty")));
     const headline = collectIssues([
       licensedRow({
         source_url: statusUrl,
@@ -237,6 +243,8 @@ describe("call ledger", () => {
     assert.ok(renamedAnalyst.errors.some((error) => error.includes("analyst_name does not match the registry")));
     const realName = collectIssues([licensedRow({ analyst_name: "Chad Dillard" })]);
     assert.equal(realName.errors.some((error) => error.includes("banned word")), false);
+    const otherName = collectIssues([licensedRow({ analyst_name: "Chad Smith" })]);
+    assert.ok(otherName.errors.some((error) => error.includes("banned word")));
     const brandCopy = collectIssues([licensedRow({ note: "Chad is not a grade." })]);
     assert.ok(brandCopy.errors.some((error) => error.includes("banned word")));
     const moved = rows.find((row) => row.analyst_slug === "dan-ives" && row.firm_slug === "wedbush");

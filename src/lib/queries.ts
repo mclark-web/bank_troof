@@ -260,6 +260,7 @@ export async function getAnalyst(slug: string) {
   });
   if (!analyst) return null;
   const calls = (await loadCalls()).filter((call) => call.analystId === analyst.id);
+  if (calls.length === 0) return null;
   return { analyst, calls };
 }
 
@@ -270,6 +271,7 @@ export async function getBank(slug: string) {
   });
   if (!bank) return null;
   const calls = (await loadCalls()).filter((call) => call.bankId === bank.id);
+  if (calls.length === 0) return null;
   return { bank, calls };
 }
 
@@ -294,15 +296,16 @@ export async function listAnalysts() {
     orderBy: { name: "asc" },
   });
   const calls = await loadCalls();
-  return analysts.map((analyst) => {
+  return analysts.flatMap((analyst) => {
     const mine = calls.filter((call) => call.analystId === analyst.id);
+    if (mine.length === 0) return [];
     const aggregate = scoreAggregate(mine, "90");
-    return {
+    return [{
       analyst,
       aggregate,
       placement: placeChad(aggregate.avgScore),
       calls: mine.filter((call) => call.supersession.countsForScoring).length,
-    };
+    }];
   });
 }
 
@@ -312,12 +315,11 @@ export async function listBanks() {
     orderBy: { name: "asc" },
   });
   const calls = await loadCalls();
-  return banks.map((bank) => {
-    const aggregate = scoreAggregate(
-      calls.filter((call) => call.bankId === bank.id),
-      "90",
-    );
-    return { bank, aggregate, placement: placeChad(aggregate.avgScore) };
+  return banks.flatMap((bank) => {
+    const mine = calls.filter((call) => call.bankId === bank.id);
+    if (mine.length === 0) return [];
+    const aggregate = scoreAggregate(mine, "90");
+    return [{ bank, aggregate, placement: placeChad(aggregate.avgScore) }];
   });
 }
 
@@ -364,17 +366,20 @@ function matchesQuery(text: string, query: string) {
 export async function searchAll(query: string) {
   const q = query.trim().toLowerCase();
   if (!q) return { analysts: [], banks: [], tickers: [] };
-  const [analysts, banks, tickers] = await Promise.all([
+  const [analysts, banks, tickers, callRows] = await Promise.all([
     prisma.analyst.findMany({ include: { bank: true }, orderBy: { name: "asc" } }),
     prisma.bank.findMany({ orderBy: { name: "asc" } }),
     prisma.ticker.findMany({ orderBy: { symbol: "asc" } }),
+    prisma.call.findMany({ select: { analystId: true, bankId: true } }),
   ]);
+  const analystIds = new Set(callRows.map((row) => row.analystId));
+  const bankIds = new Set(callRows.map((row) => row.bankId));
   return {
     analysts: analysts.filter((analyst) =>
-      matchesQuery(`${analyst.name} ${analyst.sector} ${analyst.bank.shortName}`, q),
+      analystIds.has(analyst.id) && matchesQuery(`${analyst.name} ${analyst.sector} ${analyst.bank.shortName}`, q),
     ),
     banks: banks.filter((bank) =>
-      matchesQuery(`${bank.name} ${bank.shortName} ${bank.slug} ${BANK_ALIASES[bank.slug] ?? ""}`, q),
+      bankIds.has(bank.id) && matchesQuery(`${bank.name} ${bank.shortName} ${bank.slug} ${BANK_ALIASES[bank.slug] ?? ""}`, q),
     ),
     tickers: tickers.filter((ticker) => {
       if (ticker.symbol.toLowerCase() === q) return true;

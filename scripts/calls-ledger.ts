@@ -56,12 +56,14 @@ export const CSV_COLUMNS = [
   "grade_method",
   "flags",
   "ledger_notes",
+  "exclusion",
   "export_index",
 ] as const;
 
 /**
  * Not written to calls.json. `data_source` is written as `source`.
  * `export_index` is omitted from the JSON and only orders the array.
+ * `exclusion` keeps a bad row in the CSV and out of the live ledger.
  */
 export const CSV_ONLY_COLUMNS = [
   "analyst_name",
@@ -77,8 +79,16 @@ export const CSV_ONLY_COLUMNS = [
   "grade_method",
   "flags",
   "ledger_notes",
+  "exclusion",
   "export_index",
 ] as const;
+
+/**
+ * Empty `exclusion` is a live call. A bad row stays in the CSV and is left out of
+ * the live ledger. `benzinga-quote-page` is a ticker hub. `wrong-firm` names a
+ * firm that did not issue the call.
+ */
+export const EXCLUSION_REASONS = ["benzinga-quote-page", "wrong-firm"] as const;
 
 /**
  * `public` is a public news source (a free page, not a licensed feed).
@@ -106,6 +116,8 @@ const HORIZON_GRADE: Record<HorizonKey, CsvColumn> = {
 };
 
 const BANNED_COPY = /chad|chud|charoof/i;
+/** Real people. Exact `analyst_name` only. The same spelling in a note is still brand copy. */
+const ALLOWED_ANALYST_NAMES = new Set(["Chad Dillard"]);
 /** Brand copy and blocked wires. A real person's name is not brand copy. */
 const BANNED_SOURCE = /bloomberg|tipranks/i;
 const X_HOST = /(?:^|\/\/|\.)(?:x\.com|twitter\.com)/i;
@@ -252,8 +264,12 @@ export function toExportedCall(row: CallRow): ExportedCall {
   };
 }
 
+export function isLiveCall(row: CallRow): boolean {
+  return row.exclusion.trim() === "";
+}
+
 export function renderCallsJson(rows: CallRow[]): string {
-  const ordered = rows.slice().sort((a, b) => Number(a.export_index) - Number(b.export_index));
+  const ordered = rows.filter(isLiveCall).sort((a, b) => Number(a.export_index) - Number(b.export_index));
   return `${JSON.stringify(ordered.map(toExportedCall), null, 2)}\n`;
 }
 
@@ -578,6 +594,15 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
       }
     }
 
+    if (row.exclusion !== "" && !EXCLUSION_REASONS.includes(row.exclusion as (typeof EXCLUSION_REASONS)[number])) {
+      errors.push(`${label}: exclusion must be empty or ${EXCLUSION_REASONS.join(" or ")}`);
+    }
+    if (row.exclusion === "benzinga-quote-page" && ![row.source_url, row.alt_source_url].some((url) => isGenericBenzingaQuote(url))) {
+      errors.push(`${label}: exclusion benzinga-quote-page needs a Benzinga quote page URL`);
+    }
+    if (BANNED_COPY.test(row.analyst_name) && !ALLOWED_ANALYST_NAMES.has(row.analyst_name)) {
+      errors.push(`${label}: user-facing text contains a banned word`);
+    }
     const copy = [row.note, row.controversial_reason, row.ledger_notes, row.firm_name, row.company];
     for (const text of copy) {
       if (BANNED_COPY.test(text)) errors.push(`${label}: user-facing text contains a banned word`);
@@ -588,7 +613,7 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
       if (problem) errors.push(`${label}: ${column} ${problem}`);
       else if (url && BANNED_SOURCE.test(url)) {
         errors.push(`${label}: source URL is a wire. Those are not collected.`);
-      } else if (url && isGenericBenzingaQuote(url)) {
+      } else if (url && isGenericBenzingaQuote(url) && row.exclusion !== "benzinga-quote-page") {
         errors.push(`${label}: ${column} is a Benzinga quote page. Each call needs its own article.`);
       } else if (url && X_HOST.test(url) && !isCollectedStatusPost(url)) {
         errors.push(`${label}: source URL is an X page that is not a status post. Those are not collected.`);
@@ -612,13 +637,13 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
     const analyst = analystBySlug.get(row.analyst_slug);
     const bank = bankBySlug.get(row.firm_slug);
     const ticker = tickerBySymbol.get(row.ticker);
-    if (!analyst) errors.push(`${label}: analyst_slug is not in the universe`);
-    if (!bank) errors.push(`${label}: firm_slug is not in the universe`);
+    if (!analyst && !row.exclusion) errors.push(`${label}: analyst_slug is not in the universe`);
+    if (!bank && !row.exclusion) errors.push(`${label}: firm_slug is not in the universe`);
     if (!ticker) errors.push(`${label}: ticker is not in the universe`);
     if (sourced) {
       if (analyst && analyst.name !== row.analyst_name) errors.push(`${label}: analyst_name does not match the registry`);
       const firms = analyst ? new Set([analyst.bankSlug, ...(analyst.priorBankSlugs ?? [])]) : null;
-      if (analyst && firms && !firms.has(row.firm_slug)) {
+      if (!row.exclusion && analyst && firms && !firms.has(row.firm_slug)) {
         errors.push(`${label}: firm_slug does not match the analyst's firm`);
       }
       if (bank && bank.name !== row.firm_name) errors.push(`${label}: firm_name does not match the registry`);

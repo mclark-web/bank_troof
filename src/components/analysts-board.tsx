@@ -137,7 +137,6 @@ export function AnalystsBoard({
   horizon,
   kind,
   book,
-  page = 1,
 }: {
   shown: ScoredCall[];
   gradedCount: number;
@@ -148,13 +147,11 @@ export function AnalystsBoard({
   horizon: BoardHorizon;
   kind: BoardKind;
   book: BoardBook;
-  page?: number;
 }) {
   const current = {
     horizon: horizon === "all" ? undefined : horizon,
     kind: kind === "all" ? undefined : kind,
     book: book === "active" ? undefined : book,
-    page: page > 1 ? String(page) : undefined,
   };
   const path = "/analysts";
 
