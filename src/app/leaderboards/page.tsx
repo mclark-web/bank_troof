@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { BoardTable } from "@/components/tables";
 import { EmptyNote, HorizonChips, PageIntro, SectorForm, hrefWith } from "@/components/ui";
+import { fullestHorizon, previewBelow } from "@/lib/leaderboard-cut";
 import { leaderboardLede } from "@/lib/leaderboard-lede";
-import { loadSectors, leaderboard, type RankKey } from "@/lib/queries";
-import { HORIZONS, minimumSample, parseHorizon } from "@/lib/scoring";
+import { horizonBoardCounts, loadSectors, leaderboard, type RankKey } from "@/lib/queries";
+import { HORIZONS, parseHorizon } from "@/lib/scoring";
 
 export const metadata: Metadata = {
   title: "Leaderboards",
@@ -28,23 +29,31 @@ export default async function LeaderboardsPage({
     return Array.isArray(value) ? value[0] : value;
   };
   const view = readView(one("view"));
-  const horizon = parseHorizon(one("horizon"));
   const sector = one("sector") || undefined;
   const who = one("who") === "analysts" ? "analysts" : "banks";
   const entity = view === "analysts" ? "analyst" : view === "banks" ? "bank" : who === "analysts" ? "analyst" : "bank";
   const order = view === "offenders" ? "low" : "score";
   const rawRank = one("rank");
   const rank: RankKey = rawRank === "gc" ? "gc" : "points";
+  const counts = await horizonBoardCounts({ sector, entity });
+  const defaultHorizon = fullestHorizon(counts.qualifying, counts.considered);
+  const requested = one("horizon");
+  const horizon = requested ? parseHorizon(requested) : defaultHorizon;
   const [board, sectors] = await Promise.all([
     leaderboard({ horizon, sector, entity, order, rank }),
     loadSectors(),
   ]);
+  const noun = entity === "bank" ? "banks" : "analysts";
+  // Below-minimum rows can run to hundreds of n=1 names. Ship a preview so the page stays light.
+  const showAllBelow = one("below") === "all";
+  const { shown: belowShown, hidden: belowHidden } = previewBelow(board.below, showAllBelow);
   const current = {
     view: view === "analysts" ? undefined : view,
-    horizon: horizon === "90" ? undefined : horizon,
+    horizon: horizon === defaultHorizon ? undefined : horizon,
     sector,
     who: view === "offenders" && who === "analysts" ? "analysts" : undefined,
     rank: rank === "points" ? undefined : rank,
+    below: showAllBelow ? "all" : undefined,
   };
 
   const title =
@@ -73,7 +82,14 @@ export default async function LeaderboardsPage({
       </div>
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-3">
-          <HorizonChips path="/leaderboards" current={current} horizon={horizon} />
+          <HorizonChips
+            path="/leaderboards"
+            current={current}
+            horizon={horizon}
+            defaultHorizon={defaultHorizon}
+            counts={counts.qualifying}
+            noun={noun}
+          />
           <div className="flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Sort">
             <a href={hrefWith("/leaderboards", current, { rank: null })} className={rank === "points" ? "chip-on" : "chip"}>
               Overall factor
@@ -106,21 +122,29 @@ export default async function LeaderboardsPage({
               horizon: current.horizon,
               who: current.who,
               rank: current.rank,
+              below: current.below,
             }}
           />
         </div>
       </div>
-      {board.rows.length === 0 ? (
-        <EmptyNote>
-          Not enough graded calls in this cut. The minimum number of graded calls is {board.minimum}. Try {HORIZONS["90"].short} or all sectors.
-        </EmptyNote>
+      {board.rows.length + board.below.length === 0 ? (
+        <EmptyNote>No graded calls in this cut.</EmptyNote>
       ) : (
-        <BoardTable rows={board.rows} />
+        <BoardTable rows={board.rows} below={belowShown} minimum={board.minimum} />
       )}
+      {belowHidden > 0 ? (
+        <p className="mt-3 text-sm">
+          <a
+            href={hrefWith("/leaderboards", current, { below: "all" })}
+            className="inline-flex min-h-11 items-center text-brass underline-offset-4 hover:underline"
+          >
+            Show all {board.below.length} below the minimum
+          </a>
+        </p>
+      ) : null}
       <p className="mt-4 max-w-3xl text-xs leading-5 text-faint">
-        Showing {board.rows.length} of {board.considered} {entity === "bank" ? "banks" : "analysts"} with at least{" "}
-        {minimumSample(entity, sector)} active graded {HORIZONS[horizon].short} calls
-        {sector ? ` in ${sector}` : ""}. The overall factor is the average 0–100 grade of those active calls. Superseded calls stay off the average, the GC score, and the hit rate. Under 40 the GC score is 1–4 (WEAK). From 40 up to 70 it is 5–7 (PROVISIONAL). At or above 70 it is 8–10 (STRONG). A graded score of exactly 0 is an empty glass at 0% and reads EXIT LIQUIDITY. The badge is a dash, not GC 1. An open horizon stays ungraded and is left out of the average. Rank only sets the order. Default sort is the overall factor. “If followed” averages the stock return on active buys and the inverse return on active sells. Holds are left out of that column.
+        {board.rows.length} {noun} are at the minimum of {board.minimum}. {board.below.length} are below that minimum. Those rows are unranked and ungraded: n and the hit count only, no GC score. {board.considered} have a graded {HORIZONS[horizon].short} call
+        {sector ? ` in ${sector}` : ""}. The overall factor is the average 0–100 grade of those active calls. Superseded calls stay off the average, the GC score, and the hit rate. Under 40 the GC score is 1–4 (WEAK). From 40 up to 70 it is 5–7 (PROVISIONAL). At or above 70 it is 8–10 (STRONG). A graded score of exactly 0 is an empty glass at 0% and reads EXIT LIQUIDITY. The badge is a dash, not GC 1. An open horizon stays ungraded and is left out of the average. Rank only sets the order. The default horizon is the one with the most names at the minimum. Default sort is the overall factor. “If followed” averages the stock return on active buys and the inverse return on active sells. Holds are left out of that column.
       </p>
     </div>
   );

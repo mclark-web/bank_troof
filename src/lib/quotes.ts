@@ -4,8 +4,13 @@ import history from "./adjusted-closes.json";
  * Price at the call and each forward window are this print.
  * Adjusted closes include splits and dividends. Nothing in the seed invents a session.
  */
-export const PRICE_SOURCE =
-  "Yahoo Finance adjusted close, adjusted for splits and dividends, rounded to the cent. History ends 16 Oct 2026.";
+const AS_OF_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
+
+/** "2026-10-22" → "22 Oct 2026". The page copy uses this instead of a fixed date. */
+export function formatAsOfLabel(iso: string): string {
+  const [year, month, day] = iso.split("-");
+  return `${Number(day)} ${AS_OF_MONTHS[Number(month) - 1]} ${year}`;
+}
 
 /** A closed market may use the prior session only this many calendar days back. */
 export const MAX_CLOSED_GAP_DAYS = 4;
@@ -23,6 +28,11 @@ type HistoryFile = {
 const file = history as HistoryFile;
 
 export const QUOTE_AS_OF = file.asOf;
+
+export const AS_OF_LABEL = formatAsOfLabel(QUOTE_AS_OF);
+
+export const PRICE_SOURCE =
+  `Yahoo Finance adjusted closes (adjusted for splits and dividends), rounded to the cent. Closes run through ${AS_OF_LABEL}.`;
 
 function seriesFor(symbol: string): Record<string, number> {
   const series = file.closes[symbol];

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro } from "@/components/ui";
 import { pctUnsigned } from "@/lib/format";
+import { AS_OF_LABEL } from "@/lib/quotes";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 import {
   CHAD_MAX,
@@ -168,7 +169,7 @@ export default function MethodologyPage() {
           An analyst’s overall factor is the average of that person’s active graded calls at the selected horizon, on the 0–100 scale. The GC score is that same factor on the GC Scale, using the {GC_STRONG_LINE} and {GC_PROVISIONAL_LINE} lines. A bank uses the average of the bank’s active calls, not the average of its analysts. Boards then order those names. One analyst with forty active calls outweighs one analyst with eight. That is deliberate: the firm published the calls.
         </p>
         <p>
-          Boards hide thin books. Analysts need {MIN_SAMPLE.analyst} active graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. A name with fewer graded calls stays off the leaderboard. Its page still shows the calls that exist. An open horizon reads Not graded yet. A graded 0 reads EXIT LIQUIDITY. Scores from {GC_WEAK_LINE} up to {GC_STRONG_LINE} read PROVISIONAL. Both the GC score and the overall factor are columns. The default order is the overall factor. Sorting by the GC score is on the page; names that share a GC score keep the higher overall factor ahead. Worst offenders reverse whichever key is selected. Under {GC_WEAK_LINE} the GC score is 1–4. From {GC_WEAK_LINE} up to {GC_STRONG_LINE} it is 5–7. At or above {GC_STRONG_LINE} it is 8–10.
+          Boards rank a name once it clears the sample. Analysts need {MIN_SAMPLE.analyst} active graded calls, or {MIN_SAMPLE.analystSector} inside a sector filter. Banks need {MIN_SAMPLE.bank}, or {MIN_SAMPLE.bankSector} inside a sector. A name with fewer graded calls stays on the board under the divider “Below minimum sample,” unranked and ungraded: n and the hit count, with no rank number and no GC score. The first 25 of those names are on the page, and the rest open from Show all. Its page still shows the calls that exist. An open horizon reads Not graded yet. A graded 0 reads EXIT LIQUIDITY. Scores from {GC_WEAK_LINE} up to {GC_STRONG_LINE} read PROVISIONAL. That word is the score band, and the sample divider does not use it. Both the GC score and the overall factor are columns on the ranked rows. The default order is the overall factor. Sorting by the GC score is on the page; names that share a GC score keep the higher overall factor ahead. Worst offenders reverse whichever key is selected. Under {GC_WEAK_LINE} the GC score is 1–4. From {GC_WEAK_LINE} up to {GC_STRONG_LINE} it is 5–7. At or above {GC_STRONG_LINE} it is 8–10.
         </p>
         <p>
           Sector filters keep calls whose ticker is in that sector. An analyst who only covers technology is unchanged. A generalist would be scored only on the names in the filter.
@@ -201,7 +202,7 @@ export default function MethodologyPage() {
       <section className="mt-10 space-y-4 text-sm leading-7 text-muted" id="sources">
         <h2 className="font-serif text-3xl text-ink">Where the calls come from</h2>
         <p>
-          Grades use historical prices. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no invented price. History ends 16 Oct 2026. A window that has not elapsed is left blank and reads Not graded yet.
+          Grades use historical prices. Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). If that calendar date is not a session, the price is the prior session’s adjusted close, and only when that session is within four calendar days. A missing quote stops the seed and the import. There is no invented price. Closes run through {AS_OF_LABEL}. A window that has not elapsed is left blank and reads Not graded yet.
         </p>
         <p>
           Each call is taken from a public news source and links to that page. A German-language page on t-online.de is labelled Source (German). Notes restate the rating and the target in English. They are not a quotation of a research report. <code className="text-ink">data_source=public</code> means a public news source. <code className="text-ink">licensed</code> remains available for a later feed the operator has rights to. A public row is never labelled verified. The validator rejects every row that is not public or licensed.
@@ -217,7 +218,7 @@ export default function MethodologyPage() {
           GradedCalls Analysts is not affiliated with any bank, broker-dealer, or third-party ratings site. It does not scrape rankings sites, and it does not call a paid market-data API. Prices are adjusted closes, not a firm’s published targets.
         </p>
         <p>
-          The grader reads a rating, a price at the call, an optional target, and prices 14, 30, 60, 90, and 365 calendar days later. Those prices come from the adjusted-close file. An analyst with few graded calls stays off the leaderboard and still shows PROVISIONAL when the score is from 40 up to 70. A graded 0 is the only score that reads EXIT LIQUIDITY.
+          The grader reads a rating, a price at the call, an optional target, and prices 14, 30, 60, 90, and 365 calendar days later. Those prices come from the adjusted-close file. An analyst under the sample minimum stays on the leaderboard unranked and ungraded. PROVISIONAL is the score band from 40 up to 70. A graded 0 is the only score that reads EXIT LIQUIDITY.
         </p>
       </section>
 

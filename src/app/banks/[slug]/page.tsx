@@ -11,8 +11,8 @@ import { analystRowsForCalls, factorForCalls, getBank, sectorBreakdown } from "@
 type Params = { slug: string };
 
 export async function generateStaticParams() {
-  const banks = await prisma.bank.findMany({ select: { slug: true } });
-  return banks.map((bank) => ({ slug: bank.slug }));
+  const calls = await prisma.call.findMany({ select: { bankId: true }, distinct: ["bankId"] });
+  return calls.map((call) => ({ slug: call.bankId }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {

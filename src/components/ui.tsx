@@ -52,24 +52,39 @@ export function HorizonChips({
   path,
   current,
   horizon,
+  defaultHorizon,
+  counts,
+  noun = "analysts",
 }: {
   path: string;
   current: Record<string, string | undefined>;
   horizon: HorizonKey;
+  /** Chip that clears the horizon query, because that cut is the computed default. */
+  defaultHorizon?: HorizonKey;
+  /** Names at the sample minimum on each horizon. */
+  counts?: Partial<Record<HorizonKey, number>>;
+  noun?: string;
 }) {
+  const openHorizon = defaultHorizon ?? "90";
   return (
     <div className="flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Horizon">
-      {HORIZON_KEYS.map((key) => (
-        <Link
-          key={key}
-          href={hrefWith(path, current, { horizon: key === "90" ? null : key })}
-          className={horizon === key ? "chip-on" : "chip"}
-          aria-current={horizon === key ? "true" : undefined}
-        >
-          {HORIZONS[key].short}
-          <span className="sr-only"> horizon</span>
-        </Link>
-      ))}
+      {HORIZON_KEYS.map((key) => {
+        const count = counts?.[key];
+        const counted = count === 1 ? noun.replace(/s$/, "") : noun;
+        const label = count == null ? `${HORIZONS[key].short} horizon` : `${HORIZONS[key].short} horizon, ${count} ${counted}`;
+        return (
+          <Link
+            key={key}
+            href={hrefWith(path, current, { horizon: key === openHorizon ? null : key })}
+            className={horizon === key ? "chip-on" : "chip"}
+            aria-current={horizon === key ? "true" : undefined}
+            aria-label={label}
+          >
+            {HORIZONS[key].short}
+            {count == null ? <span className="sr-only"> horizon</span> : <span className="num ml-1">{count}</span>}
+          </Link>
+        );
+      })}
     </div>
   );
 }

@@ -9,6 +9,8 @@ import {
   CALLS_JSON_PATH,
   CSV_ONLY_COLUMNS,
   collectIssues,
+  isCollectedStatusPost,
+  isGenericBenzingaQuote,
   coverageFromCalls,
   expectedFlags,
   expectedGrade,
@@ -159,6 +161,57 @@ describe("call ledger", () => {
     }
   });
 
+  it("collects an X status post and still rejects a rankings site or a profile", () => {
+    const statusUrl = "https://x.com/DeItaone/status/2113253910542532963";
+    assert.equal(isCollectedStatusPost(statusUrl), true);
+    assert.equal(isCollectedStatusPost("https://twitter.com/DeItaone/status/2113253910542532963"), true);
+    assert.equal(isCollectedStatusPost("https://x.com/DeItaone"), false);
+    const allowed = collectIssues([licensedRow({ source_url: statusUrl })]);
+    assert.equal(allowed.errors.some((error) => error.includes("source URL")), false);
+    const confirmed = collectIssues([
+      licensedRow({
+        source_url: statusUrl,
+        alt_source_url: "https://www.benzinga.com/news/example-confirmation",
+      }),
+    ]);
+    assert.equal(confirmed.errors.some((error) => error.includes("source URL")), false);
+    const tipranks = collectIssues([
+      licensedRow({ alt_source_url: "https://www.tipranks.com/news/the-fly/spacex-upgraded-to-buy-from-sell-at-phillip-securities-thefly-news" }),
+    ]);
+    assert.ok(tipranks.errors.some((error) => error.includes("source URL")));
+    assert.equal(isGenericBenzingaQuote("https://www.benzinga.com/quote/JPM/price-targets"), true);
+    assert.equal(isGenericBenzingaQuote("https://www.benzinga.com/quote/JPM/sentiment"), true);
+    assert.equal(isGenericBenzingaQuote("https://www.benzinga.com/news/example-confirmation"), false);
+    for (const sourceUrl of [
+      "https://www.benzinga.com/quote/ORCL/price-targets",
+      "https://www.benzinga.com/quote/JPM/sentiment",
+    ]) {
+      const issues = collectIssues([licensedRow({ source_url: sourceUrl })]);
+      assert.ok(issues.errors.some((error) => error.includes("Benzinga quote page")), sourceUrl);
+      const kept = collectIssues([licensedRow({ source_url: sourceUrl, exclusion: "benzinga-quote-page" })]);
+      assert.equal(kept.errors.some((error) => error.includes("Benzinga quote page")), false, sourceUrl);
+    }
+    const dropped = JSON.parse(renderCallsJson([licensedRow({ exclusion: "benzinga-quote-page", source_url: "https://www.benzinga.com/quote/ORCL/price-targets" })])) as unknown[];
+    assert.equal(dropped.length, 0);
+    const unknown = collectIssues([licensedRow({ exclusion: "nope" })]);
+    assert.ok(unknown.errors.some((error) => error.includes("exclusion must be empty")));
+    const headline = collectIssues([
+      licensedRow({
+        source_url: statusUrl,
+        price_target_to: "",
+      }),
+    ]);
+    assert.ok(headline.errors.some((error) => error.includes("a headline post needs a target")));
+    for (const sourceUrl of [
+      "https://www.bloomberg.com/news/example",
+      "https://x.com/DeItaone",
+      "https://twitter.com/search?q=TSLA",
+    ]) {
+      const issues = collectIssues([licensedRow({ source_url: sourceUrl })]);
+      assert.ok(issues.errors.some((error) => error.includes("source URL")), sourceUrl);
+    }
+  });
+
   it("rejects Demo copy on a licensed or verified row", () => {
     for (const column of ["note", "controversial_reason", "ledger_notes"] as const) {
       const issues = collectIssues([licensedRow({ [column]: "Demo. This was copied from the sample book." })]);
@@ -188,6 +241,18 @@ describe("call ledger", () => {
     assert.ok(renamed.errors.some((error) => error.includes("company does not match the registry")));
     const renamedAnalyst = collectIssues([licensedRow({ analyst_name: "Not the registry name" })]);
     assert.ok(renamedAnalyst.errors.some((error) => error.includes("analyst_name does not match the registry")));
+    const realName = collectIssues([licensedRow({ analyst_name: "Chad Dillard" })]);
+    assert.equal(realName.errors.some((error) => error.includes("banned word")), false);
+    const otherName = collectIssues([licensedRow({ analyst_name: "Chad Smith" })]);
+    assert.ok(otherName.errors.some((error) => error.includes("banned word")));
+    const brandCopy = collectIssues([licensedRow({ note: "Chad is not a grade." })]);
+    assert.ok(brandCopy.errors.some((error) => error.includes("banned word")));
+    const moved = rows.find((row) => row.analyst_slug === "dan-ives" && row.firm_slug === "wedbush");
+    assert.ok(moved);
+    const keptFirm = collectIssues([moved]);
+    assert.equal(keptFirm.errors.some((error) => error.includes("firm_slug does not match")), false);
+    const wrongFirm = collectIssues([{ ...moved, firm_slug: "goldman", firm_name: "Goldman Sachs" }]);
+    assert.ok(wrongFirm.errors.some((error) => error.includes("firm_slug does not match the analyst's firm")));
     const renamedFirm = collectIssues([licensedRow({ firm_name: "Not the registry name" })]);
     assert.ok(renamedFirm.errors.some((error) => error.includes("firm_name does not match the registry")));
     const wrongPrice = collectIssues([licensedRow({ price_at_call: "1" })]);

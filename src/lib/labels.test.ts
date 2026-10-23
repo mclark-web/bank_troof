@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { describe, it } from "node:test";
 import { callHeadline } from "./format";
 import {
@@ -40,6 +41,8 @@ describe("recommendation labels", () => {
     assert.equal(recommendationLabel({ action: "reiterate", ratingTo: "neutral" }), "Maintain Neutral");
     assert.equal(recommendationLabel({ action: "reiterate", ratingTo: "hold" }), "Maintain Hold");
     assert.equal(recommendationLabel({ action: "reiterate", ratingTo: "equal_weight" }), "Maintain Equal-Weight");
+    assert.equal(recommendationLabel({ action: "reiterate", ratingTo: "sector_perform" }), "Maintain Sector Perform");
+    assert.equal(directionForGradingLabel("sector_perform"), "Hold");
     assert.equal(directionForGradingLabel("overweight"), "Buy");
     assert.equal(directionForGradingLabel("underperform"), "Sell");
     assert.equal(directionForGradingLabel("equal_weight"), "Hold");
@@ -52,4 +55,8 @@ describe("recommendation labels", () => {
       "maintained Neutral on CAT",
     );
   });
+});
+
+it("the root layout has no loading boundary, so the ledger renders without client JS", () => {
+  assert.equal(existsSync(new URL("../app/loading.tsx", import.meta.url)), false);
 });
