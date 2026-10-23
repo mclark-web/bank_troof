@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { describe, it } from "node:test";
 import { callHeadline } from "./format";
 import {
@@ -52,4 +53,8 @@ describe("recommendation labels", () => {
       "maintained Neutral on CAT",
     );
   });
+});
+
+it("the root layout has no loading boundary, so the ledger renders without client JS", () => {
+  assert.equal(existsSync(new URL("../app/loading.tsx", import.meta.url)), false);
 });
