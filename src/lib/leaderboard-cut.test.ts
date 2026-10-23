@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { fullestHorizon } from "./leaderboard-cut";
+import { BELOW_PREVIEW, fullestHorizon, previewBelow } from "./leaderboard-cut";
 import type { HorizonKey } from "./scoring";
 
 function counts(partial: Partial<Record<HorizonKey, number>> = {}): Record<HorizonKey, number> {
@@ -30,5 +30,17 @@ describe("fullestHorizon", () => {
     const qualifying = counts();
     const considered = counts({ "14": 243, "30": 180, "90": 85, "365": 0 });
     assert.equal(fullestHorizon(qualifying, considered), "14");
+  });
+});
+
+describe("previewBelow", () => {
+  it("caps below-minimum rows unless all are requested, keeping sort order", () => {
+    const rows = Array.from({ length: 571 }, (_, i) => i);
+    const capped = previewBelow(rows, false);
+    assert.equal(capped.shown.length, BELOW_PREVIEW);
+    assert.deepEqual(capped.shown.slice(0, 3), [0, 1, 2]);
+    assert.equal(capped.hidden, 571 - BELOW_PREVIEW);
+    assert.equal(previewBelow(rows, true).hidden, 0);
+    assert.equal(previewBelow([1, 2], false).hidden, 0);
   });
 });

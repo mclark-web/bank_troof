@@ -101,7 +101,7 @@ export function BoardTable({
           {below.length > 0 ? (
             <tr>
               <td colSpan={9} className="board-divider">
-                Below minimum (n&lt;{minimum})
+                Below minimum sample (n &lt; {minimum}), unranked
               </td>
             </tr>
           ) : null}

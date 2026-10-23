@@ -10,6 +10,7 @@ import {
   CSV_ONLY_COLUMNS,
   collectIssues,
   isCollectedStatusPost,
+  isGenericBenzingaQuote,
   coverageFromCalls,
   expectedFlags,
   expectedGrade,
@@ -178,6 +179,16 @@ describe("call ledger", () => {
       licensedRow({ alt_source_url: "https://www.tipranks.com/news/the-fly/spacex-upgraded-to-buy-from-sell-at-phillip-securities-thefly-news" }),
     ]);
     assert.ok(tipranks.errors.some((error) => error.includes("source URL")));
+    assert.equal(isGenericBenzingaQuote("https://www.benzinga.com/quote/JPM/price-targets"), true);
+    assert.equal(isGenericBenzingaQuote("https://www.benzinga.com/quote/JPM/sentiment"), true);
+    assert.equal(isGenericBenzingaQuote("https://www.benzinga.com/news/example-confirmation"), false);
+    for (const sourceUrl of [
+      "https://www.benzinga.com/quote/ORCL/price-targets",
+      "https://www.benzinga.com/quote/JPM/sentiment",
+    ]) {
+      const issues = collectIssues([licensedRow({ source_url: sourceUrl })]);
+      assert.ok(issues.errors.some((error) => error.includes("Benzinga quote page")), sourceUrl);
+    }
     const headline = collectIssues([
       licensedRow({
         source_url: statusUrl,

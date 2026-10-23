@@ -99,32 +99,13 @@ function HorizonMarks({ call }: { call: ScoredCall }) {
   );
 }
 
-export function AnalystsBoard({
-  calls,
-  horizon,
-  kind,
-  book,
-}: {
-  calls: ScoredCall[];
-  horizon: BoardHorizon;
-  kind: BoardKind;
-  book: BoardBook;
-}) {
-  const current = {
-    horizon: horizon === "all" ? undefined : horizon,
-    kind: kind === "all" ? undefined : kind,
-    book: book === "active" ? undefined : book,
-  };
-  const path = "/analysts";
+export function prepareAnalystsBoard(calls: ScoredCall[], horizon: BoardHorizon, kind: BoardKind, book: BoardBook) {
   const scoped = calls.filter((call) => matchesKind(call.action, kind));
   const active = scoped.filter((call) => call.supersession.countsForScoring);
   const superseded = scoped.filter((call) => call.supersession.status === "nullified");
-  const visible =
-    book === "superseded" ? superseded : book === "all" ? scoped : active;
+  const visible = book === "superseded" ? superseded : book === "all" ? scoped : active;
   const gradedVisible = visible.filter((call) => isGraded(call, horizon));
   const shown = gradedVisible.slice(0, 40);
-  const stillOpen = visible.length - gradedVisible.length;
-
   const factorScores = active
     .map((call) => {
       if (horizon === "all") {
@@ -136,8 +117,46 @@ export function AnalystsBoard({
       return grade.gradeable && grade.score != null ? grade.score : null;
     })
     .filter((score): score is number => score != null);
-  const boardMean = readBoardMean(factorScores);
-  const health = boardHealth(active.map((call) => call.grades["30"]));
+  return {
+    shown,
+    gradedCount: gradedVisible.length,
+    stillOpen: visible.length - gradedVisible.length,
+    supersededCount: superseded.length,
+    boardMean: readBoardMean(factorScores),
+    health: boardHealth(active.map((call) => call.grades["30"])),
+  };
+}
+
+export function AnalystsBoard({
+  shown,
+  gradedCount,
+  stillOpen,
+  supersededCount,
+  boardMean,
+  health,
+  horizon,
+  kind,
+  book,
+  page = 1,
+}: {
+  shown: ScoredCall[];
+  gradedCount: number;
+  stillOpen: number;
+  supersededCount: number;
+  boardMean: ReturnType<typeof readBoardMean>;
+  health: ReturnType<typeof boardHealth>;
+  horizon: BoardHorizon;
+  kind: BoardKind;
+  book: BoardBook;
+  page?: number;
+}) {
+  const current = {
+    horizon: horizon === "all" ? undefined : horizon,
+    kind: kind === "all" ? undefined : kind,
+    book: book === "active" ? undefined : book,
+    page: page > 1 ? String(page) : undefined,
+  };
+  const path = "/analysts";
 
   return (
     <div>
@@ -179,8 +198,8 @@ export function AnalystsBoard({
         <FilterLink href={hrefWith(path, current, { book: null })} on={book === "active"}>
           Active
         </FilterLink>
-        <FilterLink href={hrefWith(path, current, { book: "superseded" })} on={book === "superseded"}>
-          Superseded <span className="num ml-1">{superseded.length}</span>
+          <FilterLink href={hrefWith(path, current, { book: "superseded" })} on={book === "superseded"}>
+          Superseded <span className="num ml-1">{supersededCount}</span>
         </FilterLink>
       </div>
 
@@ -190,8 +209,8 @@ export function AnalystsBoard({
             <div>
               <h2 className="text-sm font-semibold">Latest graded calls</h2>
               <p className="mt-0.5 text-xs text-faint">
-                Newest with a print · {gradedVisible.length} graded
-                {shown.length < gradedVisible.length ? ` · showing ${shown.length}` : ""}
+                Newest with a print · {gradedCount} graded
+                {shown.length < gradedCount ? ` · showing ${shown.length}` : ""}
                 {stillOpen > 0 ? ` · ${stillOpen} not graded yet` : ""}
               </p>
             </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { BoardTable } from "@/components/tables";
 import { EmptyNote, HorizonChips, PageIntro, SectorForm, hrefWith } from "@/components/ui";
-import { fullestHorizon } from "@/lib/leaderboard-cut";
+import { fullestHorizon, previewBelow } from "@/lib/leaderboard-cut";
 import { leaderboardLede } from "@/lib/leaderboard-lede";
 import { horizonBoardCounts, loadSectors, leaderboard, type RankKey } from "@/lib/queries";
 import { HORIZONS, parseHorizon } from "@/lib/scoring";
@@ -43,14 +43,18 @@ export default async function LeaderboardsPage({
     leaderboard({ horizon, sector, entity, order, rank }),
     loadSectors(),
   ]);
+  const noun = entity === "bank" ? "banks" : "analysts";
+  // Below-minimum rows can run to hundreds of n=1 names. Ship a preview so the page stays light.
+  const showAllBelow = one("below") === "all";
+  const { shown: belowShown, hidden: belowHidden } = previewBelow(board.below, showAllBelow);
   const current = {
     view: view === "analysts" ? undefined : view,
     horizon: horizon === defaultHorizon ? undefined : horizon,
     sector,
     who: view === "offenders" && who === "analysts" ? "analysts" : undefined,
     rank: rank === "points" ? undefined : rank,
+    below: showAllBelow ? "all" : undefined,
   };
-  const noun = entity === "bank" ? "banks" : "analysts";
 
   const title =
     view === "offenders" ? "Worst offenders" : view === "banks" ? "Top banks" : "Top analysts";
@@ -118,6 +122,7 @@ export default async function LeaderboardsPage({
               horizon: current.horizon,
               who: current.who,
               rank: current.rank,
+              below: current.below,
             }}
           />
         </div>
@@ -125,8 +130,18 @@ export default async function LeaderboardsPage({
       {board.rows.length + board.below.length === 0 ? (
         <EmptyNote>No graded calls in this cut.</EmptyNote>
       ) : (
-        <BoardTable rows={board.rows} below={board.below} minimum={board.minimum} />
+        <BoardTable rows={board.rows} below={belowShown} minimum={board.minimum} />
       )}
+      {belowHidden > 0 ? (
+        <p className="mt-3 text-sm">
+          <a
+            href={hrefWith("/leaderboards", current, { below: "all" })}
+            className="inline-flex min-h-11 items-center text-brass underline-offset-4 hover:underline"
+          >
+            Show all {board.below.length} below the minimum
+          </a>
+        </p>
+      ) : null}
       <p className="mt-4 max-w-3xl text-xs leading-5 text-faint">
         {board.rows.length} {noun} are at the minimum of {board.minimum}. {board.below.length} are below that minimum. Those rows are unranked and ungraded: n and the hit count only, no GC score. {board.considered} have a graded {HORIZONS[horizon].short} call
         {sector ? ` in ${sector}` : ""}. The overall factor is the average 0–100 grade of those active calls. Superseded calls stay off the average, the GC score, and the hit rate. Under 40 the GC score is 1–4 (WEAK). From 40 up to 70 it is 5–7 (PROVISIONAL). At or above 70 it is 8–10 (STRONG). A graded score of exactly 0 is an empty glass at 0% and reads EXIT LIQUIDITY. The badge is a dash, not GC 1. An open horizon stays ungraded and is left out of the average. Rank only sets the order. The default horizon is the one with the most names at the minimum. Default sort is the overall factor. “If followed” averages the stock return on active buys and the inverse return on active sells. Holds are left out of that column.

@@ -22,3 +22,11 @@ export function fullestHorizon(
 export function emptyHorizonCounts(): Record<HorizonKey, number> {
   return Object.fromEntries(HORIZON_KEYS.map((key) => [key, 0])) as Record<HorizonKey, number>;
 }
+
+/** Below-minimum rows shown before "Show all". Keeps the default board HTML small. */
+export const BELOW_PREVIEW = 25;
+
+export function previewBelow<T>(rows: readonly T[], all: boolean): { shown: T[]; hidden: number } {
+  const shown = all ? [...rows] : rows.slice(0, BELOW_PREVIEW);
+  return { shown, hidden: rows.length - shown.length };
+}
