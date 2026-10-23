@@ -633,5 +633,5 @@ export const TICKERS: TickerSeed[] = [
   { symbol: "TMUS", name: "T-Mobile", sector: "Media", industry: "Telecom", exchange: "NASDAQ" },
 ];
 
-export const AS_OF = new Date("2026-10-16T00:00:00.000Z");
+export const AS_OF = new Date("2026-10-21T00:00:00.000Z");
 export const PATH_START = new Date("2024-01-02T00:00:00.000Z");

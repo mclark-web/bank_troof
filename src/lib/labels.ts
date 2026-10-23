@@ -152,7 +152,7 @@ export function sourceLinkLabel(url: string): "Source" | "Source (German)" {
  * `asOf` is the last day in the adjusted-close file.
  */
 export const DATASET = {
-  asOfIso: "2026-10-16",
-  asOfLabel: "16 Oct 2026",
+  asOfIso: "2026-10-21",
+  asOfLabel: "21 Oct 2026",
   kind: "public" as const,
 };

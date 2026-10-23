@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { adjustedClose, bindHistoricalPrices, entryCloseLabel, filedEntryPrint, forwardClose, isoDate, addUtcDays, tradingSession } from "./quotes";
+import { DATASET } from "./labels";
+import { adjustedClose, bindHistoricalPrices, entryCloseLabel, filedEntryPrint, forwardClose, isoDate, addUtcDays, PRICE_SOURCE, QUOTE_AS_OF, tradingSession } from "./quotes";
+
+test("the published as-of date is the last session in the adjusted-close file", () => {
+  assert.equal(DATASET.asOfIso, QUOTE_AS_OF);
+  assert.equal(QUOTE_AS_OF, "2026-10-21");
+  assert.ok(PRICE_SOURCE.includes(DATASET.asOfLabel));
+  assert.equal(adjustedClose("AAPL", new Date("2026-10-21T00:00:00.000Z")), 343.99);
+  assert.equal(forwardClose("AAPL", new Date("2026-10-07T00:00:00.000Z"), 14), 343.99);
+});
 
 test("NFLX 21 Apr 2026 is the post-split adjusted close in the 90s", () => {
   const price = adjustedClose("NFLX", new Date("2026-04-21T00:00:00.000Z"));
