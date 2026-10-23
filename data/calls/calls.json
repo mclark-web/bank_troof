@@ -14665,14 +14665,14 @@
   },
   {
     "id": "real_0612",
-    "analystId": "mizuho-desk",
+    "analystId": "vijay-rakesh",
     "bankId": "mizuho",
     "tickerId": "TSLA",
     "callDate": "2026-10-22T00:00:00.000Z",
-    "action": "reiterate",
+    "action": "target_raise",
     "ratingFrom": null,
     "ratingTo": "outperform",
-    "priceTargetFrom": null,
+    "priceTargetFrom": 450,
     "priceTargetTo": 460,
     "priceAtCall": 374.58,
     "price14d": null,
@@ -14680,16 +14680,16 @@
     "price60d": null,
     "price90d": null,
     "price1y": null,
-    "note": "Outperform kept at $460.",
+    "note": "Target raised to $460 from $450; Outperform kept.",
     "controversial": false,
     "controversialReason": null,
     "source": "public",
-    "sourceUrl": "https://x.com/ChrisDungeon/status/2113299459647947160",
-    "altSourceUrl": null
+    "sourceUrl": "https://x.com/DeItaone/status/2113253910542532963",
+    "altSourceUrl": "https://x.com/StockMKTNewz/status/2113346929484501470"
   },
   {
     "id": "real_0613",
-    "analystId": "canaccord-desk",
+    "analystId": "george-gianarikas",
     "bankId": "canaccord",
     "tickerId": "TSLA",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -14709,11 +14709,11 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/StockMKTNewz/status/2113346929484501470",
-    "altSourceUrl": null
+    "altSourceUrl": "https://x.com/DeItaone/status/2113253910542532963"
   },
   {
     "id": "real_0614",
-    "analystId": "morgan-stanley-desk",
+    "analystId": "andrew-percoco",
     "bankId": "morgan-stanley",
     "tickerId": "TSLA",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -14733,11 +14733,11 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/StockMKTNewz/status/2113346929484501470",
-    "altSourceUrl": null
+    "altSourceUrl": "https://x.com/DeItaone/status/2113253910542532963"
   },
   {
     "id": "real_0615",
-    "analystId": "jpmorgan-desk",
+    "analystId": "rajat-gupta",
     "bankId": "jpmorgan",
     "tickerId": "TSLA",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -14757,11 +14757,11 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/sellsidesheriff/status/2113155189263745216",
-    "altSourceUrl": "https://x.com/ChrisDungeon/status/2113299459647947160"
+    "altSourceUrl": "https://x.com/DeItaone/status/2113253910542532963"
   },
   {
     "id": "real_0616",
-    "analystId": "ubs-desk",
+    "analystId": "joseph-spak",
     "bankId": "ubs",
     "tickerId": "TSLA",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -14781,11 +14781,11 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/tenet_research/status/2113253771023106270",
-    "altSourceUrl": null
+    "altSourceUrl": "https://x.com/DeItaone/status/2113253910542532963"
   },
   {
     "id": "real_0617",
-    "analystId": "goldman-desk",
+    "analystId": "mark-delaney",
     "bankId": "goldman",
     "tickerId": "TSLA",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -14805,11 +14805,11 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/tenet_research/status/2113253771023106270",
-    "altSourceUrl": null
+    "altSourceUrl": "https://x.com/DeItaone/status/2113253910542532963"
   },
   {
     "id": "real_0618",
-    "analystId": "td-cowen-desk",
+    "analystId": "itay-michaeli",
     "bankId": "td-cowen",
     "tickerId": "TSLA",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -14829,7 +14829,7 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/tenet_research/status/2113253771023106270",
-    "altSourceUrl": null
+    "altSourceUrl": "https://x.com/DeItaone/status/2113253910542532963"
   },
   {
     "id": "real_0619",
@@ -15117,7 +15117,7 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/DeItaone/status/2113243085312315770",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.cnbc.com/2026/10/22/wall-street-analyst-calls-nvidia-tesla-meta-spacex.html"
   },
   {
     "id": "real_0631",
@@ -15125,8 +15125,8 @@
     "bankId": "phillip",
     "tickerId": "SPCX",
     "callDate": "2026-10-22T00:00:00.000Z",
-    "action": "target_raise",
-    "ratingFrom": null,
+    "action": "upgrade",
+    "ratingFrom": "sell",
     "ratingTo": "buy",
     "priceTargetFrom": 75,
     "priceTargetTo": 250,
@@ -15136,12 +15136,12 @@
     "price60d": null,
     "price90d": null,
     "price1y": null,
-    "note": "Target raised to $250 from $75; Buy kept.",
+    "note": "Upgraded to Buy from Sell; target $250 from $75.",
     "controversial": true,
-    "controversialReason": "Price target changed by 25% or more.",
+    "controversialReason": "Rating moved by two or more notches. Price target changed by 25% or more.",
     "source": "public",
     "sourceUrl": "https://x.com/sellsidesheriff/status/2113405830124958070",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.tipranks.com/news/the-fly/spacex-upgraded-to-buy-from-sell-at-phillip-securities-thefly-news"
   },
   {
     "id": "real_0632",
@@ -15165,7 +15165,7 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/wensontrading/status/2113283895613395058",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.cnbc.com/2026/10/22/wall-street-analyst-calls-nvidia-tesla-meta-spacex.html"
   },
   {
     "id": "real_0633",
@@ -15174,7 +15174,7 @@
     "tickerId": "XYZ",
     "callDate": "2026-10-22T00:00:00.000Z",
     "action": "upgrade",
-    "ratingFrom": null,
+    "ratingFrom": "market_perform",
     "ratingTo": "outperform",
     "priceTargetFrom": 85,
     "priceTargetTo": 101,
@@ -15184,12 +15184,12 @@
     "price60d": null,
     "price90d": null,
     "price1y": null,
-    "note": "Upgraded to Outperform; target $101 from $85.",
+    "note": "Upgraded to Outperform from Market Perform; target $101 from $85.",
     "controversial": false,
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/AIStockSavvy/status/2113217964178829598",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.cnbc.com/2026/10/22/wall-street-analyst-calls-nvidia-tesla-meta-spacex.html"
   },
   {
     "id": "real_0634",
@@ -15246,7 +15246,7 @@
     "tickerId": "ZM",
     "callDate": "2026-10-22T00:00:00.000Z",
     "action": "upgrade",
-    "ratingFrom": null,
+    "ratingFrom": "perform",
     "ratingTo": "outperform",
     "priceTargetFrom": null,
     "priceTargetTo": 130,
@@ -15256,7 +15256,7 @@
     "price60d": null,
     "price90d": null,
     "price1y": null,
-    "note": "Upgraded to Outperform; target $130.",
+    "note": "Upgraded to Outperform from Perform; target $130.",
     "controversial": false,
     "controversialReason": null,
     "source": "public",
@@ -15265,14 +15265,14 @@
   },
   {
     "id": "real_0637",
-    "analystId": "citi-desk",
+    "analystId": "tyler-radke",
     "bankId": "citi",
     "tickerId": "PLTR",
     "callDate": "2026-10-22T00:00:00.000Z",
     "action": "target_raise",
     "ratingFrom": null,
     "ratingTo": "buy",
-    "priceTargetFrom": null,
+    "priceTargetFrom": 245,
     "priceTargetTo": 250,
     "priceAtCall": 196.19,
     "price14d": null,
@@ -15280,12 +15280,12 @@
     "price60d": null,
     "price90d": null,
     "price1y": null,
-    "note": "Target raised to $250; Buy kept.",
+    "note": "Target raised to $250 from $245; Buy kept.",
     "controversial": false,
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/OptionKing33996/status/2113426852215964112",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.tipranks.com/news/the-fly/palantir-price-target-raised-to-250-from-245-at-citi-thefly-news"
   },
   {
     "id": "real_0638",
@@ -15313,7 +15313,7 @@
   },
   {
     "id": "real_0639",
-    "analystId": "cbre-desk",
+    "analystId": "john-decree",
     "bankId": "cbre",
     "tickerId": "MGM",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -15321,19 +15321,19 @@
     "ratingFrom": "hold",
     "ratingTo": "buy",
     "priceTargetFrom": null,
-    "priceTargetTo": null,
+    "priceTargetTo": 42,
     "priceAtCall": 29.5,
     "price14d": null,
     "price30d": null,
     "price60d": null,
     "price90d": null,
     "price1y": null,
-    "note": "Upgraded to Buy from Hold.",
+    "note": "Upgraded to Buy from Hold; target $42.",
     "controversial": false,
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/StockTraderHub/status/2113258475878744562",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.tipranks.com/news/the-fly/mgm-resorts-upgraded-to-buy-from-hold-at-cbre-thefly-news"
   },
   {
     "id": "real_0640",
@@ -15414,9 +15414,9 @@
     "tickerId": "IONS",
     "callDate": "2026-10-22T00:00:00.000Z",
     "action": "upgrade",
-    "ratingFrom": null,
+    "ratingFrom": "market_perform",
     "ratingTo": "outperform",
-    "priceTargetFrom": null,
+    "priceTargetFrom": 54,
     "priceTargetTo": 66,
     "priceAtCall": 43.91,
     "price14d": null,
@@ -15424,12 +15424,12 @@
     "price60d": null,
     "price90d": null,
     "price1y": null,
-    "note": "Upgraded to Outperform; target $66.",
+    "note": "Upgraded to Outperform from Market Perform; target $66 from $54.",
     "controversial": false,
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/OptionsMike/status/2113204712535130560",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.cnbc.com/2026/10/22/wall-street-analyst-calls-nvidia-tesla-meta-spacex.html"
   },
   {
     "id": "real_0644",
@@ -15577,7 +15577,7 @@
   },
   {
     "id": "real_0650",
-    "analystId": "cantor-desk",
+    "analystId": "andres-sheppard",
     "bankId": "cantor",
     "tickerId": "TSLA",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -15597,7 +15597,7 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/PT_CARBA/status/2113278297920639148",
-    "altSourceUrl": null
+    "altSourceUrl": "https://x.com/DeItaone/status/2113253910542532963"
   },
   {
     "id": "real_0651",
@@ -15765,7 +15765,7 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/tenet_research/status/2113269146503028927",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.cnbc.com/2026/10/22/wall-street-analyst-calls-nvidia-tesla-meta-spacex.html"
   },
   {
     "id": "real_0658",
@@ -16005,7 +16005,7 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/ArikCR23/status/2113319882402021694",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.marketscreener.com/news/micron-s-long-term-memory-strategy-supports-growth-outlook-rbc-says-ce785cdedd8dfe27"
   },
   {
     "id": "real_0668",
@@ -16029,7 +16029,7 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/ArikCR23/status/2113320809804525598",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.marketscreener.com/news/micron-technology-has-no-plans-to-move-to-denser-layout-of-dram-memory-cells-wedbush-says-ce785cdedc89f126"
   },
   {
     "id": "real_0669",
@@ -16125,7 +16125,7 @@
     "controversialReason": "Price target changed by 25% or more.",
     "source": "public",
     "sourceUrl": "https://x.com/JacobGreene91/status/2113330851815862457",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.marketbeat.com/instant-alerts/analyst-cybin-nasdaq-help-stock-price-target-raised-at-wells-fargo-company-2026-10-22/"
   },
   {
     "id": "real_0673",
@@ -16149,7 +16149,7 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/merlin_trader/status/2113362383347261600",
-    "altSourceUrl": null
+    "altSourceUrl": "https://www.cnbc.com/2026/10/22/wall-street-analyst-calls-nvidia-tesla-meta-spacex.html"
   },
   {
     "id": "real_0674",
@@ -16269,6 +16269,30 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://x.com/fundspec/status/2113348415673266686",
+    "altSourceUrl": null
+  },
+  {
+    "id": "real_0679",
+    "analystId": "william-blair-desk",
+    "bankId": "william-blair",
+    "tickerId": "BLDR",
+    "callDate": "2026-10-22T00:00:00.000Z",
+    "action": "downgrade",
+    "ratingFrom": "outperform",
+    "ratingTo": "market_perform",
+    "priceTargetFrom": null,
+    "priceTargetTo": null,
+    "priceAtCall": 57.54,
+    "price14d": null,
+    "price30d": null,
+    "price60d": null,
+    "price90d": null,
+    "price1y": null,
+    "note": "Downgraded to Market Perform from Outperform.",
+    "controversial": false,
+    "controversialReason": null,
+    "source": "public",
+    "sourceUrl": "https://x.com/marketsday/status/2113254385493123411",
     "altSourceUrl": null
   }
 ]

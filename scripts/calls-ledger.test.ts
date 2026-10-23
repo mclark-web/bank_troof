@@ -167,8 +167,14 @@ describe("call ledger", () => {
     assert.equal(isCollectedStatusPost("https://x.com/DeItaone"), false);
     const allowed = collectIssues([licensedRow({ source_url: statusUrl })]);
     assert.equal(allowed.errors.some((error) => error.includes("source URL")), false);
+    const confirmed = collectIssues([
+      licensedRow({
+        source_url: statusUrl,
+        alt_source_url: "https://www.tipranks.com/news/the-fly/spacex-upgraded-to-buy-from-sell-at-phillip-securities-thefly-news",
+      }),
+    ]);
+    assert.equal(confirmed.errors.some((error) => error.includes("source URL")), false);
     for (const sourceUrl of [
-      "https://www.tipranks.com/stocks/aapl/forecast",
       "https://www.bloomberg.com/news/example",
       "https://x.com/DeItaone",
       "https://twitter.com/search?q=TSLA",

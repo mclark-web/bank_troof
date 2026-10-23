@@ -106,7 +106,7 @@ const HORIZON_GRADE: Record<HorizonKey, CsvColumn> = {
 };
 
 const BANNED_COPY = /chad|chud|charoof/i;
-const BANNED_SOURCE = /tipranks|bloomberg/i;
+const BANNED_SOURCE = /bloomberg/i;
 const X_HOST = /(?:^|\/\/|\.)(?:x\.com|twitter\.com)/i;
 
 /** A status post can be the source. A profile, a search page, or a wire still cannot. */
@@ -574,7 +574,7 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
       const problem = sourceUrlProblem(url);
       if (problem) errors.push(`${label}: ${column} ${problem}`);
       else if (url && BANNED_SOURCE.test(url)) {
-        errors.push(`${label}: source URL is a rankings site or a wire. Those are not collected.`);
+        errors.push(`${label}: source URL is a wire. Those are not collected.`);
       } else if (url && X_HOST.test(url) && !isCollectedStatusPost(url)) {
         errors.push(`${label}: source URL is an X page that is not a status post. Those are not collected.`);
       }

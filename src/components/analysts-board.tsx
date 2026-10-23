@@ -145,7 +145,7 @@ export function AnalystsBoard({
           <p className="chip-live">Sector · Analysts</p>
           <h1 className="mt-3 font-sans text-[2rem] tracking-tight">Street calls, graded vs real prices</h1>
           <p className="mt-2 max-w-[52ch] text-sm leading-6 text-muted">
-            Upgrades, downgrades, and targets from this ledger. Every grade uses closes adjusted for splits and dividends.
+            Upgrades, downgrades, and targets from this ledger. Every grade uses Yahoo Finance adjusted closes (adjusted for splits and dividends). Closes run through Oct 22, 2026.
           </p>
         </div>
         <div className="w-full max-w-[340px] rounded-xl border border-line bg-white/[0.03] px-4 py-3.5">

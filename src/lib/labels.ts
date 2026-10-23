@@ -7,6 +7,8 @@ export const RATING_LABELS: Record<string, string> = {
   neutral: "Neutral",
   equal_weight: "Equal-Weight",
   peer_perform: "Peer Perform",
+  market_perform: "Market Perform",
+  perform: "Perform",
   underperform: "Underperform",
   underweight: "Underweight",
   sell: "Sell",
@@ -30,6 +32,8 @@ export const RATING_NOTCH: Record<string, number> = {
   neutral: 3,
   equal_weight: 3,
   peer_perform: 3,
+  market_perform: 3,
+  perform: 3,
   underperform: 2,
   underweight: 2,
   sell: 1,
@@ -59,7 +63,7 @@ export function ratingTone(rating: string): "up" | "flat" | "down" {
   return "flat";
 }
 
-const FLAT_DESK = new Set(["hold", "neutral", "equal_weight", "peer_perform"]);
+const FLAT_DESK = new Set(["hold", "neutral", "equal_weight", "peer_perform", "market_perform", "perform"]);
 
 export type RecommendationCall = {
   action: string;
