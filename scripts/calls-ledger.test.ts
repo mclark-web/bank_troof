@@ -9,6 +9,7 @@ import {
   CALLS_JSON_PATH,
   CSV_ONLY_COLUMNS,
   collectIssues,
+  isCollectedStatusPost,
   coverageFromCalls,
   expectedFlags,
   expectedGrade,
@@ -156,6 +157,24 @@ describe("call ledger", () => {
     for (const sourceUrl of ["https://example.com/research-note", "http://8.8.8.8/note", "http://172.15.0.1/note"]) {
       const issues = collectIssues([licensedRow({ source_url: sourceUrl })]);
       assert.deepEqual(issues.errors, [], sourceUrl);
+    }
+  });
+
+  it("collects an X status post and still rejects a rankings site or a profile", () => {
+    const statusUrl = "https://x.com/DeItaone/status/2113253910542532963";
+    assert.equal(isCollectedStatusPost(statusUrl), true);
+    assert.equal(isCollectedStatusPost("https://twitter.com/DeItaone/status/2113253910542532963"), true);
+    assert.equal(isCollectedStatusPost("https://x.com/DeItaone"), false);
+    const allowed = collectIssues([licensedRow({ source_url: statusUrl })]);
+    assert.equal(allowed.errors.some((error) => error.includes("source URL")), false);
+    for (const sourceUrl of [
+      "https://www.tipranks.com/stocks/aapl/forecast",
+      "https://www.bloomberg.com/news/example",
+      "https://x.com/DeItaone",
+      "https://twitter.com/search?q=TSLA",
+    ]) {
+      const issues = collectIssues([licensedRow({ source_url: sourceUrl })]);
+      assert.ok(issues.errors.some((error) => error.includes("source URL")), sourceUrl);
     }
   });
 

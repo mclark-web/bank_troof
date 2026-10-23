@@ -106,7 +106,20 @@ const HORIZON_GRADE: Record<HorizonKey, CsvColumn> = {
 };
 
 const BANNED_COPY = /chad|chud|charoof/i;
-const BANNED_SOURCE = /tipranks|bloomberg|(?:^|\/\/|\.)x\.com|twitter\.com/i;
+const BANNED_SOURCE = /tipranks|bloomberg/i;
+const X_HOST = /(?:^|\/\/|\.)(?:x\.com|twitter\.com)/i;
+
+/** A status post can be the source. A profile, a search page, or a wire still cannot. */
+export function isCollectedStatusPost(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/\.$/, "").toLowerCase();
+    if (host !== "x.com" && host !== "www.x.com" && host !== "twitter.com" && host !== "www.twitter.com") return false;
+    return /^\/[A-Za-z0-9_]{1,15}\/status\/\d+\/?$/.test(parsed.pathname);
+  } catch {
+    return false;
+  }
+}
 /** Whole word, any case. "Demonstrated" and "Democrat" are not the demo marker. */
 const DEMO_WORD = /\bdemo\b/i;
 const SOURCE_URL_PROBLEM = "must be an http(s) URL that is not localhost";
@@ -561,7 +574,9 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
       const problem = sourceUrlProblem(url);
       if (problem) errors.push(`${label}: ${column} ${problem}`);
       else if (url && BANNED_SOURCE.test(url)) {
-        errors.push(`${label}: source URL is a rankings site, a wire, or X. Those are not collected.`);
+        errors.push(`${label}: source URL is a rankings site or a wire. Those are not collected.`);
+      } else if (url && X_HOST.test(url) && !isCollectedStatusPost(url)) {
+        errors.push(`${label}: source URL is an X page that is not a status post. Those are not collected.`);
       }
     }
     const sourced = row.data_source === "licensed" || row.data_source === "public";

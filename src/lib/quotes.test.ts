@@ -5,10 +5,12 @@ import { adjustedClose, bindHistoricalPrices, entryCloseLabel, filedEntryPrint, 
 
 test("the published as-of date is the last session in the adjusted-close file", () => {
   assert.equal(DATASET.asOfIso, QUOTE_AS_OF);
-  assert.equal(QUOTE_AS_OF, "2026-10-21");
+  assert.equal(QUOTE_AS_OF, "2026-10-22");
   assert.ok(PRICE_SOURCE.includes(DATASET.asOfLabel));
   assert.equal(adjustedClose("AAPL", new Date("2026-10-21T00:00:00.000Z")), 343.99);
+  assert.equal(adjustedClose("AAPL", new Date("2026-10-22T00:00:00.000Z")), 348.22);
   assert.equal(forwardClose("AAPL", new Date("2026-10-07T00:00:00.000Z"), 14), 343.99);
+  assert.equal(forwardClose("AAPL", new Date("2026-10-08T00:00:00.000Z"), 14), 348.22);
 });
 
 test("NFLX 21 Apr 2026 is the post-split adjusted close in the 90s", () => {
