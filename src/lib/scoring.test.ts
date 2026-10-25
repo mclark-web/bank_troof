@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { GC_PROVISIONAL_LINE, GC_STRONG_LINE, readCalibration } from "./gc-grade";
-import { aggregateGrades, CHUD_LINE, formatPoints, GC_BANDS, GC_WEAK_LINE, gradeCall, HORIZONS, HORIZON_KEYS, placeChad } from "./scoring";
+import { aggregateGrades, CHUD_LINE, formatPoints, GC_BANDS, GC_WEAK_LINE, gradeCall, HORIZONS, HORIZON_KEYS, minimumSample, placeChad } from "./scoring";
 
 describe("gradeCall", () => {
   it("credits a buy that clears the 90-day hurdle", () => {
@@ -232,6 +232,15 @@ describe("placeChad", () => {
     assert.match(placeChad(0.1).label ?? "", /WEAK/);
     assert.match(placeChad(50).label ?? "", /PROVISIONAL/);
     assert.match(placeChad(80).label ?? "", /STRONG/);
+  });
+});
+
+describe("minimumSample", () => {
+  it("ranks an analyst at 4 graded calls and a bank at 20", () => {
+    assert.equal(minimumSample("analyst"), 4);
+    assert.equal(minimumSample("analyst", "Technology"), 4);
+    assert.equal(minimumSample("bank"), 20);
+    assert.equal(minimumSample("bank", "Technology"), 8);
   });
 });
 

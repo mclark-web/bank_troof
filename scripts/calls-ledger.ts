@@ -86,9 +86,11 @@ export const CSV_ONLY_COLUMNS = [
 /**
  * Empty `exclusion` is a live call. A bad row stays in the CSV and is left out of
  * the live ledger. `benzinga-quote-page` is a ticker hub. `wrong-firm` names a
- * firm that did not issue the call.
+ * firm that did not issue the call. `marketbeat-license` is a MarketBeat
+ * forecast-page row kept out of the board under that site's licensing terms.
  */
-export const EXCLUSION_REASONS = ["benzinga-quote-page", "wrong-firm"] as const;
+export const EXCLUSION_REASONS = ["benzinga-quote-page", "wrong-firm", "marketbeat-license"] as const;
+export const MARKETBEAT_BATCH = "batch:marketbeat-forecast";
 
 /**
  * `public` is a public news source (a free page, not a licensed feed).
@@ -599,6 +601,12 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
     }
     if (row.exclusion === "benzinga-quote-page" && ![row.source_url, row.alt_source_url].some((url) => isGenericBenzingaQuote(url))) {
       errors.push(`${label}: exclusion benzinga-quote-page needs a Benzinga quote page URL`);
+    }
+    if (row.ledger_notes.startsWith(MARKETBEAT_BATCH) && row.exclusion === "") {
+      errors.push(`${label}: a MarketBeat forecast-page row stays in the CSV with exclusion marketbeat-license`);
+    }
+    if (row.exclusion === "marketbeat-license" && !row.ledger_notes.startsWith(MARKETBEAT_BATCH)) {
+      errors.push(`${label}: exclusion marketbeat-license is only for a ${MARKETBEAT_BATCH} row`);
     }
     if (BANNED_COPY.test(row.analyst_name) && !ALLOWED_ANALYST_NAMES.has(row.analyst_name)) {
       errors.push(`${label}: user-facing text contains a banned word`);

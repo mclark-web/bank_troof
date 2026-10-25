@@ -271,7 +271,6 @@ export async function getBank(slug: string) {
   });
   if (!bank) return null;
   const calls = (await loadCalls()).filter((call) => call.bankId === bank.id);
-  if (calls.length === 0) return null;
   return { bank, calls };
 }
 

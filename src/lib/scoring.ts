@@ -324,7 +324,7 @@ export function outcomeField(horizon: HorizonKey): "price14d" | "price30d" | "pr
 }
 
 export const MIN_SAMPLE = {
-  analyst: 8,
+  analyst: 4,
   analystSector: 4,
   bank: 20,
   bankSector: 8,

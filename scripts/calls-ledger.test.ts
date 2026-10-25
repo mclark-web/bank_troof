@@ -193,6 +193,16 @@ describe("call ledger", () => {
     }
     const dropped = JSON.parse(renderCallsJson([licensedRow({ exclusion: "benzinga-quote-page", source_url: "https://www.benzinga.com/quote/ORCL/price-targets" })])) as unknown[];
     assert.equal(dropped.length, 0);
+    const marketbeat = collectIssues([licensedRow({ ledger_notes: "batch:marketbeat-forecast | forecast page" })]);
+    assert.ok(marketbeat.errors.some((error) => error.includes("exclusion marketbeat-license")));
+    const licensedOut = collectIssues([
+      licensedRow({ ledger_notes: "batch:marketbeat-forecast | forecast page", exclusion: "marketbeat-license" }),
+    ]);
+    assert.equal(licensedOut.errors.some((error) => error.includes("MarketBeat")), false);
+    const hidden = JSON.parse(
+      renderCallsJson([licensedRow({ ledger_notes: "batch:marketbeat-forecast | forecast page", exclusion: "marketbeat-license" })]),
+    ) as unknown[];
+    assert.equal(hidden.length, 0);
     const unknown = collectIssues([licensedRow({ exclusion: "nope" })]);
     assert.ok(unknown.errors.some((error) => error.includes("exclusion must be empty")));
     const headline = collectIssues([
