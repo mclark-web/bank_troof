@@ -649,7 +649,8 @@ export function collectIssues(rows: CallRow[]): LedgerIssues {
     if (!bank && !row.exclusion) errors.push(`${label}: firm_slug is not in the universe`);
     if (!ticker) errors.push(`${label}: ticker is not in the universe`);
     if (sourced) {
-      if (analyst && analyst.name !== row.analyst_name) errors.push(`${label}: analyst_name does not match the registry`);
+      const names = analyst ? new Set([analyst.name, ...(analyst.aliases ?? [])]) : null;
+      if (analyst && names && !names.has(row.analyst_name)) errors.push(`${label}: analyst_name does not match the registry`);
       const firms = analyst ? new Set([analyst.bankSlug, ...(analyst.priorBankSlugs ?? [])]) : null;
       if (!row.exclusion && analyst && firms && !firms.has(row.firm_slug)) {
         errors.push(`${label}: firm_slug does not match the analyst's firm`);

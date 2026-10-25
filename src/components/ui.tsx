@@ -164,7 +164,7 @@ export function ScaleLegend({ className = "" }: { className?: string }) {
 }
 
 export function SideNote({ placement, className = "" }: { placement: ChadPlacement; className?: string }) {
-  if (!placement.label) return null;
+  if (!placement.label || placement.chad == null) return null;
   const tone = placement.side ? "text-muted" : "text-faint";
   return <p className={cx("text-sm", tone, className)}>{placement.label}</p>;
 }
@@ -174,13 +174,13 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
   const title =
     score == null
       ? "No overall factor"
-      : `Overall factor ${formatPoints(score)} of 100. GC score ${chad ?? "—"} of 10. ${placement.label ?? ""}`;
+      : `Overall factor ${formatPoints(score)} of 100. GC score ${chad ?? "—"} of 10.${chad == null ? "" : ` ${placement.label ?? ""}`}`;
   if (score == null) {
     return <GcUngraded compact />;
   }
   const reading = readCalibration(score, true);
   return (
-    <div title={title}>
+    <div title={title} aria-label={chad == null ? (placement.label ?? title) : undefined}>
       <div className="flex flex-nowrap items-baseline gap-2 whitespace-nowrap">
         <span className="num text-2xl leading-none text-ink">{formatPoints(score)}</span>
         <span className="num text-xs text-faint">/100</span>

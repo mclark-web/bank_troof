@@ -15,6 +15,8 @@ export type AnalystSeed = {
   priorBankSlugs?: readonly string[];
   sector: string;
   startedYear: number;
+  /** Other spellings that still name this person on an excluded row. */
+  aliases?: readonly string[];
 };
 
 export type TickerSeed = {
@@ -325,7 +327,7 @@ export const ANALYSTS: AnalystSeed[] = [
   { slug: "christopher-horvers", name: "Christopher Horvers", title: ANALYST_TITLE, bankSlug: "jpmorgan", sector: "Consumer", startedYear: 2026 },
   { slug: "corey-tarlowe", name: "Corey Tarlowe", title: ANALYST_TITLE, bankSlug: "jefferies", sector: "Consumer", startedYear: 2026 },
   { slug: "dan-ives", name: "Dan Ives", title: ANALYST_TITLE, bankSlug: "yorkville-ives", priorBankSlugs: ["wedbush"], sector: "Technology, Consumer, Energy, Industrials, Media", startedYear: 2025 },
-  { slug: "daniel-perlin", name: "Daniel R. Perlin", title: ANALYST_TITLE, bankSlug: "rbc", sector: "Financials, Technology", startedYear: 2026 },
+  { slug: "daniel-perlin", name: "Daniel Perlin", aliases: ["Daniel R. Perlin"], title: ANALYST_TITLE, bankSlug: "rbc", sector: "Financials, Technology", startedYear: 2026 },
   { slug: "david-chiaverini", name: "David Chiaverini", title: ANALYST_TITLE, bankSlug: "jefferies", sector: "Financials", startedYear: 2026 },
   { slug: "david-vogt", name: "David Vogt", title: ANALYST_TITLE, bankSlug: "ubs", sector: "Technology", startedYear: 2026 },
   { slug: "dennis-geiger", name: "Dennis Geiger", title: ANALYST_TITLE, bankSlug: "ubs", sector: "Consumer", startedYear: 2026 },

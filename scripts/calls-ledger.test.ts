@@ -251,6 +251,20 @@ describe("call ledger", () => {
     assert.ok(renamed.errors.some((error) => error.includes("company does not match the registry")));
     const renamedAnalyst = collectIssues([licensedRow({ analyst_name: "Not the registry name" })]);
     assert.ok(renamedAnalyst.errors.some((error) => error.includes("analyst_name does not match the registry")));
+    const perlin = rows.find((row) => row.call_id === "real_0176");
+    assert.equal(perlin?.analyst_name, "Daniel Perlin");
+    const perlinAlias = collectIssues([perlin ? { ...perlin, analyst_name: "Daniel R. Perlin" } : licensedRow()]);
+    assert.equal(perlinAlias.errors.some((error) => error.includes("analyst_name does not match the registry")), false);
+    const bergin = rows.filter((row) => row.call_id === "real_0401" || row.call_id === "real_0402");
+    assert.deepEqual(bergin.map((row) => row.analyst_slug), ["bryan-c-bergin", "bryan-c-bergin"]);
+    const woodring = rows.find((row) => row.call_id === "real_0139");
+    assert.equal(
+      woodring?.alt_source_url,
+      "https://www.streetinsider.com/Analyst+Comments/Apple+%28AAPL%29+PT+Lowered+to+%24355+at+Morgan+Stanley/27131625.html",
+    );
+    const cybin = rows.find((row) => row.call_id === "real_0672");
+    assert.equal(cybin?.alt_source_url, "");
+    assert.match(cybin?.source_url ?? "", /^https:\/\/x\.com\/JacobGreene91\/status\/2113330851815862457$/);
     const realName = collectIssues([licensedRow({ analyst_name: "Chad Dillard" })]);
     assert.equal(realName.errors.some((error) => error.includes("banned word")), false);
     const otherName = collectIssues([licensedRow({ analyst_name: "Chad Smith" })]);
