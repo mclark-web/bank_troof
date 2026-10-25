@@ -32,7 +32,7 @@ export function GcGradePill({ grade }: { grade: GcGradeId }) {
   const tone = grade === "provisional" ? "provisional" : grade;
   if (grade === "exit") {
     return (
-      <span className={cx("gc-grade-tag", tone)} aria-label={GC_GRADE_LABEL.exit}>
+      <span className={cx("gc-grade-tag", tone)} role="img" aria-label={GC_GRADE_LABEL.exit}>
         <span aria-hidden="true">—</span>
       </span>
     );

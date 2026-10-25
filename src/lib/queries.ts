@@ -281,6 +281,7 @@ export async function getTicker(symbol: string) {
   });
   if (!ticker) return null;
   const calls = (await loadCalls()).filter((call) => call.tickerId === ticker.id);
+  if (calls.length === 0) return null;
   return { ticker, calls };
 }
 
@@ -325,17 +326,18 @@ export async function listBanks() {
 export async function listTickers() {
   const tickers = await prisma.ticker.findMany({ orderBy: { symbol: "asc" } });
   const calls = await loadCalls();
-  return tickers.map((ticker) => {
+  return tickers.flatMap((ticker) => {
     const mine = calls.filter((call) => call.tickerId === ticker.id);
+    if (mine.length === 0) return [];
     const consensus = latestConsensus(mine);
     const aggregate = scoreAggregate(mine, "90");
-    return {
+    return [{
       ticker,
       aggregate,
       placement: placeChad(aggregate.avgScore),
       buckets: consensus.buckets,
       voices: consensus.total,
-    };
+    }];
   });
 }
 
@@ -369,10 +371,11 @@ export async function searchAll(query: string) {
     prisma.analyst.findMany({ include: { bank: true }, orderBy: { name: "asc" } }),
     prisma.bank.findMany({ orderBy: { name: "asc" } }),
     prisma.ticker.findMany({ orderBy: { symbol: "asc" } }),
-    prisma.call.findMany({ select: { analystId: true, bankId: true } }),
+    prisma.call.findMany({ select: { analystId: true, bankId: true, tickerId: true } }),
   ]);
   const analystIds = new Set(callRows.map((row) => row.analystId));
   const bankIds = new Set(callRows.map((row) => row.bankId));
+  const tickerIds = new Set(callRows.map((row) => row.tickerId));
   return {
     analysts: analysts.filter((analyst) =>
       analystIds.has(analyst.id) && matchesQuery(`${analyst.name} ${analyst.sector} ${analyst.bank.shortName}`, q),
@@ -381,6 +384,7 @@ export async function searchAll(query: string) {
       bankIds.has(bank.id) && matchesQuery(`${bank.name} ${bank.shortName} ${bank.slug} ${BANK_ALIASES[bank.slug] ?? ""}`, q),
     ),
     tickers: tickers.filter((ticker) => {
+      if (!tickerIds.has(ticker.id)) return false;
       if (ticker.symbol.toLowerCase() === q) return true;
       return matchesQuery(`${ticker.name} ${ticker.sector}`, q);
     }),

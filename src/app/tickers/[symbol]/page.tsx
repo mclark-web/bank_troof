@@ -13,8 +13,8 @@ import { SPLIT_ADJUSTED } from "@/lib/splits";
 type Params = { symbol: string };
 
 export async function generateStaticParams() {
-  const tickers = await prisma.ticker.findMany({ select: { symbol: true } });
-  return tickers.map((ticker) => ({ symbol: ticker.symbol }));
+  const calls = await prisma.call.findMany({ select: { tickerId: true }, distinct: ["tickerId"] });
+  return calls.map((call) => ({ symbol: call.tickerId }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
