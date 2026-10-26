@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
 import { LedgerBanner, SiteFooter, SiteHeader } from "@/components/chrome";
-import { SHARE_IMAGE, SITE_URL } from "@/lib/site-urls";
+import { OG_SITE_NAME, SHARE_IMAGE, SITE_URL } from "@/lib/site-urls";
 import "./globals.css";
 import "./gc-scale.css";
 
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
-    siteName: "GradedCalls Analysts",
+    siteName: OG_SITE_NAME,
     type: "website",
     images: [SHARE_IMAGE],
   },

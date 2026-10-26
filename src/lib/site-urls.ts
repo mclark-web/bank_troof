@@ -39,19 +39,30 @@ export function pageUrl(path = "/"): string {
 /** Share image served from public/. The opengraph-image file convention follows the deployment host. */
 export const SHARE_IMAGE_URL = `${SITE_URL}/opengraph-image.png`;
 
+export const OG_SITE_NAME = "GradedCalls Analysts";
+
 export const SHARE_IMAGE = {
   url: SHARE_IMAGE_URL,
   width: 1200,
   height: 630,
   alt: "GradedCalls",
+  type: "image/png",
 } as const;
 
-/** Canonical and og:url for one route, plus absolute share images. */
+/**
+ * Canonical and og:url for one route.
+ * Child openGraph replaces the layout block, so site name, type, and image type travel with the page.
+ */
 export function routeMeta(path: string): Pick<Metadata, "alternates" | "openGraph" | "twitter"> {
   const url = pageUrl(path);
   return {
     alternates: { canonical: url },
-    openGraph: { url, images: [SHARE_IMAGE] },
+    openGraph: {
+      url,
+      siteName: OG_SITE_NAME,
+      type: "website",
+      images: [SHARE_IMAGE],
+    },
     twitter: { images: [SHARE_IMAGE] },
   };
 }

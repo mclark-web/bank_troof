@@ -11,6 +11,7 @@ import {
   DEFAULT_SITE_URL,
   FINTWIT_URL,
   HUB_URL,
+  OG_SITE_NAME,
   SHARE_IMAGE_URL,
   SITE_URL,
   SPORTS_URL,
@@ -47,6 +48,15 @@ test("public origins default to gradedcalls.com", () => {
   const images = about.twitter?.images;
   const image = Array.isArray(images) ? images[0] : images;
   assert.equal(image && typeof image === "object" && "url" in image ? image.url : "", SHARE_IMAGE_URL);
+  assert.equal(OG_SITE_NAME, "GradedCalls Analysts");
+  for (const path of ["/", "/about", "/analysts/aaron-rakers", "/calls/real_0001", "/leaderboards"]) {
+    const meta = routeMeta(path);
+    assert.equal(meta.openGraph && "siteName" in meta.openGraph ? meta.openGraph.siteName : "", OG_SITE_NAME, path);
+    assert.equal(meta.openGraph && "type" in meta.openGraph ? meta.openGraph.type : "", "website", path);
+    const ogImages = meta.openGraph && "images" in meta.openGraph ? meta.openGraph.images : undefined;
+    const ogImage = Array.isArray(ogImages) ? ogImages[0] : ogImages;
+    assert.equal(ogImage && typeof ogImage === "object" && "type" in ogImage ? ogImage.type : "", "image/png", path);
+  }
   assert.doesNotMatch(
     [SITE_URL, HUB_URL, SPORTS_URL, FINTWIT_URL, BOT_URL, SHARE_IMAGE_URL].join(" "),
     new RegExp(deploymentHost.replace(".", "\\."), "i"),

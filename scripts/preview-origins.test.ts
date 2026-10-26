@@ -9,7 +9,7 @@ import { SHARE_IMAGE_URL, SITE_URL, pageUrl } from "../src/lib/site-urls";
 const deploymentHost = ["vercel", "app"].join(".");
 const distDir = ".next-preview-urls";
 
-type BuiltFile = { name: string; text: string; kind: "html" | "page-data" | "robots" | "sitemap" };
+type BuiltFile = { name: string; text: string; kind: "html" | "page-data" | "robots" | "sitemap" | "script" };
 
 function walk(dir: string, out: string[] = []): string[] {
   let entries;
@@ -49,6 +49,10 @@ function collect(root: string): BuiltFile[] {
     const name = relative(root, path);
     if (files.some((file) => file.name === name)) continue;
     files.push({ name, text: readFileSync(path, "utf8"), kind: "html" });
+  }
+  for (const path of walk(join(root, "static", "chunks"))) {
+    if (!path.endsWith(".js")) continue;
+    files.push({ name: relative(root, path), text: readFileSync(path, "utf8"), kind: "script" });
   }
   return files;
 }
@@ -129,10 +133,12 @@ test("preview build does not publish the deployment host", { timeout: 300_000 },
   const pageData = files.filter((file) => file.kind === "page-data");
   const robots = files.filter((file) => file.kind === "robots");
   const sitemaps = files.filter((file) => file.kind === "sitemap");
+  const scripts = files.filter((file) => file.kind === "script");
   assert.ok(html.length > 0, "expected built HTML");
   assert.ok(pageData.some((file) => file.name.endsWith(".rsc")), "expected RSC page data");
   assert.ok(robots.length > 0, "expected robots.txt output");
   assert.ok(sitemaps.length > 0, "expected sitemap output");
+  assert.ok(scripts.length > 0, "expected client JS chunks");
   assert.ok(robots.some((file) => file.text.includes(`${SITE_URL}/sitemap.xml`)), "robots sitemap url");
   assert.ok(sitemaps.some((file) => file.text.includes(`${SITE_URL}/about`)), "sitemap about url");
 
@@ -149,7 +155,7 @@ test("preview build does not publish the deployment host", { timeout: 300_000 },
   assert.equal(headOf(bodyMutant.text).toLowerCase().includes(deploymentHost), false);
   assert.deepEqual(leaks([bodyMutant]), [sampleHtml.name], "body mutation was not detected");
 
-  for (const kind of ["page-data", "robots", "sitemap"] as const) {
+  for (const kind of ["page-data", "robots", "sitemap", "script"] as const) {
     const target = files.find((file) => file.kind === kind);
     assert.ok(target, kind);
     const mutant: BuiltFile = { ...target, text: `${target.text}\nhttps://preview.${deploymentHost}/x` };
@@ -171,12 +177,16 @@ test("preview build does not publish the deployment host", { timeout: 300_000 },
       assert.deepEqual(contents(head, "property", "og:url"), [expected], file.name);
     }
     if (route !== "shell") {
+      assert.deepEqual(contents(head, "property", "og:site_name"), ["GradedCalls Analysts"], file.name);
+      assert.deepEqual(contents(head, "property", "og:type"), ["website"], file.name);
       assert.deepEqual(contents(head, "property", "og:image"), [SHARE_IMAGE_URL], file.name);
+      assert.deepEqual(contents(head, "property", "og:image:type"), ["image/png"], file.name);
       assert.deepEqual(contents(head, "name", "twitter:image"), [SHARE_IMAGE_URL], file.name);
     }
     checked.add(file.name);
   }
-  assert.ok([...checked].some((name) => name.endsWith("_not-found.html")), "expected a 404 document");
-  assert.ok([...checked].some((name) => name.endsWith("index.html")), "expected the home document");
+  for (const name of ["index.html", "about.html", "banks.html", "methodology.html", "_not-found.html"]) {
+    assert.ok([...checked].some((file) => file.endsWith(`/${name}`) || file.endsWith(name)), name);
+  }
   assert.ok(html.some((file) => file.text.includes('href="https://www.gradedcalls.com"')), "hub link in built HTML");
 });
