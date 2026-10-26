@@ -1,7 +1,8 @@
 import Image from "next/image";
+import { HUB_URL } from "@/lib/site-urls";
 
 /** Hub board. The hostname stays in the href only. */
-export const GRADED_CALLS_HUB_HREF = "https://charoof.vercel.app";
+export const GRADED_CALLS_HUB_HREF = HUB_URL;
 
 export function LogoLink() {
   return (

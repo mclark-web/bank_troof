@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro } from "@/components/ui";
 import { DATASET } from "@/lib/labels";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "About",
   description:
     "GradedCalls Analysts grades sourced sell-side calls against historical prices. Not investment advice.",
+  ...routeMeta("/about"),
 };
 
 export default function AboutPage() {

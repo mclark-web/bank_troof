@@ -7,6 +7,7 @@ import { callHeadline, formatDate, usd } from "@/lib/format";
 import { callPageTitle, deskRatingNote, directionForGradingLabel, recommendationLabel } from "@/lib/labels";
 import { getCall } from "@/lib/queries";
 import { entryCloseLabel } from "@/lib/quotes";
+import { routeMeta } from "@/lib/site-urls";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { id: string };
@@ -18,6 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title: callPageTitle(call.ticker.symbol, call),
     description: `${call.analyst.name}: ${recommendationLabel(call)} on ${call.ticker.symbol}. Grade from GradedCalls Analysts.`,
+    ...routeMeta(`/calls/${id}`),
   };
 }
 

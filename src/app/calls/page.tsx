@@ -3,11 +3,13 @@ import { CallBook, parseBook } from "@/components/tables";
 import { HorizonChips, PageIntro } from "@/components/ui";
 import { loadCalls } from "@/lib/queries";
 import { parseHorizon } from "@/lib/scoring";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Calls",
   description:
     "The most recent calls in the GradedCalls Analysts ledger: 40 of the active book and 40 of the superseded book.",
+  ...routeMeta("/calls"),
 };
 
 const SHOWN_PER_SECTION = 40;

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalSection, LegalShell } from "@/components/legal";
 import { LEGAL } from "@/lib/legal";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Terms",
   description:
     "Draft terms for GradedCalls Analysts: a personal license to read the site, no scraping, and no sale of grades.",
+  ...routeMeta("/terms"),
 };
 
 export default function TermsPage() {

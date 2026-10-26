@@ -8,6 +8,7 @@ import { prisma } from "@/lib/db";
 import { directionForGradingLabel } from "@/lib/labels";
 import { parseHorizon } from "@/lib/scoring";
 import { analystRowsForCalls, factorForCalls, getTicker, latestConsensus } from "@/lib/queries";
+import { routeMeta } from "@/lib/site-urls";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { symbol: string };
@@ -24,6 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title: data.ticker.symbol,
     description: `Latest recommendations and historical call grades for ${data.ticker.name}.`,
+    ...routeMeta(`/tickers/${symbol}`),
   };
 }
 
