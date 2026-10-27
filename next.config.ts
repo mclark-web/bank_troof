@@ -1,8 +1,19 @@
 import type { NextConfig } from "next";
+import { SITE_URL } from "./src/lib/site-urls";
 
 const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR?.trim() || ".next",
   poweredByHeader: false,
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "bank-troof.vercel.app" }],
+        destination: `${SITE_URL}/:path*`,
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
