@@ -7,7 +7,52 @@ import { fileURLToPath } from "node:url";
 import { SHARE_IMAGE_URL, SITE_URL, pageUrl } from "../src/lib/site-urls";
 
 const deploymentHost = ["vercel", "app"].join(".");
+const legacyProductionHost = `bank-troof.${deploymentHost}`;
 const distDir = ".next-preview-urls";
+const skipDirs = new Set(["node_modules", ".next", ".next-preview-urls", ".git", "out", "artifacts", ".vercel"]);
+
+/** The only deployment-host string permitted in source is this redirect rule. */
+function legacyRedirectLine(): string {
+  return `has: [{ type: "host", value: "${legacyProductionHost}" }],`;
+}
+
+type SourceFile = { name: string; text: string };
+
+function walkSource(dir: string, root: string, out: string[] = []): string[] {
+  for (const name of readdirSync(dir)) {
+    if (dir === root && skipDirs.has(name)) continue;
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) {
+      if (skipDirs.has(name)) continue;
+      walkSource(path, root, out);
+    } else out.push(path);
+  }
+  return out;
+}
+
+/**
+ * Allow exactly one source line: the legacy production host on the redirect rule.
+ * Every other deployment-host string is a failure, including the same line in another file.
+ */
+function unexpectedDeploymentHosts(files: SourceFile[]): string[] {
+  const allowedLine = legacyRedirectLine();
+  const problems: string[] = [];
+  let allowed = 0;
+  for (const file of files) {
+    const lines = file.text.split(/\r?\n/);
+    for (let index = 0; index < lines.length; index += 1) {
+      const text = lines[index];
+      if (!text.toLowerCase().includes(deploymentHost)) continue;
+      const permitted = file.name === "next.config.ts" && text.trim() === allowedLine;
+      if (permitted) allowed += 1;
+      else problems.push(`${file.name}:${index + 1}: ${text.trim()}`);
+    }
+  }
+  if (allowed !== 1) {
+    problems.unshift(`expected exactly one legacy production redirect host line, found ${allowed}`);
+  }
+  return problems;
+}
 
 type BuiltFile = { name: string; text: string; kind: "html" | "page-data" | "robots" | "sitemap" | "script" };
 
@@ -87,6 +132,32 @@ function routeFromHtml(name: string): string | null | "shell" {
   if (route.endsWith("/index")) route = route.slice(0, -"/index".length);
   return route.startsWith("/") ? route : `/${route}`;
 }
+
+test("deployment host is allowlisted only on the legacy production redirect line", () => {
+  const root = fileURLToPath(new URL("..", import.meta.url));
+  const files: SourceFile[] = [];
+  for (const path of walkSource(root, root)) {
+    const text = readFileSync(path);
+    if (text.includes(0)) continue;
+    files.push({ name: relative(root, path).replaceAll("\\", "/"), text: text.toString("utf8") });
+  }
+  assert.deepEqual(unexpectedDeploymentHosts(files), []);
+
+  const line = legacyRedirectLine();
+  assert.deepEqual(
+    unexpectedDeploymentHosts([{ name: "src/app/page.tsx", text: `${line}\n` }]).slice(1),
+    [`src/app/page.tsx:1: ${line}`],
+  );
+  assert.match(
+    unexpectedDeploymentHosts([{ name: "next.config.ts", text: `${line}\n${line}\n` }])[0],
+    /found 2/,
+  );
+  const previewLine = `has: [{ type: "host", value: "bank-troof-git-branch-hoonu.${deploymentHost}" }],`;
+  assert.deepEqual(
+    unexpectedDeploymentHosts([{ name: "next.config.ts", text: `${previewLine}\n` }]).slice(1),
+    [`next.config.ts:1: ${previewLine}`],
+  );
+});
 
 test("preview build does not publish the deployment host", { timeout: 300_000 }, () => {
   const root = fileURLToPath(new URL("..", import.meta.url));
