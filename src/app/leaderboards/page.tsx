@@ -4,10 +4,12 @@ import { EmptyNote, HorizonChips, PageIntro, SectorForm, hrefWith } from "@/comp
 import { leaderboardLede } from "@/lib/leaderboard-lede";
 import { loadSectors, leaderboard, type RankKey } from "@/lib/queries";
 import { HORIZONS, minimumSample, parseHorizon } from "@/lib/scoring";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Leaderboards",
   description: "Analysts and banks ranked by historical call accuracy in the GradedCalls Analysts ledger.",
+  ...routeMeta("/leaderboards"),
 };
 
 type View = "analysts" | "banks" | "offenders";

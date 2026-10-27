@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
 import { LedgerBanner, SiteFooter, SiteHeader } from "@/components/chrome";
+import { OG_SITE_NAME, SHARE_IMAGE, SITE_URL } from "@/lib/site-urls";
 import "./globals.css";
 import "./gc-scale.css";
 
@@ -29,6 +30,7 @@ const description =
   "Banks make the calls. We grade them. GradedCalls Analysts scores sell-side recommendations against later prices — by analyst, bank, and ticker.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "GradedCalls Analysts",
     template: "%s · GradedCalls Analysts",
@@ -40,27 +42,13 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
-    siteName: "GradedCalls Analysts",
+    siteName: OG_SITE_NAME,
     type: "website",
-    images: [
-      {
-        url: "/opengraph-image.png",
-        width: 1200,
-        height: 630,
-        alt: "GradedCalls",
-      },
-    ],
+    images: [SHARE_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    images: [
-      {
-        url: "/opengraph-image.png",
-        width: 1200,
-        height: 630,
-        alt: "GradedCalls",
-      },
-    ],
+    images: [SHARE_IMAGE],
   },
 };
 

@@ -1,9 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CallSourceLinks, GradePill, MiniLeaderboard, RecommendationPill, SupersessionNotes } from "@/components/ui";
 import { callHeadline, formatDate, pct } from "@/lib/format";
 import { recommendationLabel } from "@/lib/labels";
 import { getHome, longestClosed } from "@/lib/queries";
 import { HORIZONS } from "@/lib/scoring";
+import { routeMeta } from "@/lib/site-urls";
+
+export const metadata: Metadata = routeMeta("/");
 
 export default async function HomePage() {
   const home = await getHome();

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalSection, LegalShell } from "@/components/legal";
 import { LEGAL } from "@/lib/legal";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Disclaimer",
   description:
     "GradedCalls Analysts is donation-supported. It is not investment advice, not a broker, and not affiliated with any bank.",
+  ...routeMeta("/disclaimer"),
 };
 
 export default function DisclaimerPage() {

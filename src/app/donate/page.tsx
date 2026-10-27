@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalSection, LegalShell } from "@/components/legal";
 import { LEGAL } from "@/lib/legal";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Donations",
   description:
     "GradedCalls Analysts is donation-supported. Gifts do not buy grades, advice, or a subscription.",
+  ...routeMeta("/donate"),
 };
 
 export default function DonatePage() {

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { PageIntro } from "@/components/ui";
 import { WatchlistBoard } from "@/components/watch";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Watchlist",
   description: "A browser-local watchlist of analysts, banks, and tickers.",
+  ...routeMeta("/watchlist"),
 };
 
 export default function WatchlistPage() {

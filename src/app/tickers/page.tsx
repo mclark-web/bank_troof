@@ -3,10 +3,12 @@ import Link from "next/link";
 import { PageIntro, ScaleLegend, ScoreBar } from "@/components/ui";
 import { listTickers } from "@/lib/queries";
 import { HORIZONS } from "@/lib/scoring";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Tickers",
   description: "How GradedCalls Analysts graded each name in this ledger, and who was right.",
+  ...routeMeta("/tickers"),
 };
 
 export default async function TickersPage() {
