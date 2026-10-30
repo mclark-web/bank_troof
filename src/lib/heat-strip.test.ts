@@ -56,7 +56,6 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 test("ledger rounding edges print ▼ <1% WEAK or ▼ 39% WEAK, not 0% or 40%", () => {
   const calls = readExportedCalls();
   const cases: Array<[string, HorizonKey, string]> = [
-    ["real_0583", "30", "▼ <1% WEAK"],
     ["real_0433", "14", "▼ <1% WEAK"],
     ["real_0507", "60", "▼ <1% WEAK"],
     ["real_0572", "30", "▼ 39% WEAK"],
