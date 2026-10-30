@@ -3,7 +3,7 @@
  * Banks, analysts, and tickers stay in prisma/universe.ts.
  */
 import { readFileSync, writeFileSync } from "node:fs";
-import { CALLS_CSV_PATH, CALLS_JSON_PATH, collectIssues, parseCallLedger, renderCallsJson } from "./calls-ledger";
+import { CALLS_CSV_PATH, CALLS_JSON_PATH, collectIssues, isLiveCall, parseCallLedger, renderCallsJson } from "./calls-ledger";
 
 const csv = readFileSync(CALLS_CSV_PATH, "utf8");
 const rows = parseCallLedger(csv);
@@ -17,4 +17,5 @@ if (issues.errors.length > 0) {
 
 const json = renderCallsJson(rows);
 writeFileSync(CALLS_JSON_PATH, json);
-console.log(`Wrote ${rows.length} calls to data/calls/calls.json`);
+const live = rows.filter(isLiveCall).length;
+console.log(`Wrote ${live} live calls (${rows.length - live} excluded) to data/calls/calls.json`);

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro } from "@/components/ui";
-import { DATASET } from "@/lib/labels";
+import { AS_OF_LABEL } from "@/lib/quotes";
 import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export default function AboutPage() {
       <section className="space-y-4 text-sm leading-7 text-muted">
         <h2 className="font-serif text-3xl text-ink">What this ledger is</h2>
         <p>
-          Calls in this build come from public news sources. Each call page links to that page. Notes restate the rating and target. They are not a quotation of a research report, and they are not a biography. Firm names are the firms named in those sources. GradedCalls Analysts is not those firms, and it does not speak for anyone who works there. Price history runs through {DATASET.asOfLabel}.
+          Calls in this build come from public news sources. Each call page links to that page. Notes restate the rating and target. They are not a quotation of a research report, and they are not a biography. Firm names are the firms named in those sources. GradedCalls Analysts is not those firms, and it does not speak for anyone who works there. Closes run through {AS_OF_LABEL}.
         </p>
         <p>
           Prices are Yahoo Finance adjusted closes (adjusted for splits and dividends). The windows are 14 calendar days, 30 days, 60 days, 90 days, and 1 year. A window that has not elapsed stays ungraded and reads Not graded yet. A graded score of exactly 0 is an empty glass and reads EXIT LIQUIDITY. The badge is a dash, not GC 1.

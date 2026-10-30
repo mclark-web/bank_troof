@@ -37,8 +37,12 @@ export function readCalibration(score: number | null | undefined, gradeable: boo
   if (!gradeable || score == null || Number.isNaN(score)) return EXIT;
   const clamped = Math.min(100, Math.max(0, score));
   if (clamped === 0) return EXIT;
-  const percent = Math.round(clamped);
   const id: GcGradeId = clamped >= GC_STRONG_LINE ? "strong" : clamped >= GC_PROVISIONAL_LINE ? "provisional" : "weak";
+  // The band comes from the unrounded score. The printed percent stays inside that band,
+  // so a WEAK 39.677 does not read 40 and a PROVISIONAL 69.9 does not read 70.
+  let percent = Math.round(clamped);
+  if (id === "weak") percent = Math.min(GC_PROVISIONAL_LINE - 1, percent);
+  if (id === "provisional") percent = Math.min(GC_STRONG_LINE - 1, percent);
   return { id, percent, tube: percent === 0 ? 2 : percent };
 }
 
