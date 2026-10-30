@@ -86,10 +86,11 @@ export const CSV_ONLY_COLUMNS = [
 /**
  * Empty `exclusion` is a live call. A bad row stays in the CSV and is left out of
  * the live ledger. `benzinga-quote-page` is a ticker hub. `wrong-firm` names a
- * firm that did not issue the call. `marketbeat-license` is a MarketBeat
- * forecast-page row kept out of the board under that site's licensing terms.
+ * firm that did not issue the call. `wrong-analyst` names a person who did not
+ * write the call. `marketbeat-license` is a MarketBeat forecast-page row kept
+ * out of the board under that site's licensing terms.
  */
-export const EXCLUSION_REASONS = ["benzinga-quote-page", "wrong-firm", "marketbeat-license"] as const;
+export const EXCLUSION_REASONS = ["benzinga-quote-page", "wrong-firm", "wrong-analyst", "marketbeat-license"] as const;
 export const MARKETBEAT_BATCH = "batch:marketbeat-forecast";
 
 /**

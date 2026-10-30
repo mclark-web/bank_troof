@@ -260,7 +260,7 @@ describe("call ledger", () => {
     const woodring = rows.find((row) => row.call_id === "real_0139");
     assert.equal(
       woodring?.alt_source_url,
-      "https://www.streetinsider.com/Analyst+Comments/Apple+%28AAPL%29+PT+Lowered+to+%24355+at+Morgan+Stanley/27131625.html",
+      "https://www.marketbeat.com/articles/morgan-stanley-is-bullish-on-applebut-with-a-catch/",
     );
     const cybin = rows.find((row) => row.call_id === "real_0672");
     assert.equal(cybin?.alt_source_url, "");

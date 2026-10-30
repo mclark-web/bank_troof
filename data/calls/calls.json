@@ -3333,7 +3333,7 @@
     "controversialReason": null,
     "source": "public",
     "sourceUrl": "https://finance.yahoo.com/markets/stocks/articles/morgan-stanley-strong-verdict-apple-200307561.html",
-    "altSourceUrl": "https://www.streetinsider.com/Analyst+Comments/Apple+%28AAPL%29+PT+Lowered+to+%24355+at+Morgan+Stanley/27131625.html"
+    "altSourceUrl": "https://www.marketbeat.com/articles/morgan-stanley-is-bullish-on-applebut-with-a-catch/"
   },
   {
     "id": "real_0140",
@@ -5161,7 +5161,7 @@
   },
   {
     "id": "real_0635",
-    "analystId": "peter-arment",
+    "analystId": "baird-desk",
     "bankId": "baird",
     "tickerId": "NOC",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -5185,7 +5185,7 @@
   },
   {
     "id": "real_0636",
-    "analystId": "ittai-kidron",
+    "analystId": "oppenheimer-desk",
     "bankId": "oppenheimer",
     "tickerId": "ZM",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -5209,7 +5209,7 @@
   },
   {
     "id": "real_0637",
-    "analystId": "tyler-radke",
+    "analystId": "citi-desk",
     "bankId": "citi",
     "tickerId": "PLTR",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -5233,14 +5233,14 @@
   },
   {
     "id": "real_0639",
-    "analystId": "john-decree",
+    "analystId": "cbre-desk",
     "bankId": "cbre",
     "tickerId": "MGM",
     "callDate": "2026-10-22T00:00:00.000Z",
     "action": "upgrade",
     "ratingFrom": "hold",
     "ratingTo": "buy",
-    "priceTargetFrom": 50,
+    "priceTargetFrom": null,
     "priceTargetTo": 42,
     "priceAtCall": 29.5,
     "price14d": null,
@@ -5248,11 +5248,11 @@
     "price60d": null,
     "price90d": null,
     "price1y": null,
-    "note": "Upgraded to Buy from Hold; target $42 from $50.",
+    "note": "Upgraded to Buy from Hold; target $42.",
     "controversial": false,
     "controversialReason": null,
     "source": "public",
-    "sourceUrl": "https://x.com/StockTraderHub/status/2113258475878744562",
+    "sourceUrl": "https://247wallst.com/investing/2026/10/22/here-are-thursdays-top-wall-street-analyst-research-calls-alcoa-block-constellation-energy-dicks-sporting-goods-dutch-bros-halliburton-company-netflix-southern-companytesla-and-mo/",
     "altSourceUrl": null
   },
   {
@@ -5305,7 +5305,7 @@
   },
   {
     "id": "real_0644",
-    "analystId": "jack-allen",
+    "analystId": "baird-desk",
     "bankId": "baird",
     "tickerId": "KARD",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -5372,7 +5372,7 @@
     "controversial": false,
     "controversialReason": null,
     "source": "public",
-    "sourceUrl": "https://x.com/Merrill_MG/status/2113317081307578502",
+    "sourceUrl": "https://www.marketscreener.com/news/rbc-cuts-price-target-on-aevex-to-22-from-26-keeps-outperform-rating-ce785cded98ef726",
     "altSourceUrl": null
   },
   {
@@ -5545,7 +5545,7 @@
   },
   {
     "id": "real_0654",
-    "analystId": "chris-brendler",
+    "analystId": "rosenblatt-desk",
     "bankId": "rosenblatt",
     "tickerId": "HOOD",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -5569,7 +5569,7 @@
   },
   {
     "id": "real_0655",
-    "analystId": "wamsi-mohan",
+    "analystId": "bofa-desk",
     "bankId": "bofa",
     "tickerId": "STX",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -5833,7 +5833,7 @@
   },
   {
     "id": "real_0666",
-    "analystId": "spencer-hanus",
+    "analystId": "wolfe-desk",
     "bankId": "wolfe",
     "tickerId": "NKE",
     "callDate": "2026-10-22T00:00:00.000Z",
@@ -6049,7 +6049,7 @@
   },
   {
     "id": "real_0675",
-    "analystId": "brian-nowak",
+    "analystId": "morgan-stanley-desk",
     "bankId": "morgan-stanley",
     "tickerId": "META",
     "callDate": "2026-10-22T00:00:00.000Z",
