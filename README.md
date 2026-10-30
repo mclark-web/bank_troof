@@ -158,7 +158,9 @@ Use these settings. The defaults already match; do not override the build comman
 | Install command | `npm install` (leave the default) |
 | Build command | `npm run build` (leave the default) |
 | Output directory | leave the Next.js default |
-| Environment variables | none |
+| Environment variables | none required |
+
+The public origin is https://analysts.gradedcalls.com. The header mark opens the hub at https://www.gradedcalls.com. Sports is https://www.gradedcalls.com/sports, FinTwit is https://fintwit.gradedcalls.com, and GCBot is https://bot.gradedcalls.com. `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_HUB_URL`, `NEXT_PUBLIC_FINTWIT_URL`, and `NEXT_PUBLIC_BOT_URL` override those origins. Leave them unset and a preview deployment still publishes the gradedcalls.com hosts.
 
 `npm run build` runs `prebuild` first: Prisma generates the client, creates `prisma/banktruth.db`, and seeds it. That file is traced into the server bundle. On Vercel the filesystem is read-only except `/tmp`, so each instance copies the seed to `/tmp/banktruth.db` before reading it. Do not change the build command to bare `next build` — that skips the seed and the live routes will have no database.
 

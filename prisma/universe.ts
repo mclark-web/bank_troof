@@ -505,5 +505,5 @@ export const TICKERS: TickerSeed[] = [
   { symbol: "BLDR", name: "Builders FirstSource", sector: "Industrials", industry: "Building products", exchange: "NYSE" },
 ];
 
-export const AS_OF = new Date("2026-10-22T00:00:00.000Z");
+export const AS_OF = new Date("2026-10-26T00:00:00.000Z");
 export const PATH_START = new Date("2024-01-02T00:00:00.000Z");

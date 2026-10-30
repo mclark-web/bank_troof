@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro, ScaleLegend, ScoreBar } from "@/components/ui";
 import { listBanks } from "@/lib/queries";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Banks",
   description: "Research desks in the GradedCalls Analysts ledger, ranked by the grades of their calls.",
+  ...routeMeta("/banks"),
 };
 
 export default async function BanksPage() {

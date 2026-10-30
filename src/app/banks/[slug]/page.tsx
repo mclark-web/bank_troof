@@ -7,6 +7,7 @@ import { WatchButton } from "@/components/watch";
 import { prisma } from "@/lib/db";
 import { parseHorizon } from "@/lib/scoring";
 import { analystRowsForCalls, factorForCalls, getBank, sectorBreakdown } from "@/lib/queries";
+import { routeMeta } from "@/lib/site-urls";
 
 type Params = { slug: string };
 
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title: data.bank.name,
     description: `Scorecard for the ${data.bank.name} calls in the GradedCalls Analysts ledger.`,
+    ...routeMeta(`/banks/${slug}`),
   };
 }
 

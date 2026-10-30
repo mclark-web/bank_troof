@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { routeMeta } from "@/lib/site-urls";
 import { PageIntro } from "@/components/ui";
 import { pctUnsigned } from "@/lib/format";
 import { AS_OF_LABEL } from "@/lib/quotes";
@@ -23,6 +24,7 @@ import { SUPERSESSION_WINDOW_DAYS } from "@/lib/supersession";
 export const metadata: Metadata = {
   title: "Methodology",
   description: "How GradedCalls Analysts scores sell-side calls. Direction, price targets, and leaderboard rules in the open.",
+  ...routeMeta("/methodology"),
 };
 
 export default function MethodologyPage() {

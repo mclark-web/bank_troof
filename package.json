@@ -18,7 +18,8 @@
     "import:calls": "tsx scripts/import-calls.ts",
     "calls:export": "tsx scripts/calls-export.ts",
     "calls:validate": "tsx scripts/calls-validate.ts",
-    "test": "tsx --test src/lib/scoring.test.ts src/lib/overall-factor.test.ts src/lib/gc-grade.test.ts src/lib/supersession.test.ts src/lib/splits.test.ts src/lib/quotes.test.ts src/lib/labels.test.ts src/lib/imports/csv-feed.test.ts src/lib/ungraded.test.ts src/lib/heat-strip.test.ts src/lib/pill-contrast.test.ts src/lib/logo-link.test.ts src/lib/leaderboard-lede.test.ts src/lib/leaderboard-cut.test.ts scripts/calls-ledger.test.ts && tsx scripts/calls-validate.ts"
+    "lint": "next lint",
+    "test": "tsx --test src/lib/scoring.test.ts src/lib/overall-factor.test.ts src/lib/gc-grade.test.ts src/lib/supersession.test.ts src/lib/splits.test.ts src/lib/quotes.test.ts src/lib/labels.test.ts src/lib/imports/csv-feed.test.ts src/lib/ungraded.test.ts src/lib/heat-strip.test.ts src/lib/pill-contrast.test.ts src/lib/logo-link.test.ts src/lib/leaderboard-lede.test.ts src/lib/leaderboard-cut.test.ts src/lib/site-urls.test.ts scripts/calls-ledger.test.ts scripts/legacy-host-redirect.test.ts scripts/preview-origins.test.ts && tsx scripts/calls-validate.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
@@ -34,5 +35,9 @@
     "tailwindcss": "^3.4.17",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.28"
   }
 }

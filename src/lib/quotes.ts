@@ -6,7 +6,7 @@ import history from "./adjusted-closes.json";
  */
 const AS_OF_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
 
-/** "2026-10-22" → "22 Oct 2026". The page copy uses this instead of a fixed date. */
+/** "2026-10-26" → "26 Oct 2026". The page copy uses this instead of a fixed date. */
 export function formatAsOfLabel(iso: string): string {
   const [year, month, day] = iso.split("-");
   return `${Number(day)} ${AS_OF_MONTHS[Number(month) - 1]} ${year}`;
@@ -61,6 +61,11 @@ export function addUtcDays(date: Date, days: number): Date {
  * Calendar date of the print `adjustedClose` would use.
  * A session returns itself. A closed day returns the prior session inside the gap.
  */
+/** A day the broad tape traded. Used so a shorter series cannot borrow an older print. */
+function marketTraded(iso: string): boolean {
+  return file.closes.AAPL?.[iso] != null;
+}
+
 export function tradingSession(symbol: string, date: Date): Date {
   const series = seriesFor(symbol);
   const iso = isoDate(date);
@@ -70,7 +75,15 @@ export function tradingSession(symbol: string, date: Date): Date {
   if (series[iso] != null) return date;
   for (let gap = 1; gap <= MAX_CLOSED_GAP_DAYS; gap += 1) {
     const prior = addUtcDays(date, -gap);
-    if (series[isoDate(prior)] != null) return prior;
+    const priorIso = isoDate(prior);
+    if (series[priorIso] == null) continue;
+    for (let step = 0; step < gap; step += 1) {
+      const day = isoDate(addUtcDays(date, -step));
+      if (marketTraded(day) && series[day] == null) {
+        throw new Error(`No adjusted close for ${symbol} on ${iso}. Refusing to invent a price.`);
+      }
+    }
+    return prior;
   }
   throw new Error(
     `No adjusted close for ${symbol} on ${iso} within ${MAX_CLOSED_GAP_DAYS} calendar days. Refusing to invent a price.`,
@@ -90,7 +103,12 @@ export function adjustedClose(symbol: string, date: Date): number {
 export function forwardClose(symbol: string, callDate: Date, days: number): number | null {
   const target = addUtcDays(callDate, days);
   if (isoDate(target) > QUOTE_AS_OF) return null;
-  return adjustedClose(symbol, target);
+  try {
+    return adjustedClose(symbol, target);
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith(`No adjusted close for ${symbol}`)) return null;
+    throw error;
+  }
 }
 
 export function pricesForCall(symbol: string, callDate: Date) {

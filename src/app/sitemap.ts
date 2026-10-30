@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
+import { SITE_URL } from "@/lib/site-urls";
 
-const origin = "https://bank-troof.vercel.app";
+const origin = SITE_URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [analysts, banks, tickers, calls] = await Promise.all([

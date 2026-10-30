@@ -3,10 +3,12 @@ import Link from "next/link";
 import { SearchForm } from "@/components/chrome";
 import { PageIntro } from "@/components/ui";
 import { searchAll } from "@/lib/queries";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Search",
   description: "Search the GradedCalls Analysts ledger for an analyst, a bank, or a ticker.",
+  ...routeMeta("/search"),
 };
 
 export default async function SearchPage({

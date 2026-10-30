@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AnalystsBoard, parseBoardBook, parseBoardHorizon, parseBoardKind, prepareAnalystsBoard } from "@/components/analysts-board";
 import { ScaleLegend, ScoreBar, hrefWith } from "@/components/ui";
 import { listAnalysts, loadCalls } from "@/lib/queries";
+import { routeMeta } from "@/lib/site-urls";
 
 const DIRECTORY_PAGE = 40;
 
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
   title: "Analysts",
   description:
     "Street calls graded against prices adjusted for splits and dividends. Public news sources and adjusted closes, on the GradedCalls Analysts board.",
+  ...routeMeta("/analysts"),
 };
 
 export default async function AnalystsPage({

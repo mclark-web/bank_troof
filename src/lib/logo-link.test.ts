@@ -10,8 +10,10 @@ import { GRADED_CALLS_HUB_HREF, LogoLink } from "../components/logo-link";
 test("the header logo links to the hub in the same tab", () => {
   const html = renderToStaticMarkup(React.createElement(LogoLink));
   const open = html.match(/<a\b[^>]*>/)?.[0] ?? "";
-  assert.equal(GRADED_CALLS_HUB_HREF, "https://charoof.vercel.app");
-  assert.match(open, /href="https:\/\/charoof\.vercel\.app"/);
+  assert.equal(GRADED_CALLS_HUB_HREF, "https://www.gradedcalls.com");
+  assert.match(open, /href="https:\/\/www\.gradedcalls\.com"/);
+  assert.match(open, /min-width:44px/);
+  assert.match(open, /min-height:44px/);
   assert.match(open, /aria-label="GradedCalls"/);
   assert.match(html, /alt="GradedCalls"/);
   assert.doesNotMatch(open, /\btarget=/);

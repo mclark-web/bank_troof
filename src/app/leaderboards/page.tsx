@@ -5,10 +5,12 @@ import { fullestHorizon, previewBelow } from "@/lib/leaderboard-cut";
 import { leaderboardLede } from "@/lib/leaderboard-lede";
 import { horizonBoardCounts, loadSectors, leaderboard, type RankKey } from "@/lib/queries";
 import { HORIZONS, parseHorizon } from "@/lib/scoring";
+import { routeMeta } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Leaderboards",
   description: "Analysts and banks ranked by historical call accuracy in the GradedCalls Analysts ledger.",
+  ...routeMeta("/leaderboards"),
 };
 
 type View = "analysts" | "banks" | "offenders";
