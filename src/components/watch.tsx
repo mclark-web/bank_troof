@@ -170,12 +170,17 @@ export function WatchlistBoard() {
                     <span className="num text-4xl leading-none">{formatPoints(score.overallFactor.score)}</span>
                     <span className="num text-lg text-faint">/100</span>
                   </p>
-                  <p className="num mt-1 whitespace-nowrap text-sm text-muted sm:text-right">
+                  <p
+                    className="num mt-1 whitespace-nowrap text-sm text-muted sm:text-right"
+                    aria-label={score.placement.chad == null ? (score.placement.label ?? undefined) : undefined}
+                  >
                     GC {score.placement.chad ?? "—"}
                     <span className="text-faint">/10</span>
                     <span className="text-faint"> · GC Scale</span>
                   </p>
-                  <p className="mt-1 text-xs text-muted sm:text-right">{score.placement.label}</p>
+                  {score.placement.chad != null ? (
+                    <p className="mt-1 text-xs text-muted sm:text-right">{score.placement.label}</p>
+                  ) : null}
                   <p className="mt-1 flex flex-wrap gap-x-2 text-sm text-muted sm:justify-end">
                     <span className="num whitespace-nowrap">
                       Hit {score.overallFactor.hitRate == null ? "—" : `${Math.round(score.overallFactor.hitRate * 100)}%`}

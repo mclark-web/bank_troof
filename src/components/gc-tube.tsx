@@ -30,7 +30,11 @@ function Liquid({ rich }: { rich: boolean }) {
 
 export function GcGradePill({ grade }: { grade: GcGradeId }) {
   const tone = grade === "provisional" ? "provisional" : grade;
-  return <span className={cx("gc-grade-tag", tone)}>{GC_GRADE_LABEL[grade]}</span>;
+  return (
+    <span className={cx("gc-grade-tag", tone)} aria-label={grade === "exit" ? GC_GRADE_LABEL.exit : undefined}>
+      {GC_GRADE_LABEL[grade]}
+    </span>
+  );
 }
 
 const UNGRADED_NAME = "GC Scale, not graded yet";

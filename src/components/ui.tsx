@@ -52,24 +52,39 @@ export function HorizonChips({
   path,
   current,
   horizon,
+  defaultHorizon,
+  counts,
+  noun = "analysts",
 }: {
   path: string;
   current: Record<string, string | undefined>;
   horizon: HorizonKey;
+  /** Chip that clears the horizon query, because that cut is the computed default. */
+  defaultHorizon?: HorizonKey;
+  /** Names at the sample minimum on each horizon. */
+  counts?: Partial<Record<HorizonKey, number>>;
+  noun?: string;
 }) {
+  const openHorizon = defaultHorizon ?? "90";
   return (
     <div className="flex flex-wrap gap-x-2 gap-y-3" role="group" aria-label="Horizon">
-      {HORIZON_KEYS.map((key) => (
-        <Link
-          key={key}
-          href={hrefWith(path, current, { horizon: key === "90" ? null : key })}
-          className={horizon === key ? "chip-on" : "chip"}
-          aria-current={horizon === key ? "true" : undefined}
-        >
-          {HORIZONS[key].short}
-          <span className="sr-only"> horizon</span>
-        </Link>
-      ))}
+      {HORIZON_KEYS.map((key) => {
+        const count = counts?.[key];
+        const counted = count === 1 ? noun.replace(/s$/, "") : noun;
+        const label = count == null ? `${HORIZONS[key].short} horizon` : `${HORIZONS[key].short} horizon, ${count} ${counted}`;
+        return (
+          <Link
+            key={key}
+            href={hrefWith(path, current, { horizon: key === openHorizon ? null : key })}
+            className={horizon === key ? "chip-on" : "chip"}
+            aria-current={horizon === key ? "true" : undefined}
+            aria-label={label}
+          >
+            {HORIZONS[key].short}
+            {count == null ? <span className="sr-only"> horizon</span> : <span className="num ml-1">{count}</span>}
+          </Link>
+        );
+      })}
     </div>
   );
 }
@@ -149,7 +164,7 @@ export function ScaleLegend({ className = "" }: { className?: string }) {
 }
 
 export function SideNote({ placement, className = "" }: { placement: ChadPlacement; className?: string }) {
-  if (!placement.label) return null;
+  if (!placement.label || placement.chad == null) return null;
   const tone = placement.side ? "text-muted" : "text-faint";
   return <p className={cx("text-sm", tone, className)}>{placement.label}</p>;
 }
@@ -159,13 +174,13 @@ export function ScoreBar({ score, placement }: { score: number | null; placement
   const title =
     score == null
       ? "No overall factor"
-      : `Overall factor ${formatPoints(score)} of 100. GC score ${chad ?? "—"} of 10. ${placement.label ?? ""}`;
+      : `Overall factor ${formatPoints(score)} of 100. GC score ${chad ?? "—"} of 10.${chad == null ? "" : ` ${placement.label ?? ""}`}`;
   if (score == null) {
     return <GcUngraded compact />;
   }
   const reading = readCalibration(score, true);
   return (
-    <div title={title}>
+    <div title={title} aria-label={chad == null ? (placement.label ?? title) : undefined}>
       <div className="flex flex-nowrap items-baseline gap-2 whitespace-nowrap">
         <span className="num text-2xl leading-none text-ink">{formatPoints(score)}</span>
         <span className="num text-xs text-faint">/100</span>

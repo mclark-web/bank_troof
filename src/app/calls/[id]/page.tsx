@@ -5,12 +5,21 @@ import { GradeLedger } from "@/components/grade-ledger";
 import { CallSourceLinks, RecommendationPill, SupersessionNotes } from "@/components/ui";
 import { callHeadline, formatDate, usd } from "@/lib/format";
 import { callPageTitle, deskRatingNote, directionForGradingLabel, recommendationLabel } from "@/lib/labels";
-import { getCall } from "@/lib/queries";
+import { getCall, loadCalls } from "@/lib/queries";
 import { entryCloseLabel } from "@/lib/quotes";
 import { routeMeta } from "@/lib/site-urls";
 import { SPLIT_ADJUSTED } from "@/lib/splits";
 
 type Params = { id: string };
+
+// Prerender every call so an unknown id gets the static 404 page (styled, works without JS)
+// instead of the streamed __next_error__ shell, which is a blank white page with JS off.
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  const calls = await loadCalls();
+  return calls.map((call) => ({ id: call.id }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { id } = await params;

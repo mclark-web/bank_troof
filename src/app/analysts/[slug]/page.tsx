@@ -12,8 +12,8 @@ import { routeMeta } from "@/lib/site-urls";
 type Params = { slug: string };
 
 export async function generateStaticParams() {
-  const analysts = await prisma.analyst.findMany({ select: { slug: true } });
-  return analysts.map((analyst) => ({ slug: analyst.slug }));
+  const calls = await prisma.call.findMany({ select: { analystId: true }, distinct: ["analystId"] });
+  return calls.map((call) => ({ slug: call.analystId }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {

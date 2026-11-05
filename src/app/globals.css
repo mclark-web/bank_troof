@@ -80,6 +80,16 @@ body {
     @apply w-full border-collapse text-sm;
   }
 
+  td.board-divider {
+    background: #14171e;
+    color: #c9c9cf;
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: 0.04em;
+    text-align: left;
+    padding: 14px 16px;
+  }
+
   .data-table th {
     @apply whitespace-nowrap border-b border-line bg-[#12161c] px-3 py-3 text-left font-mono text-xs font-medium uppercase tracking-[0.16em] text-faint;
   }
@@ -94,6 +104,10 @@ body {
 
   .data-table tbody tr:hover td {
     background: rgba(235, 101, 5, 0.04);
+  }
+
+  .data-table tbody tr:hover td.board-divider {
+    background: #14171e;
   }
 
   .num {
@@ -398,6 +412,14 @@ header details[open] > div {
   .stack-table td[colspan] {
     display: block;
     text-align: center;
+  }
+  .stack-table td.board-divider {
+    text-align: left;
+    padding: 14px 16px;
+    color: #c9c9cf;
+    font-size: 13px;
+    line-height: 18px;
+    background: #14171e;
   }
   .stack-table td[colspan]::before {
     content: none;

@@ -37,6 +37,10 @@ describe("readCalibration", () => {
     assert.equal(readCalibration(69.9, true).id, "provisional");
     assert.equal(readCalibration(70, true).id, "strong");
     assert.equal(readCalibration(39.9, true).id, "weak");
+    assert.equal(readCalibration(39.677, true).id, "weak");
+    assert.equal(readCalibration(39.677, true).percent, 39);
+    assert.equal(readCalibration(69.9, true).id, "provisional");
+    assert.equal(readCalibration(69.9, true).percent, 69);
     assert.equal(readCalibration(40, true).id, "provisional");
     assert.equal(readCalibration(84.2, true).percent, 84);
     assert.equal(readCalibration(140, true).percent, 100);

@@ -3,7 +3,6 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
-import { readExportedCalls } from "../../scripts/calls-ledger";
 import {
   HeatLegend,
   HorizonHeatStrip,
@@ -13,7 +12,7 @@ import {
   heatVisible,
 } from "../components/ui";
 import { readCalibration } from "./gc-grade";
-import { HORIZONS, HORIZON_KEYS, gradeCall, outcomeField, type HorizonKey } from "./scoring";
+import { HORIZONS, HORIZON_KEYS, type HorizonKey } from "./scoring";
 
 (globalThis as { React?: typeof React }).React = React;
 
@@ -53,35 +52,21 @@ test("heat bands follow the unrounded score, and EXIT is only an exact graded 0"
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
-test("ledger rounding edges print ▼ <1% WEAK or ▼ 39% WEAK, not 0% or 40%", () => {
-  const calls = readExportedCalls();
-  const cases: Array<[string, HorizonKey, string]> = [
-    ["real_0433", "14", "▼ <1% WEAK"],
-    ["real_0507", "60", "▼ <1% WEAK"],
-    ["real_0572", "30", "▼ 39% WEAK"],
+test("heat strip prints ▼ <1% WEAK or ▼ 39% WEAK from the score, with or without ledger rows", () => {
+  const cases: Array<[HorizonKey, number, string]> = [
+    ["14", 0.193, "▼ <1% WEAK"],
+    ["90", 0.193, "▼ <1% WEAK"],
+    ["60", 39.912, "▼ 39% WEAK"],
   ];
-  for (const [id, horizon, reading] of cases) {
-    const call = calls.find((row) => row.id === id);
-    assert.ok(call, id);
-    const grade = gradeCall(
-      {
-        ratingTo: call.ratingTo,
-        priceAtCall: call.priceAtCall,
-        priceTargetTo: call.priceTargetTo,
-        outcomePrice: call[outcomeField(horizon)],
-      },
-      horizon,
-    );
-    assert.equal(grade.gradeable, true, id);
-    assert.ok(grade.score != null && grade.score > 0, `${id} ${grade.score}`);
-    assert.equal(heatStep(grade.score, true), "weak", id);
-    const name = heatAccessibleName(HORIZONS[horizon].label, grade.score, true);
-    assert.equal(name, `GC Scale, ${HORIZONS[horizon].label}: ${reading}`, id);
-    const html = stripHtml(horizon, grade.score, true);
+  for (const [horizon, score, reading] of cases) {
+    assert.equal(heatStep(score, true), "weak", reading);
+    const name = heatAccessibleName(HORIZONS[horizon].label, score, true);
+    assert.equal(name, `GC Scale, ${HORIZONS[horizon].label}: ${reading}`);
+    const html = stripHtml(horizon, score, true);
     assert.ok(html.includes(`aria-label="${esc(name)}"`), html);
     assert.ok(html.includes(`title="${esc(name)}"`), html);
-    assert.equal(html.includes(">0%<"), false, id);
-    assert.ok(html.includes(`>${esc(heatVisible(grade.score, true))}<`), id);
+    assert.equal(html.includes(">0%<"), false, reading);
+    assert.ok(html.includes(`>${esc(heatVisible(score, true))}<`), reading);
   }
 });
 

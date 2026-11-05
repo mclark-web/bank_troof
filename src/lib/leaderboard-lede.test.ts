@@ -26,15 +26,15 @@ describe("leaderboardLede", () => {
   it("names the active sort", () => {
     assert.equal(
       leaderboardLede("analysts", "90", "points"),
-      "Ranked by overall factor: the average 0–100 grade of active calls over 90 days. Superseded calls don't score.",
+      "Ranked by overall factor: the average 0–100 grade of active calls over 90 days. Superseded calls don't score. Names below the minimum are unranked and ungraded.",
     );
     assert.equal(
       leaderboardLede("analysts", "14", "points"),
-      "Ranked by overall factor: the average 0–100 grade of active calls over 2 weeks. Superseded calls don't score.",
+      "Ranked by overall factor: the average 0–100 grade of active calls over 2 weeks. Superseded calls don't score. Names below the minimum are unranked and ungraded.",
     );
     assert.equal(
       leaderboardLede("banks", "14", "points"),
-      "Ranked by overall factor: the average 0–100 grade of active calls over 2 weeks. Superseded calls don't score.",
+      "Ranked by overall factor: the average 0–100 grade of active calls over 2 weeks. Superseded calls don't score. Names below the minimum are unranked and ungraded.",
     );
     const gc = leaderboardLede("analysts", "90", "gc");
     assert.match(gc, /Sorted by the GC score of that factor over 90 days/);

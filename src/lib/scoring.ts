@@ -149,7 +149,7 @@ export const HORIZONS: Record<
 };
 
 const UP = new Set(["strong_buy", "buy", "overweight", "outperform"]);
-const FLAT = new Set(["hold", "neutral", "equal_weight", "peer_perform"]);
+const FLAT = new Set(["hold", "neutral", "equal_weight", "peer_perform", "market_perform", "sector_perform", "perform"]);
 const DOWN = new Set(["sell", "underperform", "underweight"]);
 
 export function ratingDirection(rating: string): Direction | null {
@@ -324,7 +324,7 @@ export function outcomeField(horizon: HorizonKey): "price14d" | "price30d" | "pr
 }
 
 export const MIN_SAMPLE = {
-  analyst: 8,
+  analyst: 4,
   analystSector: 4,
   bank: 20,
   bankSector: 8,
