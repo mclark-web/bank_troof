@@ -428,6 +428,7 @@ export const ANALYSTS: AnalystSeed[] = [
   { slug: "wedbush-desk", name: "Wedbush Securities desk", title: "Research desk", bankSlug: "wedbush", sector: "Technology", startedYear: 2026 },
   { slug: "wells-fargo-desk", name: "Wells Fargo desk", title: "Research desk", bankSlug: "wells-fargo", sector: "Technology, Healthcare", startedYear: 2026 },
   { slug: "wolfe-desk", name: "Wolfe Research desk", title: "Research desk", bankSlug: "wolfe", sector: "Consumer", startedYear: 2026 },
+  { slug: "yorkville-ives-desk", name: "Yorkville Ives desk", title: "Research desk", bankSlug: "yorkville-ives", sector: "Technology", startedYear: 2026 },
   { slug: "chris-brendler", name: "Chris Brendler", title: ANALYST_TITLE, bankSlug: "rosenblatt", sector: "Financials", startedYear: 2026 },
   { slug: "ittai-kidron", name: "Ittai Kidron", title: ANALYST_TITLE, bankSlug: "oppenheimer", sector: "Technology", startedYear: 2026 },
   { slug: "jack-allen", name: "Jack Allen", title: ANALYST_TITLE, bankSlug: "baird", sector: "Healthcare", startedYear: 2026 },
