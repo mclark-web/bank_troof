@@ -432,6 +432,8 @@ export const ANALYSTS: AnalystSeed[] = [
   { slug: "ittai-kidron", name: "Ittai Kidron", title: ANALYST_TITLE, bankSlug: "oppenheimer", sector: "Technology", startedYear: 2026 },
   { slug: "jack-allen", name: "Jack Allen", title: ANALYST_TITLE, bankSlug: "baird", sector: "Healthcare", startedYear: 2026 },
   { slug: "peter-arment", name: "Peter Arment", title: ANALYST_TITLE, bankSlug: "baird", sector: "Industrials", startedYear: 2026 },
+  { slug: "dan-levy", name: "Dan Levy", title: ANALYST_TITLE, bankSlug: "barclays", sector: "Consumer", startedYear: 2026 },
+  { slug: "rick-schafer", name: "Rick Schafer", title: ANALYST_TITLE, bankSlug: "oppenheimer", sector: "Technology", startedYear: 2026 },
 ];
 
 export const TICKERS: TickerSeed[] = [
@@ -508,5 +510,5 @@ export const TICKERS: TickerSeed[] = [
   { symbol: "BLDR", name: "Builders FirstSource", sector: "Industrials", industry: "Building products", exchange: "NYSE" },
 ];
 
-export const AS_OF = new Date("2026-10-26T00:00:00.000Z");
+export const AS_OF = new Date("2026-11-10T00:00:00.000Z");
 export const PATH_START = new Date("2024-01-02T00:00:00.000Z");

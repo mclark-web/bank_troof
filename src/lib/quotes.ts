@@ -6,7 +6,7 @@ import history from "./adjusted-closes.json";
  */
 const AS_OF_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
 
-/** "2026-10-26" → "26 Oct 2026". The page copy uses this instead of a fixed date. */
+/** "2026-11-10" → "10 Nov 2026". The page copy uses this instead of a fixed date. */
 export function formatAsOfLabel(iso: string): string {
   const [year, month, day] = iso.split("-");
   return `${Number(day)} ${AS_OF_MONTHS[Number(month) - 1]} ${year}`;
