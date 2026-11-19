@@ -3,9 +3,9 @@ import test from "node:test";
 import { adjustedClose, addUtcDays, AS_OF_LABEL, bindHistoricalPrices, entryCloseLabel, filedEntryPrint, formatAsOfLabel, forwardClose, isoDate, PRICE_SOURCE, QUOTE_AS_OF, tradingSession } from "./quotes";
 
 test("the published as-of date is the last session in the adjusted-close file", () => {
-  assert.equal(QUOTE_AS_OF, "2026-11-13");
+  assert.equal(QUOTE_AS_OF, "2026-11-19");
   assert.equal(AS_OF_LABEL, formatAsOfLabel(QUOTE_AS_OF));
-  assert.equal(AS_OF_LABEL, "13 Nov 2026");
+  assert.equal(AS_OF_LABEL, "19 Nov 2026");
   assert.ok(PRICE_SOURCE.includes(AS_OF_LABEL));
   assert.equal(PRICE_SOURCE.includes("Oct 22, 2026"), false);
   assert.equal(adjustedClose("AAPL", new Date("2026-10-21T00:00:00.000Z")), 343.73);
@@ -13,6 +13,9 @@ test("the published as-of date is the last session in the adjusted-close file", 
   assert.equal(adjustedClose("AAPL", new Date("2026-10-23T00:00:00.000Z")), 347.47);
   assert.equal(adjustedClose("AAPL", new Date("2026-10-26T00:00:00.000Z")), 343.65);
   assert.equal(adjustedClose("AAPL", new Date("2026-11-13T00:00:00.000Z")), 356.27);
+  assert.equal(adjustedClose("AAPL", new Date("2026-11-19T00:00:00.000Z")), 349.21);
+  assert.equal(adjustedClose("NVDA", new Date("2026-11-18T00:00:00.000Z")), 150.96);
+  assert.equal(adjustedClose("NVDA", new Date("2026-11-19T00:00:00.000Z")), 145.98);
   assert.equal(forwardClose("AAPL", new Date("2026-10-27T00:00:00.000Z"), 14), 348.25);
   assert.equal(forwardClose("AAPL", new Date("2026-10-07T00:00:00.000Z"), 14), 343.73);
   assert.equal(forwardClose("AAPL", new Date("2026-10-08T00:00:00.000Z"), 14), 347.96);
