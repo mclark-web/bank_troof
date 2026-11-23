@@ -482,6 +482,7 @@ export const ANALYSTS: AnalystSeed[] = [
   { slug: "raimo-lenschow", name: "Raimo Lenschow", title: ANALYST_TITLE, bankSlug: "barclays", sector: "Technology", startedYear: 2026 },
   { slug: "randal-konik", name: "Randal Konik", title: ANALYST_TITLE, bankSlug: "jefferies", sector: "Consumer", startedYear: 2026 },
   { slug: "rishi-jaluria", name: "Rishi Jaluria", title: ANALYST_TITLE, bankSlug: "rbc", sector: "Technology", startedYear: 2026 },
+  { slug: "ryan-langston", name: "Ryan Langston", title: ANALYST_TITLE, bankSlug: "td-cowen", sector: "Healthcare", startedYear: 2026 },
   { slug: "samik-chatterjee", name: "Samik Chatterjee", title: ANALYST_TITLE, bankSlug: "jpmorgan", sector: "Technology", startedYear: 2026 },
   { slug: "scott-devitt", name: "Scott Devitt", title: ANALYST_TITLE, bankSlug: "rosenblatt", priorBankSlugs: ["wedbush"], sector: "Technology", startedYear: 2026 },
   { slug: "sebastiano-petti", name: "Sebastiano Petti", title: ANALYST_TITLE, bankSlug: "jpmorgan", sector: "Media", startedYear: 2026 },
