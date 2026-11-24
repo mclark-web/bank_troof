@@ -126,32 +126,7 @@ export function pricesForCall(symbol: string, callDate: Date) {
  * Optional raw-close exceptions. Empty: every entry price is the adjusted close.
  * A future row can be listed here only when the raw print is already known.
  */
-/**
- * Call-time prices that stay the raw Yahoo print.
- * These five names went ex-dividend as the 20 Nov close was added. Their
- * adjusted history was put back, and these entries keep the unadjusted close
- * of the session the call uses (the call date, or the prior session when that
- * date did not trade).
- */
-export const FILED_ENTRY_PRINTS: { analystId: string; symbol: string; date: string; priceAtCall: number }[] = [
-  { analystId: "dan-ives", symbol: "MSFT", date: "2026-01-26", priceAtCall: 470.28 },
-  { analystId: "brent-thill", symbol: "MSFT", date: "2026-07-20", priceAtCall: 402.29 },
-  { analystId: "brad-zelnick", symbol: "MSFT", date: "2026-07-20", priceAtCall: 402.29 },
-  { analystId: "karl-keirstead", symbol: "MSFT", date: "2026-07-26", priceAtCall: 381.7 },
-  { analystId: "rishi-jaluria", symbol: "MSFT", date: "2026-07-29", priceAtCall: 390.54 },
-  { analystId: "karl-keirstead", symbol: "MSFT", date: "2026-07-30", priceAtCall: 451.1 },
-  { analystId: "samik-chatterjee", symbol: "MSFT", date: "2026-07-30", priceAtCall: 451.1 },
-  { analystId: "samik-chatterjee", symbol: "MSFT", date: "2026-08-12", priceAtCall: 492.43 },
-  { analystId: "rishi-jaluria", symbol: "MSFT", date: "2026-09-09", priceAtCall: 491.65 },
-  { analystId: "brent-thill", symbol: "MSFT", date: "2026-09-20", priceAtCall: 493.78 },
-  { analystId: "samik-chatterjee", symbol: "MSFT", date: "2026-09-25", priceAtCall: 516.17 },
-  { analystId: "raimo-lenschow", symbol: "MSFT", date: "2026-10-13", priceAtCall: 543.45 },
-  { analystId: "bofa-desk", symbol: "MSFT", date: "2026-10-29", priceAtCall: 530.14 },
-  { analystId: "ladenburg-desk", symbol: "GAIN", date: "2026-11-11", priceAtCall: 15.19 },
-  { analystId: "jefferies-desk", symbol: "LFUS", date: "2026-11-11", priceAtCall: 397.7 },
-  { analystId: "barclays-desk", symbol: "RS", date: "2026-11-12", priceAtCall: 433.69 },
-  { analystId: "citi-desk", symbol: "FERG", date: "2026-10-27", priceAtCall: 229.56 },
-];
+export const FILED_ENTRY_PRINTS: { analystId: string; symbol: string; date: string; priceAtCall: number }[] = [];
 
 export function filedEntryPrint(analystId: string, symbol: string, callDate: Date): number | null {
   const iso = isoDate(callDate);

@@ -38,13 +38,6 @@ test("NFLX 30 Jul 2024 is the same split-adjusted scale", () => {
   assert.ok(april / july < 3);
 });
 
-test("Ives Microsoft 26 Jan 2026 keeps the raw traded print", () => {
-  const session = new Date("2026-01-26T00:00:00.000Z");
-  assert.equal(filedEntryPrint("dan-ives", "MSFT", session), 470.28);
-  assert.equal(entryCloseLabel("dan-ives", "MSFT", session), "Raw close");
-  assert.equal(adjustedClose("MSFT", session), 467.32);
-});
-
 test("entry prices use the adjusted close when no raw filing is registered", () => {
   const session = new Date("2026-09-04T00:00:00.000Z");
   assert.equal(filedEntryPrint("anika-desai", "UNH", session), null);

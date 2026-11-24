@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { ANALYSTS, BANKS, TICKERS } from "../prisma/universe";
 import { GC_GRADE_LABEL, GC_PROVISIONAL_LINE, GC_SCALE_LABEL, GC_STRONG_LINE, readCalibration } from "../src/lib/gc-grade";
 import { ACTION_LABELS, RATING_LABELS } from "../src/lib/labels";
-import { filedEntryPrint, pricesForStoredCall, QUOTE_AS_OF } from "../src/lib/quotes";
+import { filedEntryPrint, pricesForCall, QUOTE_AS_OF } from "../src/lib/quotes";
 import { gradeCall, HORIZON_KEYS, type HorizonKey } from "../src/lib/scoring";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -452,9 +452,9 @@ function sourceUrlProblem(value: string): string | null {
 function seriesPriceError(row: CallRow, label: string): string | null {
   if (!validCalendarDate(row.call_date)) return null;
   const callDate = new Date(`${row.call_date}T00:00:00.000Z`);
-  let expected: ReturnType<typeof pricesForStoredCall>;
+  let expected: ReturnType<typeof pricesForCall>;
   try {
-    expected = pricesForStoredCall(row.analyst_slug, row.ticker, callDate);
+    expected = pricesForCall(row.ticker, callDate);
   } catch (error) {
     const message = error instanceof Error ? error.message : "no price";
     return `${label}: price is not in the adjusted-close series (${message})`;

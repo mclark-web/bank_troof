@@ -460,6 +460,7 @@ export const ANALYSTS: AnalystSeed[] = [
   { slug: "gerard-cassidy", name: "Gerard Cassidy", title: ANALYST_TITLE, bankSlug: "rbc", sector: "Financials", startedYear: 2026 },
   { slug: "harlan-sur", name: "Harlan Sur", title: ANALYST_TITLE, bankSlug: "jpmorgan", sector: "Technology", startedYear: 2026 },
   { slug: "james-schneider", name: "James Schneider", title: ANALYST_TITLE, bankSlug: "goldman", sector: "Technology", startedYear: 2026 },
+  { slug: "jason-seidl", name: "Jason Seidl", title: ANALYST_TITLE, bankSlug: "td-cowen", sector: "Industrials", startedYear: 2026 },
   { slug: "jason-bazinet", name: "Jason Bazinet", title: ANALYST_TITLE, bankSlug: "citi", sector: "Media", startedYear: 2026 },
   { slug: "jay-sole", name: "Jay Sole", title: ANALYST_TITLE, bankSlug: "ubs", sector: "Consumer", startedYear: 2026 },
   { slug: "jessica-tassan", name: "Jessica Tassan", title: ANALYST_TITLE, bankSlug: "piper", sector: "Healthcare", startedYear: 2026 },
